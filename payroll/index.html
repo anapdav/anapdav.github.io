@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASIF — Payroll EUA — Dashboards Junho 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; font-size: 14px; min-height: 100vh; }
+  .header { background: linear-gradient(135deg,#1a1f2e,#0f1117); border-bottom: 1px solid #2d3748; padding: 28px 32px 22px; display:flex;align-items:center;gap:16px; }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .header p { font-size: 12px; color: #718096; margin-top: 6px; }
+  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; padding: 20px 32px 6px; max-width: 1100px; }
+  .kpi { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 14px; }
+  .kpi-label { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+  .kpi-value { font-size: 22px; font-weight: 700; }
+  .kpi-sub { font-size: 10.5px; color: #718096; margin-top: 3px; }
+  .pos { color: #68d391; } .neg { color: #fc8181; } .neu { color: #e2e8f0; } .warn { color: #fbd38d; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; padding: 20px 32px 32px; max-width: 1100px; }
+  a.card { display: block; background: #1a1f2e; border: 1px solid #2d3748; border-radius: 10px; padding: 20px; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+  a.card:hover { border-color: #63b3ed; transform: translateY(-2px); }
+  .card h2 { font-size: 14px; font-weight: 700; color: #63b3ed; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 8px; }
+  .card p { font-size: 12px; color: #a0aec0; line-height: 1.6; }
+  .card .tag { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: .05em; text-transform: uppercase; background: #2a4365; color: #90cdf4; margin-top: 12px; margin-right: 4px; }
+  .footer { padding: 0 32px 28px; font-size: 10.5px; color: #4a5568; max-width: 1100px; line-height: 1.6; }
+.asif-badge { background:#C9A84C; color:#002147; font-size:17px; font-weight:900; padding:8px 16px; border-radius:6px; letter-spacing:.14em; text-transform:uppercase; flex-shrink:0; box-shadow:0 2px 8px rgba(201,168,76,.25); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div class="header-text">
+    <h1>US Payroll — Dashboards</h1>
+    <p>Employment Situation — Junho 2026 &nbsp;|&nbsp; Release BLS: 02/07/2026 &nbsp;|&nbsp; Fonte: BLS API v2 (CES + CPS), dados sazonalmente ajustados</p>
+  </div>
+</div>
+
+<div class="kpi-strip">
+  <div class="kpi"><div class="kpi-label">Payroll MoM</div><div class="kpi-value neu">+57k</div><div class="kpi-sub">Média 3M: +111k</div></div>
+  <div class="kpi"><div class="kpi-label">Desemprego U-3</div><div class="kpi-value neu">4.2%</div><div class="kpi-sub">-0.1pp, mas LFPR caiu</div></div>
+  <div class="kpi"><div class="kpi-label">LFPR</div><div class="kpi-value neg">61.5%</div><div class="kpi-sub">-0.3pp MoM</div></div>
+  <div class="kpi"><div class="kpi-label">AHE YoY</div><div class="kpi-value neu">+3.5%</div><div class="kpi-sub">$37.64/h · +0.35% MoM</div></div>
+  <div class="kpi"><div class="kpi-label">Destaque</div><div class="kpi-value pos">Ed&amp;Saúde +69k</div><div class="kpi-sub">Sem o setor: -12k</div></div>
+</div>
+
+<div class="cards">
+  <a class="card" href="asif_labor_market_june2026.html">
+    <h2>1 · Labor Market Monitor</h2>
+    <p>Visão geral do Employment Situation: KPIs do mês, revisões, household survey (CPS), salários &amp; horas e mapeamento de sinais macro com implicações por asset class.</p>
+    <span class="tag">Overview</span><span class="tag">CES + CPS</span><span class="tag">Sinais Macro</span>
+  </a>
+  <a class="card" href="asif_labor_sectoral_june2026.html">
+    <h2>2 · Análise Setorial</h2>
+    <p>Desagregação da Table B-1 por setor e subsetor: concentração do headline, deep-dives em Healthcare, Governo Federal, Manufacturing e Information, leading indicators e cenários para os próximos releases.</p>
+    <span class="tag">Table B-1</span><span class="tag">Narrativa de Ciclo</span><span class="tag">Cenários</span>
+  </a>
+  <a class="card" href="asif_labor_shares_june2026.html">
+    <h2>3 · Participação Setorial</h2>
+    <p>Estoque de emprego por setor: níveis, participação no total nonfarm (158,984k), treemap visual e contexto histórico da mudança estrutural desde 2000.</p>
+    <span class="tag">Níveis</span><span class="tag">Treemap</span><span class="tag">Histórico</span>
+  </a>
+  <a class="card" href="asif_wage_dispersion_june2026.html">
+    <h2>4 · Dispersão Salarial</h2>
+    <p>AHE por setor (Table B-3): ranking de nível, crescimento YoY exato jun/25→jun/26, análise de dispersão e leitura para política monetária.</p>
+    <span class="tag">Table B-3</span><span class="tag">AHE YoY</span><span class="tag">Fed</span>
+  </a>
+  <a class="card" href="asif_labor_antecedentes.html">
+    <h2>5 · Antecedentes</h2>
+    <p>O que ADP, claims (semana de referência) e JOLTS dizem antes do próximo Employment Situation: painel de última leitura, rastreio ADP vs NFP privado e histórico de claims. Base FRED atualizável (antecedentes.db).</p>
+    <span class="tag">ADP</span><span class="tag">Claims</span><span class="tag">JOLTS</span><span class="tag">Pré-payroll</span>
+  </a>
+</div>
+
+<div class="footer">
+  Dados públicos do Bureau of Labor Statistics (BLS), obtidos via API v2 em 02/07/2026 (vintage atual, incorporando revisões — abr/26 revisado de +172k para +148k). Dashboards standalone; funcionam offline. Próxima atualização: Employment Situation de julho/2026 (07/08/2026).
+</div>
+
+</body>
+</html>

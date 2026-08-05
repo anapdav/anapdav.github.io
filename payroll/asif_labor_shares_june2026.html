@@ -1,0 +1,625 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>ASIF — Participação Setorial — Estoque de Emprego EUA Jun/2026</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Segoe UI',sans-serif; background:#0f1117; color:#e2e8f0; font-size:13px; }
+.header { background:linear-gradient(135deg,#1a1f2e,#0f1117); border-bottom:1px solid #2d3748; padding:14px 20px; display:flex;align-items:center;gap:16px; }
+.header h1 { font-size:15px;font-weight:700;letter-spacing:.05em;text-transform:uppercase; }
+.header p { font-size:11px;color:#718096;margin-top:3px; }
+.tab-bar { display:flex;gap:2px;padding:10px 16px 0;background:#0f1117;border-bottom:1px solid #2d3748; }
+.tab { padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;color:#718096;border-bottom:2px solid transparent;letter-spacing:.04em;text-transform:uppercase;transition:all .2s; }
+.tab.active { color:#63b3ed;border-bottom-color:#63b3ed; }
+.tab:hover { color:#a0aec0; }
+.panel { display:none;padding:16px; }
+.panel.active { display:block; }
+.pos { color:#68d391; } .neg { color:#fc8181; } .neu { color:#a0aec0; } .warn { color:#fbd38d; }
+.card { background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:14px;margin-bottom:14px; }
+.card h3 { font-size:11px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px; }
+.grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px; }
+table { width:100%;border-collapse:collapse; }
+th { font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:5px 8px;border-bottom:1px solid #2d3748;font-weight:600; }
+th:first-child { text-align:left; }
+td { font-size:12px;padding:5px 8px;border-bottom:1px solid #1e2536;text-align:right;color:#cbd5e0; }
+td:first-child { text-align:left;color:#e2e8f0; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#1e2a3a; }
+.row-total { background:#161c28; }
+.row-total td { color:#e2e8f0!important;font-weight:700; }
+.info-box { background:#1a2040;border:1px solid #2a4365;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#90cdf4;line-height:1.6; }
+.warn-box { background:#2d2a1a;border:1px solid #744210;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#fbd38d;line-height:1.6; }
+.sep { border:none;border-top:1px solid #2d3748;margin:10px 0; }
+.badge { display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase; }
+.bg-green { background:#276749;color:#9ae6b4; }
+.bg-red { background:#742a2a;color:#feb2b2; }
+.bg-yellow { background:#744210;color:#fbd38d; }
+.bg-blue { background:#2a4365;color:#90cdf4; }
+.bg-gray { background:#2d3748;color:#a0aec0; }
+
+/* Treemap */
+.treemap { display:flex;flex-wrap:wrap;gap:4px;padding:4px; }
+.tm-cell { border-radius:5px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6px;cursor:default;transition:opacity .15s; }
+.tm-cell:hover { opacity:.85; }
+.tm-label { font-size:10px;font-weight:700;color:#fff;line-height:1.2; }
+.tm-val { font-size:9px;color:rgba(255,255,255,.75);margin-top:2px; }
+
+/* Horizontal bar */
+.hb-row { display:flex;align-items:center;gap:8px;margin-bottom:4px; }
+.hb-lbl { font-size:11.5px;color:#cbd5e0;flex-shrink:0;width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.hb-wrap { flex:1;height:20px;background:#2d3748;border-radius:3px;overflow:hidden; }
+.hb-fill { height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px; }
+.hb-inner { font-size:9.5px;font-weight:700;color:#fff;white-space:nowrap; }
+.hb-pct { font-size:11.5px;font-weight:700;width:42px;text-align:right;flex-shrink:0; }
+.hb-emp { font-size:10px;color:#718096;width:68px;text-align:right;flex-shrink:0; }
+.asif-badge { background:#C9A84C; color:#002147; font-size:17px; font-weight:900; padding:8px 16px; border-radius:6px; letter-spacing:.14em; text-transform:uppercase; flex-shrink:0; box-shadow:0 2px 8px rgba(201,168,76,.25); }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div class="header-text">
+    <h1>Participação Setorial — Estoque de Emprego EUA</h1>
+    <p>BLS CES (Table B-1) — Junho 2026 &nbsp;|&nbsp; Níveis em mil postos, sazonalmente ajustados &nbsp;|&nbsp; Total Nonfarm: 158,984k</p>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('share',this)">Participação %</div>
+  <div class="tab" onclick="showTab('treemap',this)">Mapa Visual</div>
+  <div class="tab" onclick="showTab('context',this)">Contexto Histórico</div>
+</div>
+
+<!-- PARTICIPAÇÃO % -->
+<div id="panel-share" class="panel active">
+
+  <div class="warn-box">
+    <strong>Nota metodológica:</strong> Os níveis absolutos por setor derivam das séries CES públicas do BLS (vintage atual, release de 02/07/2026) ajustadas pelo benchmark preliminar de março 2025 (-911k, -0.6% sobre total nonfarm). O total nonfarm de junho 2026 é 158,984k. As participações são calculadas sobre este total. Diferenças de arredondamento possíveis.
+  </div>
+
+  <div class="card">
+    <h3>Table B-1 — Estoque e Participação por Setor &nbsp;<span class="badge bg-blue">Jun-2026 SA</span></h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Setor / Subsetor</th>
+          <th>Estoque (mil)</th>
+          <th>% Nonfarm</th>
+          <th>MoM (mil)</th>
+          <th>YoY Δ share</th>
+          <th>Natureza</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-total">
+          <td>Total Nonfarm</td>
+          <td>158,984</td>
+          <td>100.0%</td>
+          <td class="pos">+57</td>
+          <td>—</td>
+          <td></td>
+        </tr>
+        <tr class="row-total">
+          <td>&nbsp;&nbsp;Total Privado</td>
+          <td>135,613</td>
+          <td>85.3%</td>
+          <td class="pos">+49</td>
+          <td>—</td>
+          <td></td>
+        </tr>
+
+        <!-- GOODS -->
+        <tr style="background:#161c28;">
+          <td>&nbsp;&nbsp;<strong>Goods-Producing</strong></td>
+          <td><strong>21,536</strong></td>
+          <td><strong>13.5%</strong></td>
+          <td>+10</td>
+          <td class="neg">↓ tendência</td>
+          <td><span class="badge bg-gray">Declínio secular</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Mining &amp; Logging</td>
+          <td>607</td>
+          <td>0.4%</td>
+          <td class="neg">-4</td>
+          <td class="neu">~flat</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Construction</td>
+          <td>8,331</td>
+          <td>5.2%</td>
+          <td class="pos">+11</td>
+          <td class="pos">↑ leve</td>
+          <td><span class="badge bg-yellow">Volátil</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Manufacturing</td>
+          <td>12,598</td>
+          <td>7.9%</td>
+          <td class="pos">+3</td>
+          <td class="neg">↓ secular</td>
+          <td><span class="badge bg-red">Pressão tarifária</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Durables</td>
+          <td>7,840</td>
+          <td>4.9%</td>
+          <td>+6</td>
+          <td>—</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Motor Vehicles &amp; Parts</td>
+          <td>1,743</td>
+          <td>1.1%</td>
+          <td class="neg">-2.9</td>
+          <td class="neg">↓</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nondurables</td>
+          <td>4,758</td>
+          <td>3.0%</td>
+          <td class="neg">-3</td>
+          <td class="neg">↓</td>
+          <td></td>
+        </tr>
+
+        <!-- PRIVATE SERVICES -->
+        <tr style="background:#161c28;">
+          <td>&nbsp;&nbsp;<strong>Private Services</strong></td>
+          <td><strong>114,077</strong></td>
+          <td><strong>71.8%</strong></td>
+          <td>+39</td>
+          <td>—</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Wholesale Trade</td>
+          <td>6,058</td>
+          <td>3.8%</td>
+          <td class="pos">+2.4</td>
+          <td class="neu">~flat</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Retail Trade</td>
+          <td>15,460</td>
+          <td>9.7%</td>
+          <td class="neg">-7.5</td>
+          <td class="neg">↓ secular</td>
+          <td><span class="badge bg-yellow">E-commerce erosão</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Transport &amp; Warehousing</td>
+          <td>6,604</td>
+          <td>4.2%</td>
+          <td class="pos">+2.3</td>
+          <td class="neg">↓ vs pico fev/25</td>
+          <td><span class="badge bg-yellow">Abaixo do pico</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Utilities</td>
+          <td>607</td>
+          <td>0.4%</td>
+          <td class="neg">-0.8</td>
+          <td class="neu">~flat</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;<strong>Information</strong></td>
+          <td><strong>2,774</strong></td>
+          <td><strong>1.7%</strong></td>
+          <td class="neg">-9</td>
+          <td class="neg">↓ estrutural</td>
+          <td><span class="badge bg-red">Queda estrutural</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Financial Activities</td>
+          <td>9,104</td>
+          <td>5.7%</td>
+          <td class="neu">0</td>
+          <td class="neg">↓ recente</td>
+          <td><span class="badge bg-yellow">Estancou após -22k em mai</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Prof. &amp; Business Services</td>
+          <td>22,507</td>
+          <td>14.2%</td>
+          <td class="pos">+36</td>
+          <td class="neg">↓ vs tendência</td>
+          <td><span class="badge bg-yellow">Recuperando no mês</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Temp Help Services</td>
+          <td>2,499</td>
+          <td>1.6%</td>
+          <td class="pos">+9.3</td>
+          <td class="neg">↓ YoY nível</td>
+          <td><span class="badge bg-yellow">Leading ind.</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;<strong>Private Ed. &amp; Health</strong></td>
+          <td><strong>27,973</strong></td>
+          <td><strong>17.6%</strong></td>
+          <td class="pos">+69</td>
+          <td class="pos">↑ secular</td>
+          <td><span class="badge bg-green">Maior setor privado</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Health Care &amp; Soc. Asst.</td>
+          <td>23,906</td>
+          <td>15.0%</td>
+          <td class="pos">+46.6</td>
+          <td class="pos">↑ secular</td>
+          <td><span class="badge bg-green">Âncora do ciclo</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Leisure &amp; Hospitality</td>
+          <td>16,951</td>
+          <td>10.7%</td>
+          <td class="neg">-61</td>
+          <td class="neu">~flat YoY</td>
+          <td><span class="badge bg-red">Maior detrator do mês</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;&nbsp;&nbsp;Other Services</td>
+          <td>6,040</td>
+          <td>3.8%</td>
+          <td class="pos">+8</td>
+          <td class="neu">~flat</td>
+          <td></td>
+        </tr>
+
+        <!-- GOVERNMENT -->
+        <tr style="background:#2a1a1a;">
+          <td><strong>Government (Total)</strong></td>
+          <td><strong>23,371</strong></td>
+          <td><strong>14.7%</strong></td>
+          <td class="pos">+8</td>
+          <td class="neg">↓ -327k fed acum.</td>
+          <td><span class="badge bg-red">Federal -10.9% acum.</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;Federal Government</td>
+          <td>2,686</td>
+          <td>1.7%</td>
+          <td class="pos">+2</td>
+          <td class="neg">↓ -10.9% desde out/24</td>
+          <td><span class="badge bg-yellow">Estabilizando</span></td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;State &amp; Local Gov.</td>
+          <td>20,685</td>
+          <td>13.0%</td>
+          <td class="pos">+6</td>
+          <td class="neu">Relativamente estável</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:10px;color:#4a5568;margin-top:8px;">Níveis das séries CES (vintage atual, release 02/07/2026) ajustadas pelo benchmark preliminar mar/25 (-0.6%). Valores arredondados para consistência. Total nonfarm 158,984k (SA). Participações calculadas sobre este total. Destaque do mês: Ed &amp; Health (+69k) superou o ganho total do nonfarm (+57k) — sem o setor, o payroll teria sido -12k.</div>
+  </div>
+
+  <!-- RANKING DE TAMANHO -->
+  <div class="card">
+    <h3>Ranking por Tamanho — Setores Principais (% do Total Nonfarm)</h3>
+    <div style="margin-top:6px;">
+      <div class="hb-row">
+        <div class="hb-lbl">Private Ed. &amp; Health</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:100%;background:linear-gradient(90deg,#276749,#68d391);"><span class="hb-inner">Maior setor privado</span></div></div>
+        <div class="hb-pct pos">17.6%</div>
+        <div class="hb-emp">27,973k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Government (total)</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:84%;background:linear-gradient(90deg,#742a2a,#fc8181);"></div></div>
+        <div class="hb-pct neg">14.7%</div>
+        <div class="hb-emp">23,371k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Prof. &amp; Business Services</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:81%;background:linear-gradient(90deg,#2a4365,#63b3ed);"></div></div>
+        <div class="hb-pct">14.2%</div>
+        <div class="hb-emp">22,507k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Leisure &amp; Hospitality</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:61%;background:linear-gradient(90deg,#744210,#f6ad55);"></div></div>
+        <div class="hb-pct warn">10.7%</div>
+        <div class="hb-emp">16,951k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Retail Trade</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:55%;background:linear-gradient(90deg,#744210,#f6ad55);"></div></div>
+        <div class="hb-pct warn">9.7%</div>
+        <div class="hb-emp">15,460k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Manufacturing</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:45%;background:linear-gradient(90deg,#742a2a,#fc8181);"></div></div>
+        <div class="hb-pct neg">7.9%</div>
+        <div class="hb-emp">12,598k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Financial Activities</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:32%;background:linear-gradient(90deg,#742a2a,#fc8181);"></div></div>
+        <div class="hb-pct neg">5.7%</div>
+        <div class="hb-emp">9,104k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Construction</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:30%;background:linear-gradient(90deg,#2a4365,#63b3ed);"></div></div>
+        <div class="hb-pct">5.2%</div>
+        <div class="hb-emp">8,331k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Transport &amp; Warehousing</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:24%;background:linear-gradient(90deg,#744210,#f6ad55);"></div></div>
+        <div class="hb-pct warn">4.2%</div>
+        <div class="hb-emp">6,604k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Wholesale Trade</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:22%;background:linear-gradient(90deg,#2a4365,#63b3ed);"></div></div>
+        <div class="hb-pct">3.8%</div>
+        <div class="hb-emp">6,058k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Other Services</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:22%;background:#2d3748;"></div></div>
+        <div class="hb-pct neu">3.8%</div>
+        <div class="hb-emp">6,040k</div>
+      </div>
+      <div class="hb-row">
+        <div class="hb-lbl">Information</div>
+        <div class="hb-wrap"><div class="hb-fill" style="width:10%;background:linear-gradient(90deg,#742a2a,#fc8181);"></div></div>
+        <div class="hb-pct neg">1.7%</div>
+        <div class="hb-emp">2,774k</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TREEMAP -->
+<div id="panel-treemap" class="panel">
+  <div class="info-box">Cada bloco representa a participação do setor no total nonfarm. Tamanho proporcional ao estoque de emprego. Cor indica dinâmica atual: <span style="color:#68d391">verde = criando emprego consistentemente</span>, <span style="color:#fbd38d">amarelo = neutro/volátil</span>, <span style="color:#fc8181">vermelho = destruindo ou em queda estrutural</span>.</div>
+
+  <div class="card">
+    <h3>Mapa de Participação Setorial — Jun/2026 (% Nonfarm)</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;padding:4px;min-height:420px;align-content:flex-start;">
+
+      <!-- Ed & Health 17.6% -->
+      <div style="width:35%;height:130px;background:linear-gradient(135deg,#1a4731,#276749);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;">
+        <div style="font-size:12px;font-weight:700;color:#9ae6b4;">Private Ed. &amp; Health</div>
+        <div style="font-size:26px;font-weight:900;color:#fff;margin:4px 0;">17.6%</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7);">27,973k postos</div>
+        <div style="font-size:10px;color:#68d391;margin-top:2px;">▲ +69k no mês (secular)</div>
+      </div>
+
+      <!-- Govt 14.7% -->
+      <div style="width:28%;height:130px;background:linear-gradient(135deg,#5a1a1a,#742a2a);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;">
+        <div style="font-size:12px;font-weight:700;color:#feb2b2;">Government</div>
+        <div style="font-size:26px;font-weight:900;color:#fff;margin:4px 0;">14.7%</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7);">23,371k postos</div>
+        <div style="font-size:10px;color:#fbd38d;margin-top:2px;">fed -327k acum.; +2k no mês (estabilizando)</div>
+      </div>
+
+      <!-- Prof&Biz 14.2% -->
+      <div style="width:27%;height:130px;background:linear-gradient(135deg,#1a2a50,#2a4365);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;">
+        <div style="font-size:11px;font-weight:700;color:#90cdf4;">Prof. &amp; Biz Services</div>
+        <div style="font-size:26px;font-weight:900;color:#fff;margin:4px 0;">14.2%</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7);">22,507k postos</div>
+        <div style="font-size:10px;color:#68d391;margin-top:2px;">▲ +36k no mês</div>
+      </div>
+
+      <!-- L&H 10.7% -->
+      <div style="width:21%;height:110px;background:linear-gradient(135deg,#5a1a1a,#742a2a);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8px;">
+        <div style="font-size:10px;font-weight:700;color:#feb2b2;">Leisure &amp; Hosp.</div>
+        <div style="font-size:22px;font-weight:900;color:#fff;margin:4px 0;">10.7%</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.7);">16,951k</div>
+        <div style="font-size:9px;color:#fc8181;margin-top:2px;">▼ -61k no mês</div>
+      </div>
+
+      <!-- Retail 9.7% -->
+      <div style="width:19%;height:110px;background:linear-gradient(135deg,#3d2a10,#744210);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8px;">
+        <div style="font-size:10px;font-weight:700;color:#fbd38d;">Retail Trade</div>
+        <div style="font-size:22px;font-weight:900;color:#fff;margin:4px 0;">9.7%</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.7);">15,460k</div>
+        <div style="font-size:9px;color:#fc8181;margin-top:2px;">▼ -7.5k</div>
+      </div>
+
+      <!-- Manufacturing 7.9% -->
+      <div style="width:16%;height:110px;background:linear-gradient(135deg,#5a1a1a,#742a2a);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8px;">
+        <div style="font-size:10px;font-weight:700;color:#feb2b2;">Manufactur.</div>
+        <div style="font-size:20px;font-weight:900;color:#fff;margin:4px 0;">7.9%</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.7);">12,598k</div>
+      </div>
+
+      <!-- Financial 5.7% -->
+      <div style="width:11%;height:110px;background:linear-gradient(135deg,#5a1a1a,#6b2222);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6px;">
+        <div style="font-size:9px;font-weight:700;color:#feb2b2;">Financial</div>
+        <div style="font-size:16px;font-weight:900;color:#fff;margin:4px 0;">5.7%</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.6);">9,104k</div>
+      </div>
+
+      <!-- Construction 5.2% -->
+      <div style="width:10%;height:110px;background:linear-gradient(135deg,#1a2a40,#2a4365);border-radius:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6px;">
+        <div style="font-size:9px;font-weight:700;color:#90cdf4;">Construct.</div>
+        <div style="font-size:16px;font-weight:900;color:#fff;margin:4px 0;">5.2%</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.6);">8,331k</div>
+      </div>
+
+      <!-- T&W 4.2% -->
+      <div style="width:9%;height:90px;background:linear-gradient(135deg,#3d2a10,#744210);border-radius:7px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6px;">
+        <div style="font-size:8.5px;font-weight:700;color:#fbd38d;">T&amp;W</div>
+        <div style="font-size:15px;font-weight:900;color:#fff;margin:3px 0;">4.2%</div>
+        <div style="font-size:8px;color:rgba(255,255,255,.6);">6,604k</div>
+      </div>
+
+      <!-- Wholesale 3.8% -->
+      <div style="width:8%;height:90px;background:linear-gradient(135deg,#1a2a40,#2a4365);border-radius:7px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6px;">
+        <div style="font-size:8.5px;font-weight:700;color:#90cdf4;">Wholesale</div>
+        <div style="font-size:14px;font-weight:900;color:#fff;margin:3px 0;">3.8%</div>
+        <div style="font-size:8px;color:rgba(255,255,255,.6);">6,058k</div>
+      </div>
+
+      <!-- Other 3.8% -->
+      <div style="width:8%;height:90px;background:#2d3748;border-radius:7px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6px;">
+        <div style="font-size:8px;font-weight:700;color:#a0aec0;">Other</div>
+        <div style="font-size:14px;font-weight:900;color:#fff;margin:3px 0;">3.8%</div>
+        <div style="font-size:8px;color:rgba(255,255,255,.5);">6,040k</div>
+      </div>
+
+      <!-- Information 1.7% -->
+      <div style="width:5%;height:90px;background:linear-gradient(135deg,#5a1a1a,#742a2a);border-radius:7px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:4px;">
+        <div style="font-size:8px;font-weight:700;color:#feb2b2;">Info</div>
+        <div style="font-size:13px;font-weight:900;color:#fff;margin:3px 0;">1.7%</div>
+        <div style="font-size:7.5px;color:rgba(255,255,255,.5);">2,774k</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXTO HISTÓRICO -->
+<div id="panel-context" class="panel">
+  <div class="info-box">A estrutura setorial do emprego americano mudou profundamente nas últimas décadas. As principais tendências: (1) serviços de saúde crescem de forma ininterrupta; (2) manufacturing encolhe como % do total; (3) governo federal perdeu participação com os cortes DOGE (-327k desde out/24), embora junho mostre sinal de estabilização (+2k no mês); (4) information nunca recuperou o nível pré-GFC, e agora enfrenta nova pressão estrutural de IA.</div>
+
+  <div class="card">
+    <h3>Mudança Estrutural — Participação Setorial ao Longo do Tempo</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Setor</th>
+          <th>~2000</th>
+          <th>~2010</th>
+          <th>~2019</th>
+          <th>Jun-2026</th>
+          <th>Tendência de longo prazo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Manufacturing</td>
+          <td>14.5%</td>
+          <td>9.2%</td>
+          <td>8.5%</td>
+          <td class="neg">7.9%</td>
+          <td><span class="badge bg-red">Declínio secular contínuo</span></td>
+        </tr>
+        <tr>
+          <td>Private Ed. &amp; Health</td>
+          <td>10.5%</td>
+          <td>13.0%</td>
+          <td>15.2%</td>
+          <td class="pos">17.6%</td>
+          <td><span class="badge bg-green">Crescimento secular ininterrupto</span></td>
+        </tr>
+        <tr>
+          <td>Government (total)</td>
+          <td>15.2%</td>
+          <td>16.8%</td>
+          <td>15.0%</td>
+          <td class="neg">14.7%</td>
+          <td><span class="badge bg-red">Queda acelerada em 2025-26</span></td>
+        </tr>
+        <tr>
+          <td>Retail Trade</td>
+          <td>11.8%</td>
+          <td>11.0%</td>
+          <td>10.6%</td>
+          <td class="neg">9.7%</td>
+          <td><span class="badge bg-yellow">Erosão lenta por e-commerce</span></td>
+        </tr>
+        <tr>
+          <td>Prof. &amp; Business Svcs</td>
+          <td>12.0%</td>
+          <td>13.0%</td>
+          <td>14.5%</td>
+          <td class="warn">14.2%</td>
+          <td><span class="badge bg-yellow">Platô; risco de queda por IA</span></td>
+        </tr>
+        <tr>
+          <td>Information</td>
+          <td>3.2%</td>
+          <td>2.0%</td>
+          <td>2.0%</td>
+          <td class="neg">1.7%</td>
+          <td><span class="badge bg-red">Queda estrutural, nunca se recuperou</span></td>
+        </tr>
+        <tr>
+          <td>Leisure &amp; Hospitality</td>
+          <td>9.0%</td>
+          <td>9.2%</td>
+          <td>10.8%</td>
+          <td class="neu">10.7%</td>
+          <td><span class="badge bg-gray">Pós-COVID plateau</span></td>
+        </tr>
+        <tr>
+          <td>Financial Activities</td>
+          <td>5.8%</td>
+          <td>5.5%</td>
+          <td>5.8%</td>
+          <td class="neg">5.7%</td>
+          <td><span class="badge bg-yellow">Instável; em queda recente</span></td>
+        </tr>
+        <tr>
+          <td>Construction</td>
+          <td>5.0%</td>
+          <td>4.0%</td>
+          <td>5.2%</td>
+          <td>5.2%</td>
+          <td><span class="badge bg-gray">Ciclicamente volátil</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:10px;color:#4a5568;margin-top:8px;">Participações históricas são aproximadas com base nas séries CES. A comparação direta entre períodos é afetada por revisões benchmark acumuladas.</div>
+  </div>
+
+  <div class="card">
+    <h3>O Que a Estrutura Diz Sobre Resiliência e Vulnerabilidade</h3>
+    <table>
+      <thead><tr><th>Dimensão</th><th>Leitura</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Concentração em serviços (71.8% privado)</strong></td>
+          <td class="pos">Alta resiliência cíclica — serviços são menos sensíveis a choques de capex e comércio do que goods-producing</td>
+        </tr>
+        <tr>
+          <td><strong>Healthcare como âncora (17.6%)</strong></td>
+          <td class="pos">Demanda inelástica protege o headline mesmo em recessões moderadas — em junho, Ed &amp; Health (+69k) superou sozinho o ganho total (+57k); risco principal é corte de Medicaid/Medicare</td>
+        </tr>
+        <tr>
+          <td><strong>Manufacturing em 7.9%</strong></td>
+          <td class="warn">Muito pequeno para causar recessão isoladamente, mas o impacto tarifário pode amplificar via cadeia produtiva e confiança</td>
+        </tr>
+        <tr>
+          <td><strong>Governo federal em 1.7% do total</strong></td>
+          <td class="neg">Parece pequeno, mas o multiplicador via contratistas (defesa, TI) amplifica o efeito. Acumulado -327k (-10.9%) desde out/24; +2k em junho sugere estabilização dos cortes</td>
+        </tr>
+        <tr>
+          <td><strong>Information em 1.7%</strong></td>
+          <td class="neg">Setor pequeno no estoque mas altamente remunerado — queda comprime renda média e demanda por serviços premium mais do que o número sugere (-9k em junho)</td>
+        </tr>
+        <tr>
+          <td><strong>Temp Help em 1.6%</strong></td>
+          <td class="warn">Leading indicator: +9.3k em junho após -0.5k em maio — sinal de retomada da contratação, mas nível ainda bem abaixo do pico</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

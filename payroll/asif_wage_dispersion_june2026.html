@@ -1,0 +1,643 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>ASIF — Dispersão Salarial Setorial — AHE Payroll EUA</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Segoe UI',sans-serif; background:#0f1117; color:#e2e8f0; font-size:13px; }
+.header { background:linear-gradient(135deg,#1a1f2e,#0f1117); border-bottom:1px solid #2d3748; padding:14px 20px; display:flex;align-items:center;gap:16px; }
+.header h1 { font-size:15px;font-weight:700;letter-spacing:.05em;text-transform:uppercase; }
+.header p { font-size:11px;color:#718096;margin-top:3px; }
+.tab-bar { display:flex;gap:2px;padding:10px 16px 0;background:#0f1117;border-bottom:1px solid #2d3748;flex-wrap:wrap; }
+.tab { padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;color:#718096;border-bottom:2px solid transparent;letter-spacing:.04em;text-transform:uppercase;transition:all .2s; }
+.tab.active { color:#63b3ed;border-bottom-color:#63b3ed; }
+.tab:hover { color:#a0aec0; }
+.panel { display:none;padding:16px; }
+.panel.active { display:block; }
+.pos { color:#68d391; } .neg { color:#fc8181; } .neu { color:#a0aec0; } .warn { color:#fbd38d; }
+.card { background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:14px;margin-bottom:14px; }
+.card h3 { font-size:11px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px; }
+.grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px; }
+.kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px; }
+.kpi { background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:12px 14px; }
+.kpi-lbl { font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px; }
+.kpi-val { font-size:20px;font-weight:700; }
+.kpi-sub { font-size:10px;color:#718096;margin-top:3px; }
+.info-box { background:#1a2040;border:1px solid #2a4365;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#90cdf4;line-height:1.6; }
+.warn-box { background:#2d2a1a;border:1px solid #744210;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#fbd38d;line-height:1.6; }
+.ok-box { background:#1a2a1a;border:1px solid #276749;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#9ae6b4;line-height:1.6; }
+table { width:100%;border-collapse:collapse; }
+th { font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:5px 8px;border-bottom:1px solid #2d3748;font-weight:600;white-space:nowrap; }
+th:first-child { text-align:left; }
+td { font-size:12px;padding:5px 8px;border-bottom:1px solid #1e2536;text-align:right;color:#cbd5e0; }
+td:first-child { text-align:left;color:#e2e8f0; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#1e2a3a; }
+.row-ref { background:#161c28; }
+.row-ref td { color:#e2e8f0!important;font-weight:700; }
+.sep { border:none;border-top:1px solid #2d3748;margin:10px 0; }
+.badge { display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase; }
+.bg-green { background:#276749;color:#9ae6b4; }
+.bg-red { background:#742a2a;color:#feb2b2; }
+.bg-yellow { background:#744210;color:#fbd38d; }
+.bg-blue { background:#2a4365;color:#90cdf4; }
+.bg-gray { background:#2d3748;color:#a0aec0; }
+/* Barra horizontal de nível */
+.hb-row { display:flex;align-items:center;gap:8px;margin-bottom:5px; }
+.hb-lbl { font-size:11px;color:#cbd5e0;width:230px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.hb-wrap { flex:1;height:20px;background:#2d3748;border-radius:3px;overflow:hidden;position:relative; }
+.hb-fill { height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px; }
+.hb-inner { font-size:9px;font-weight:700;color:#fff;white-space:nowrap; }
+.hb-val { font-size:11.5px;font-weight:700;width:52px;text-align:right;flex-shrink:0; }
+.hb-yoy { font-size:11px;width:52px;text-align:right;flex-shrink:0; }
+/* Dot chart YoY */
+.dot-row { display:flex;align-items:center;gap:8px;margin-bottom:7px; }
+.dot-lbl { font-size:11px;color:#cbd5e0;width:230px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.dot-track { flex:1;height:4px;background:#2d3748;border-radius:2px;position:relative; }
+.dot-ref { position:absolute;left:43.75%;top:-5px;width:2px;height:14px;background:#63b3ed;border-radius:1px; }
+.dot-mark { position:absolute;top:-5px;width:10px;height:14px;border-radius:3px; }
+.dot-val { font-size:11.5px;font-weight:700;width:48px;text-align:right;flex-shrink:0; }
+.dot-diff { font-size:10px;width:52px;text-align:right;flex-shrink:0; }
+.asif-badge { background:#C9A84C; color:#002147; font-size:17px; font-weight:900; padding:8px 16px; border-radius:6px; letter-spacing:.14em; text-transform:uppercase; flex-shrink:0; box-shadow:0 2px 8px rgba(201,168,76,.25); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div class="header-text">
+    <h1>Dispersão Salarial por Setor — AHE Payroll EUA</h1>
+    <p>BLS Table B-3 (All Employees, Private Nonfarm) &nbsp;|&nbsp; Nível, crescimento YoY e dispersão &nbsp;|&nbsp; Jun/25–Jun/26 &nbsp;|&nbsp; SA &nbsp;|&nbsp; Employment Situation release de 02/07/2026</p>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('nivel',this)">Nível AHE</div>
+  <div class="tab" onclick="showTab('crescimento',this)">Crescimento YoY</div>
+  <div class="tab" onclick="showTab('dispersao',this)">Dispersão</div>
+  <div class="tab" onclick="showTab('macro',this)">Leitura Macro</div>
+</div>
+
+<!-- ===== NÍVEL AHE ===== -->
+<div id="panel-nivel" class="panel active">
+
+  <div class="info-box">
+    <strong>Fonte:</strong> BLS Table B-3, All Employees, Private Nonfarm Payrolls (SA), extraída diretamente da API oficial do BLS (vintage do release de 02/07/2026). Todos os níveis setoriais de jun/25, mai/26 e jun/26 são dados confirmados — <strong>sem estimativas ou interpolações</strong>. <strong>YoY calculado jun/25 → jun/26</strong> (12 meses exatos, dados da API para todos os setores).
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-lbl">Setor mais alto (Utilities)</div>
+      <div class="kpi-val pos">$56.09</div>
+      <div class="kpi-sub">Jun/26 — 149% da média</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Total Privado</div>
+      <div class="kpi-val neu">$37.64</div>
+      <div class="kpi-sub">Jun/26 — referência</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Setor mais baixo (L&amp;H)</div>
+      <div class="kpi-val neg">$23.62</div>
+      <div class="kpi-sub">Jun/26 — 63% da média</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Amplitude (max–min)</div>
+      <div class="kpi-val warn">$32.47</div>
+      <div class="kpi-sub">2.4x entre extremos</div>
+    </div>
+  </div>
+
+  <!-- Ranking horizontal por nível AHE -->
+  <div class="card">
+    <h3>Ranking por Nível AHE — Jun/2026 ($/hora, SA) &nbsp;
+      <span style="font-weight:400;font-size:10px;text-transform:none;color:#718096;">Barra azul = nível; número verde/vermelho = YoY jun/25→jun/26</span>
+    </h3>
+
+    <!-- scale: $0 = 0%, $57 = 100%; cada $1 = 1.754% -->
+    <!-- jun/26 dados confirmados da API BLS (Table B-3) -->
+
+    <div class="hb-row">
+      <div class="hb-lbl">Utilities</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:98.4%;background:linear-gradient(90deg,#2a4365,#63b3ed);"><span class="hb-inner">$56.09</span></div></div>
+      <div class="hb-val">$56.09</div>
+      <div class="hb-yoy pos">+7.6%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Information</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:97.7%;background:linear-gradient(90deg,#742a2a,#fc8181);"><span class="hb-inner">$55.67</span></div></div>
+      <div class="hb-val">$55.67</div>
+      <div class="hb-yoy pos">+6.0%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Financial Activities</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:87.0%;background:linear-gradient(90deg,#2a4365,#63b3ed);"><span class="hb-inner">$49.60</span></div></div>
+      <div class="hb-val">$49.60</div>
+      <div class="hb-yoy pos">+4.5%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Prof. &amp; Business Services</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:80.2%;background:linear-gradient(90deg,#2a4365,#63b3ed);"><span class="hb-inner">$45.73</span></div></div>
+      <div class="hb-val">$45.73</div>
+      <div class="hb-yoy pos">+3.4%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Mining &amp; Logging</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:73.3%;background:linear-gradient(90deg,#2a4365,#4a7fa5);"><span class="hb-inner">$41.76</span></div></div>
+      <div class="hb-val">$41.76</div>
+      <div class="hb-yoy pos">+3.8%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Construction</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:72.6%;background:linear-gradient(90deg,#2a4365,#4a7fa5);"><span class="hb-inner">$41.36</span></div></div>
+      <div class="hb-val">$41.36</div>
+      <div class="hb-yoy pos">+4.3%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Wholesale Trade</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:69.7%;background:linear-gradient(90deg,#2a4365,#4a7fa5);"><span class="hb-inner">$39.72</span></div></div>
+      <div class="hb-val">$39.72</div>
+      <div class="hb-yoy warn">+2.8%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Manufacturing (Durable)</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:68.3%;background:linear-gradient(90deg,#744210,#c27a2a);"><span class="hb-inner">$38.94</span></div></div>
+      <div class="hb-val warn">$38.94</div>
+      <div class="hb-yoy pos">+3.8%</div>
+    </div>
+    <div class="hb-row" style="position:relative;">
+      <div class="hb-lbl"><strong>⊙ Total Privado (ref.)</strong></div>
+      <div class="hb-wrap" style="border:1px solid #63b3ed;"><div class="hb-fill" style="width:66.0%;background:linear-gradient(90deg,#1a3a5a,#2a5f8f);"><span class="hb-inner" style="font-weight:900;">$37.64 (jun)</span></div></div>
+      <div class="hb-val" style="color:#63b3ed;">$37.64</div>
+      <div class="hb-yoy" style="color:#63b3ed;">+3.5%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Manufacturing (Total)</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:64.4%;background:linear-gradient(90deg,#744210,#c27a2a);"><span class="hb-inner">$36.71</span></div></div>
+      <div class="hb-val warn">$36.71</div>
+      <div class="hb-yoy pos">+3.8%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Private Ed. &amp; Health</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:63.7%;background:linear-gradient(90deg,#276749,#48bb78);"><span class="hb-inner">$36.33</span></div></div>
+      <div class="hb-val pos">$36.33</div>
+      <div class="hb-yoy neg">+2.4%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Other Services</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:59.7%;background:linear-gradient(90deg,#2a4365,#4a7fa5);"><span class="hb-inner">$34.05</span></div></div>
+      <div class="hb-val">$34.05</div>
+      <div class="hb-yoy warn">+3.2%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Manufacturing (Nondurable)</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:57.7%;background:linear-gradient(90deg,#744210,#c27a2a);"><span class="hb-inner">$32.91</span></div></div>
+      <div class="hb-val warn">$32.91</div>
+      <div class="hb-yoy pos">+3.7%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Transport. &amp; Warehousing</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:57.1%;background:linear-gradient(90deg,#2a4365,#4a7fa5);"><span class="hb-inner">$32.57</span></div></div>
+      <div class="hb-val">$32.57</div>
+      <div class="hb-yoy pos">+3.6%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Retail Trade</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:46.2%;background:linear-gradient(90deg,#742a2a,#fc8181);"><span class="hb-inner">$26.35</span></div></div>
+      <div class="hb-val neg">$26.35</div>
+      <div class="hb-yoy pos">+3.9%</div>
+    </div>
+    <div class="hb-row">
+      <div class="hb-lbl">Leisure &amp; Hospitality</div>
+      <div class="hb-wrap"><div class="hb-fill" style="width:41.4%;background:linear-gradient(90deg,#742a2a,#fc8181);"><span class="hb-inner">$23.62</span></div></div>
+      <div class="hb-val neg">$23.62</div>
+      <div class="hb-yoy pos">+3.9%</div>
+    </div>
+
+    <div style="font-size:10px;color:#4a5568;margin-top:10px;">
+      Dados AHE: jun/26 da Table B-3 oficial via API BLS (release 02/07/2026). Escala das barras: $0–$57. YoY = variação jun/25 → jun/26 (12M exatos). Cor vermelha = abaixo da média; verde = healthcare; amarelo = manufacturing.
+    </div>
+  </div>
+</div>
+
+<!-- ===== CRESCIMENTO YoY ===== -->
+<div id="panel-crescimento" class="panel">
+
+  <div class="info-box">
+    <strong>Leitura de velocidade:</strong> o crescimento nominal YoY por setor revela quão rápido cada mercado de trabalho está valorizando mão de obra. A dispersão das taxas de crescimento é um indicador de pressões inflacionárias heterogêneas — setores crescendo salários acima de +3.5% são fontes primárias de pressão de custo de labor no CPI de serviços.
+  </div>
+
+  <!-- Dot chart de crescimento YoY -->
+  <div class="card">
+    <h3>Crescimento YoY AHE por Setor (jun/25 → jun/26) &nbsp;
+      <span style="font-size:10px;font-weight:400;text-transform:none;color:#718096;">
+        Linha azul tracejada = total privado (+3.5%) &nbsp;|&nbsp; Barra = desvio vs. média
+      </span>
+    </h3>
+
+    <!-- scale: 0% = left, 8% = right; ref at 3.5% = 43.75% from left; each 1pp = 12.5% -->
+    <!-- bar width from ref: (yoy - 3.5) * 12.5% -->
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #2d3748;">
+      <div style="width:230px;flex-shrink:0;"></div>
+      <div style="flex:1;position:relative;height:16px;">
+        <div style="position:absolute;left:0;font-size:9px;color:#4a5568;">0%</div>
+        <div style="position:absolute;left:25%;font-size:9px;color:#4a5568;">2%</div>
+        <div style="position:absolute;left:43.75%;font-size:9px;color:#63b3ed;font-weight:700;">3.5%</div>
+        <div style="position:absolute;left:62.5%;font-size:9px;color:#4a5568;">5%</div>
+        <div style="position:absolute;left:87.5%;font-size:9px;color:#4a5568;">7%</div>
+        <div style="position:absolute;left:43.75%;top:0;width:2px;height:100%;background:#63b3ed;opacity:0.5;"></div>
+      </div>
+      <div style="width:48px;"></div><div style="width:60px;"></div>
+    </div>
+
+    <!-- Ordenado por YoY decrescente -->
+    <div class="dot-row">
+      <div class="dot-lbl">Utilities</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:51.25%;height:10px;background:linear-gradient(90deg,#48bb78,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+7.6%</div>
+      <div class="dot-diff pos">+4.1pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Information</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:31.25%;height:10px;background:linear-gradient(90deg,#48bb78,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+6.0%</div>
+      <div class="dot-diff pos">+2.5pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Financial Activities</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:12.5%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+4.5%</div>
+      <div class="dot-diff pos">+1.0pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Construction</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:10%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+4.3%</div>
+      <div class="dot-diff pos">+0.8pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Retail Trade</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:5%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+3.9%</div>
+      <div class="dot-diff pos">+0.4pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Leisure &amp; Hospitality</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:5%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+3.9%</div>
+      <div class="dot-diff pos">+0.4pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Mining &amp; Logging</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:3.75%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+3.8%</div>
+      <div class="dot-diff pos">+0.3pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Manufacturing (Total)</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:3.75%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+3.8%</div>
+      <div class="dot-diff pos">+0.3pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Manufacturing (Durable)</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:3.75%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+3.8%</div>
+      <div class="dot-diff pos">+0.3pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Manufacturing (Nondurable)</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:2.5%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+3.7%</div>
+      <div class="dot-diff pos">+0.2pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Transport. &amp; Warehousing</div>
+      <div class="dot-track">
+        <div style="position:absolute;left:43.75%;top:-3px;width:1.25%;height:10px;background:linear-gradient(90deg,#68d391,#276749);border-radius:0 3px 3px 0;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val pos">+3.6%</div>
+      <div class="dot-diff pos">+0.1pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl"><strong>⊙ Total Privado (ref.)</strong></div>
+      <div class="dot-track" style="border:1px solid #2a4365;border-radius:2px;">
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val" style="color:#63b3ed;">+3.5%</div>
+      <div class="dot-diff neu">ref.</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Prof. &amp; Business Services</div>
+      <div class="dot-track">
+        <div style="position:absolute;right:56.25%;top:-3px;width:1.25%;height:10px;background:linear-gradient(90deg,#f6ad55,#744210);border-radius:3px 0 0 3px;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val warn">+3.4%</div>
+      <div class="dot-diff warn">-0.1pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Other Services</div>
+      <div class="dot-track">
+        <div style="position:absolute;right:56.25%;top:-3px;width:3.75%;height:10px;background:linear-gradient(90deg,#f6ad55,#744210);border-radius:3px 0 0 3px;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val warn">+3.2%</div>
+      <div class="dot-diff warn">-0.3pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Wholesale Trade</div>
+      <div class="dot-track">
+        <div style="position:absolute;right:56.25%;top:-3px;width:8.75%;height:10px;background:linear-gradient(90deg,#fc8181,#742a2a);border-radius:3px 0 0 3px;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val neg">+2.8%</div>
+      <div class="dot-diff neg">-0.7pp</div>
+    </div>
+    <div class="dot-row">
+      <div class="dot-lbl">Private Ed. &amp; Health</div>
+      <div class="dot-track">
+        <div style="position:absolute;right:56.25%;top:-3px;width:13.75%;height:10px;background:linear-gradient(90deg,#fc8181,#742a2a);border-radius:3px 0 0 3px;"></div>
+        <div class="dot-ref"></div>
+      </div>
+      <div class="dot-val neg">+2.4%</div>
+      <div class="dot-diff neg">-1.1pp</div>
+    </div>
+  </div>
+
+  <!-- Tabela completa com histórico -->
+  <div class="card">
+    <h3>Série AHE por Setor — Table B-3 Oficial ($/hora, SA)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;width:28%">Setor</th>
+          <th>Jun/25</th>
+          <th>Abr/26</th>
+          <th>Mai/26</th>
+          <th>Jun/26</th>
+          <th>YoY (12M)</th>
+          <th>vs. Privado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-ref"><td>Total Privado</td><td>$36.36</td><td>$37.41</td><td>$37.51</td><td>$37.64</td><td class="pos">+3.5%</td><td>—</td></tr>
+        <tr><td>Mining &amp; Logging</td><td>$40.22</td><td>$41.34</td><td>$41.65</td><td>$41.76</td><td class="pos">+3.8%</td><td class="pos">+$4.12</td></tr>
+        <tr><td>Construction</td><td>$39.64</td><td>$41.01</td><td>$41.20</td><td>$41.36</td><td class="pos">+4.3%</td><td class="pos">+$3.72</td></tr>
+        <tr><td>Manufacturing</td><td>$35.37</td><td>$36.64</td><td>$36.69</td><td>$36.71</td><td class="pos">+3.8%</td><td class="neg">-$0.93</td></tr>
+        <tr><td>&nbsp;&nbsp;Durables</td><td>$37.52</td><td>$38.91</td><td>$38.92</td><td>$38.94</td><td class="pos">+3.8%</td><td class="pos">+$1.30</td></tr>
+        <tr><td>&nbsp;&nbsp;Nondurables</td><td>$31.74</td><td>$32.84</td><td>$32.91</td><td>$32.91</td><td class="pos">+3.7%</td><td class="neg">-$4.73</td></tr>
+        <tr><td>Wholesale Trade</td><td>$38.65</td><td>$39.81</td><td>$39.78</td><td>$39.72</td><td class="neg">+2.8%</td><td class="pos">+$2.08</td></tr>
+        <tr><td>Retail Trade</td><td>$25.36</td><td>$26.20</td><td>$26.22</td><td>$26.35</td><td class="pos">+3.9%</td><td class="neg">-$11.29</td></tr>
+        <tr><td>Transport. &amp; Warehousing</td><td>$31.44</td><td>$32.38</td><td>$32.44</td><td>$32.57</td><td class="pos">+3.6%</td><td class="neg">-$5.07</td></tr>
+        <tr><td>Utilities</td><td>$52.13</td><td>$55.19</td><td>$55.50</td><td>$56.09</td><td class="pos">+7.6%</td><td class="pos">+$18.45</td></tr>
+        <tr><td>Information</td><td>$52.54</td><td>$54.93</td><td>$55.08</td><td>$55.67</td><td class="pos">+6.0%</td><td class="pos">+$18.03</td></tr>
+        <tr><td>Financial Activities</td><td>$47.46</td><td>$49.02</td><td>$49.25</td><td>$49.60</td><td class="pos">+4.5%</td><td class="pos">+$11.96</td></tr>
+        <tr><td>Prof. &amp; Business Services</td><td>$44.21</td><td>$45.41</td><td>$45.58</td><td>$45.73</td><td class="pos">+3.4%</td><td class="pos">+$8.09</td></tr>
+        <tr><td>Private Ed. &amp; Health</td><td>$35.49</td><td>$36.23</td><td>$36.27</td><td>$36.33</td><td class="neg">+2.4%</td><td class="neg">-$1.31</td></tr>
+        <tr><td>Leisure &amp; Hospitality</td><td>$22.74</td><td>$23.52</td><td>$23.58</td><td>$23.62</td><td class="pos">+3.9%</td><td class="neg">-$14.02</td></tr>
+        <tr><td>Other Services</td><td>$32.99</td><td>$33.76</td><td>$33.93</td><td>$34.05</td><td class="warn">+3.2%</td><td class="neg">-$3.59</td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:10px;color:#4a5568;margin-top:8px;">Fonte: BLS Table B-3 via API oficial (release 02/07/2026). YoY calculado exato jun/25 → jun/26. "vs. Privado" = diferença vs. $37.64 (jun/26).</div>
+  </div>
+</div>
+
+<!-- ===== DISPERSÃO ===== -->
+<div id="panel-dispersao" class="panel">
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-lbl">Amplitude AHE (nível)</div>
+      <div class="kpi-val warn">$32.47</div>
+      <div class="kpi-sub">Utilities vs. L&amp;H — 2.4x</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Desvio padrão (YoY %)</div>
+      <div class="kpi-val warn">~1.4pp</div>
+      <div class="kpi-sub">Range +2.4% a +7.6% (5.2pp)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Máx YoY (Utilities)</div>
+      <div class="kpi-val pos">+7.6%</div>
+      <div class="kpi-sub">4.1pp acima da média</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Mín YoY (Ed &amp; Health)</div>
+      <div class="kpi-val neg">+2.4%</div>
+      <div class="kpi-sub">1.1pp abaixo da média</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Análise de Dispersão — AHE YoY por Setor (jun/25→jun/26)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Cluster</th>
+          <th>Setores</th>
+          <th>YoY range</th>
+          <th>Interpretação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong class="pos">Acelerado (&gt;4.0%)</strong></td>
+          <td>Utilities (+7.6%), Information (+6.0%), Financial (+4.5%), Construction (+4.3%)</td>
+          <td class="pos">+4.3% a +7.6%</td>
+          <td>Pressão salarial elevada; mas dois dos quatro (Utilities, Information) refletem custo regulado e efeito composição, não demanda por trabalho</td>
+        </tr>
+        <tr>
+          <td><strong class="warn">Em linha (3.4–4.0%)</strong></td>
+          <td>Retail (+3.9%), L&amp;H (+3.9%), Mining (+3.8%), Manuf. (+3.8%), Durables (+3.8%), Nondurables (+3.7%), T&amp;W (+3.6%), Prof.Biz (+3.4%)</td>
+          <td class="warn">+3.4% a +3.9%</td>
+          <td>Crescimento salarial próximo à média do total privado (+3.5%); neutro para política monetária. Mining normalizou (+3.8% vs. +1.0% em fev/26)</td>
+        </tr>
+        <tr>
+          <td><strong class="neg">Desacelerado (&lt;3.4%)</strong></td>
+          <td>Other Services (+3.2%), Wholesale (+2.8%), Private Ed. &amp; Health (+2.4%)</td>
+          <td class="neg">+2.4% a +3.2%</td>
+          <td>Surpresa positiva para desinflação; Healthcare abaixo da inflação = perda de poder de compra real no maior setor privado</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Paradoxo Healthcare: maior setor, menor crescimento salarial</h3>
+      <div style="font-size:11.5px;color:#a0aec0;line-height:1.7;">
+        Private Ed. &amp; Health cresce AHE a apenas <strong class="neg">+2.4% YoY</strong> (jun/25→jun/26) — o mais baixo entre todos os setores e abaixo da inflação corrente. Isso significa que os trabalhadores do maior setor privado (<strong>27,973k, 17.6% do nonfarm</strong>) estão perdendo poder de compra real.
+        <br><br>
+        O paradoxo é que o setor cria emprego mais que qualquer outro (<strong class="pos">+69k só em jun/26</strong> — mais que o payroll total de +57k) mesmo com crescimento salarial fraco. Isso ocorre porque: (a) a demanda é inelástica — hospitais precisam contratar independente do salário; (b) há escassez estrutural de profissionais de saúde que pressiona os empregadores a manter estoque via volume, não via salário; (c) reembolsos de Medicare/Medicaid limitam o repasse de custo.
+        <br><br>
+        <strong class="warn">Implicação:</strong> O CPI de serviços de saúde pode divergir do custo real do setor — que cresceu capacidade sem crescer salários, indicando ganho de produtividade ou compressão de margem.
+      </div>
+    </div>
+    <div class="card">
+      <h3>Wholesale: novo segundo mais fraco (+2.8%) — Mining normalizou</h3>
+      <div style="font-size:11.5px;color:#a0aec0;line-height:1.7;">
+        Mudança relevante vs. o quadro de fev/26: <strong>Mining &amp; Logging deixou de ser o outlier negativo</strong> — o YoY jun/25→jun/26 é <strong class="pos">+3.8%</strong>, em linha com a média, ajudado por base de comparação e recomposição do nível ($41.76). O sinal de estagnação salarial ligada ao petróleo se dissipou nesta janela de 12 meses.
+        <br><br>
+        O segundo crescimento mais fraco agora é <strong class="neg">Wholesale Trade (+2.8%)</strong>, com o nível caindo na margem em junho ($39.78 → $39.72). Setor B2B, sensível a volumes de comércio de bens e a margens de distribuição — crescimento salarial abaixo da média é consistente com demanda de bens morna e headcount quase estável (+2.4k no mês).
+        <br><br>
+        <strong>Nota:</strong> nem Wholesale (3.8% do nonfarm) nem Mining (0.4%) têm peso para mover o AHE agregado, mas ambos reforçam o cluster desinflacionário fora dos serviços core.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Information (+6.0%) e Utilities (+7.6%): os dois "acelerados" que não são pressão de demanda por trabalho</h3>
+    <div style="font-size:11.5px;color:#a0aec0;line-height:1.7;">
+      O setor de Information segue em contração de headcount (<strong class="neg">-9k em jun/26</strong>, nível 2,774k — queda estrutural contínua) mas com aceleração salarial (+6.0% YoY, segundo mais alto). Esse é o padrão clássico de <strong>labor hoarding seletivo</strong>: as empresas de tech cortam os postos de menor qualificação e menor remuneração mas retêm e aumentam salários dos profissionais de alta qualificação (engenheiros sênior, AI/ML). O AHE médio do setor sobe mesmo com o setor encolhendo — efeito de composição, não crescimento real de salários.
+      <br><br>
+      <strong class="warn">Para o Fed:</strong> Nem o +6.0% de Information nem o <strong>+7.6% de Utilities</strong> (o maior YoY do painel) devem ser lidos como pressão salarial sistêmica. Utilities é um setor minúsculo (607k, 0.4% do nonfarm), com headcount flat (-0.8k no mês) e salários determinados por custo regulado e intensidade de capital — tarifas e ciclo de investimento em rede/geração, não excesso de demanda por trabalho. A pressão genuína de mercado de trabalho está nos setores grandes e em linha (+3.4% a +3.9%).
+    </div>
+  </div>
+</div>
+
+<!-- ===== MACRO ===== -->
+<div id="panel-macro" class="panel">
+
+  <div class="ok-box">
+    <strong>Leitura integrada para política monetária:</strong> A dispersão do crescimento salarial setorial de jun/26 (range +2.4% a +7.6%, std ~1.4pp) é consistente com um mercado de trabalho em <em>heterogeneização</em> — não há uma pressão salarial uniforme, mas clusters de pressão setorial intensa (em setores pequenos ou de custo regulado) convivendo com desinflação salarial no maior setor privado.
+  </div>
+
+  <div class="card">
+    <h3>Mapa de Risco Inflacionário por Setor — AHE como Proxy</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Setor</th>
+          <th>YoY AHE</th>
+          <th>% do CPI serviços</th>
+          <th>Transmissão para CPI</th>
+          <th>Sinal Fed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Utilities (+7.6%)</td>
+          <td class="pos">Acelerado</td>
+          <td class="warn">Média</td>
+          <td>Repassa via tarifa elétrica; CPI energy — custo regulado, não demanda por trabalho</td>
+          <td><span class="badge bg-yellow">Atenção</span></td>
+        </tr>
+        <tr>
+          <td>Information (+6.0%)</td>
+          <td class="pos">Acelerado</td>
+          <td class="neg">Baixa</td>
+          <td>Efeito composição (headcount -9k no mês) — não sistêmico</td>
+          <td><span class="badge bg-gray">Neutro</span></td>
+        </tr>
+        <tr>
+          <td>Financial Activities (+4.5%)</td>
+          <td class="pos">Acelerado</td>
+          <td class="warn">Média</td>
+          <td>FIRE serviços; repassa via fees e spreads</td>
+          <td><span class="badge bg-yellow">Atenção</span></td>
+        </tr>
+        <tr>
+          <td>Retail (+3.9%)</td>
+          <td class="warn">Em linha (acima da ref.)</td>
+          <td class="pos">Alta</td>
+          <td>Pressão de custo direta sobre preço ao consumidor</td>
+          <td><span class="badge bg-red">Risco</span></td>
+        </tr>
+        <tr>
+          <td>L&amp;H (+3.9%) / Food Svcs</td>
+          <td class="warn">Em linha (acima da ref.)</td>
+          <td class="pos">Alta</td>
+          <td>Away-from-home food no CPI — pressão moderada</td>
+          <td><span class="badge bg-yellow">Monitorar</span></td>
+        </tr>
+        <tr>
+          <td>Manufacturing (+3.8%)</td>
+          <td class="warn">Em linha</td>
+          <td class="warn">Média-alta</td>
+          <td>Labor cost ~15% dos custos; PPI repassa com lag</td>
+          <td><span class="badge bg-yellow">Monitorar</span></td>
+        </tr>
+        <tr>
+          <td>Wholesale Trade (+2.8%)</td>
+          <td class="neg">Abaixo</td>
+          <td class="neg">Baixa</td>
+          <td>B2B; margens de distribuição — desinflacionário na cadeia de bens</td>
+          <td><span class="badge bg-green">Positivo</span></td>
+        </tr>
+        <tr>
+          <td>Private Ed. &amp; Health (+2.4%)</td>
+          <td class="neg">Abaixo</td>
+          <td class="pos">Alta (healthcare CPI)</td>
+          <td>Desinflação de labor no maior setor privado — positivo</td>
+          <td><span class="badge bg-green">Positivo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Conclusão para o Fed</h3>
+      <div style="font-size:11.5px;color:#a0aec0;line-height:1.7;">
+        O AHE total privado em <strong>+3.5% YoY</strong> (jun/26) é o número titular — mas o MoM de <strong class="warn">+0.35% (+$0.13)</strong> anualiza em ~4.2%, uma <strong>reaceleração pontual</strong> vs. abr/mai que o Fed não pode ignorar na margem. A desagregação setorial, porém, conta uma história mais nuançada: a pressão salarial está <strong>concentrada em setores que não são o núcleo do CPI core de serviços</strong> (Information = efeito composição; Utilities = tarifa regulada). O setor que mais importa — serviços de saúde e educação privada, 17.6% do emprego nonfarm — está crescendo salários abaixo da inflação (<strong class="pos">+2.4%</strong>). Esse segue sendo o sinal desinflacionário chave que o headline AHE não captura.
+        <br><br>
+        O risco real de second-round salarial está em <strong>Retail (+3.9%)</strong> e <strong>Financial (+4.5%)</strong> — dois setores com alta transmissão para preços ao consumidor. Próximos catalisadores: FOMC 28–29/jul/2026 e Employment Situation de julho em 07/08/2026.
+      </div>
+    </div>
+    <div class="card">
+      <h3>Conclusão para Posicionamento</h3>
+      <div style="font-size:11.5px;color:#a0aec0;line-height:1.7;">
+        <strong class="pos">Renda Fixa (bullish, com ressalva):</strong> A desagregação salarial reforça o cenário de desinflação progressiva — Healthcare em +2.4% é o dado mais importante e segue ignorado pelo mercado que foca no headline +3.5%. A ressalva é o MoM de +0.35% (~4.2% anualizado): se repetir em julho, deixa de ser ruído.
+        <br><br>
+        <strong class="warn">Equities setoriais:</strong> Retail (+3.9% de AHE) e Financial (+4.5%) com crescimento de custo salarial acima da média precisam de pricing power para manter margens — Retail perdeu 7.5k postos em junho enquanto o custo horário sobe.
+        <br><br>
+        <strong class="neg">Manufacturing:</strong> AHE em +3.8% + pressão tarifária de insumos = dupla compressão de custo. O repasse via PPI é limitado em ambiente de demanda moderada (headcount +3k no mês, nondurables ainda em queda).
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
