@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>ASIF — Dispersão Salarial — BLS Julho 2026</title>
+<style>
+  * { box-sizing:border-box;margin:0;padding:0; }
+  body { font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;font-size:13px; }
+  .header { background:linear-gradient(135deg,#1a1f2e,#0f1117);border-bottom:1px solid #2d3748;padding:14px 20px;display:flex;align-items:center;gap:16px; }
+  .header h1 { font-size:15px;font-weight:700;letter-spacing:.05em;text-transform:uppercase; }
+  .header p { font-size:11px;color:#718096;margin-top:3px; }
+  .tab-bar { display:flex;gap:2px;padding:10px 16px 0;border-bottom:1px solid #2d3748; }
+  .tab { padding:7px 16px;font-size:11px;font-weight:600;cursor:pointer;color:#718096;border-bottom:2px solid transparent;letter-spacing:.04em;text-transform:uppercase;transition:all .2s; }
+  .tab.active { color:#63b3ed;border-bottom-color:#63b3ed; }
+  .tab:hover { color:#a0aec0; }
+  .panel { display:none;padding:16px; }
+  .panel.active { display:block; }
+  .kpi-row { display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px; }
+  .kpi { background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:12px 14px; }
+  .kpi-label { font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px; }
+  .kpi-value { font-size:22px;font-weight:700; }
+  .kpi-sub { font-size:10px;color:#718096;margin-top:2px; }
+  .pos { color:#68d391; } .neg { color:#fc8181; }
+  .card { background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:14px;margin-bottom:14px; }
+  .card h3 { font-size:11px;font-weight:600;color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px; }
+  .grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px; }
+  table { width:100%;border-collapse:collapse; }
+  th { font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:4px 8px;border-bottom:1px solid #2d3748;font-weight:600; }
+  th:first-child { text-align:left; }
+  td { font-size:12px;padding:5px 8px;border-bottom:1px solid #1e2536;text-align:right;color:#cbd5e0; }
+  td:first-child { text-align:left;color:#e2e8f0;font-weight:500; }
+  tr:hover td { background:#1e2a3a; }
+  .bar-row { display:flex;align-items:center;gap:8px;margin-bottom:6px; }
+  .bar-label { font-size:11px;color:#a0aec0;width:200px;flex-shrink:0; }
+  .bar-wrap { flex:1;height:16px;background:#2d3748;border-radius:3px;overflow:hidden; }
+  .bar { height:100%;border-radius:3px; }
+  .bar.green { background:linear-gradient(90deg,#276749,#48bb78); }
+  .bar.red { background:linear-gradient(90deg,#742a2a,#fc8181); }
+  .bar.blue { background:linear-gradient(90deg,#2a4365,#63b3ed); }
+  .bar-val { font-size:11px;font-weight:700;width:62px;text-align:right;flex-shrink:0; }
+  .info-box { background:#1a2040;border:1px solid #2a4365;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#90cdf4;line-height:1.6; }
+  .warn-box { background:#2d1a1a;border:1px solid #742a2a;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#feb2b2;line-height:1.6; }
+  .alert-box { background:#1a2a1a;border:1px solid #276749;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#9ae6b4;line-height:1.6; }
+  .footer { padding:6px 20px 24px;font-size:10.5px;color:#4a5568;line-height:1.6; }
+  .asif-badge { background:#C9A84C;color:#002147;font-size:17px;font-weight:900;padding:8px 16px;border-radius:6px;letter-spacing:.14em;text-transform:uppercase;flex-shrink:0;box-shadow:0 2px 8px rgba(201,168,76,.25); }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div>
+    <h1>Dispersão Salarial — AHE por Setor</h1>
+    <p>BLS Table B-3 (All Employees, Private Nonfarm) &nbsp;|&nbsp; Nível, crescimento YoY e dispersão &nbsp;|&nbsp; Jul/25–Jul/26 &nbsp;|&nbsp; SA &nbsp;|&nbsp; Employment Situation release de 07/08/2026</p>
+  </div>
+</div>
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('nivel',this)">Nível AHE</div>
+  <div class="tab" onclick="showTab('crescimento',this)">Crescimento YoY</div>
+  <div class="tab" onclick="showTab('dispersao',this)">Dispersão</div>
+  <div class="tab" onclick="showTab('macro',this)">Leitura Macro</div>
+</div>
+
+<div id="panel-nivel" class="panel active">
+  <div class="info-box"><strong>Fonte:</strong> BLS Table B-3, All Employees, Private Nonfarm (SA), API oficial BLS v2, vintage do release de 07/08/2026. Níveis de jul/25, jun/26 e jul/26 confirmados — sem estimativas. YoY calculado jul/25 → jul/26 (12 meses exatos).</div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">AHE Privado (jul/26)</div><div class="kpi-value">$37.62</div><div class="kpi-sub">+0.05% MoM · SA</div></div>
+    <div class="kpi"><div class="kpi-label">AHE YoY</div><div class="kpi-value">+3.2%</div><div class="kpi-sub">jun/26 era +3.5% — desacelerando</div></div>
+    <div class="kpi"><div class="kpi-label">Maior YoY</div><div class="kpi-value pos">+8.1%</div><div class="kpi-sub">Utilities</div></div>
+    <div class="kpi"><div class="kpi-label">Menor YoY</div><div class="kpi-value neg">+1.7%</div><div class="kpi-sub">Private Ed & Health</div></div>
+    <div class="kpi"><div class="kpi-label">Amplitude</div><div class="kpi-value">6.4pp</div><div class="kpi-sub">mediana setorial +3.7%</div></div>
+  </div>
+  
+  <div class="card"><h3>Ranking por nível AHE — jul/2026 ($/hora, SA)</h3>
+    <div class="bar-row"><div class="bar-label">Utilities</div><div class="bar-wrap"><div class="bar blue" style="width:100%"></div></div><div class="bar-val">$56.34</div></div><div class="bar-row"><div class="bar-label">Information</div><div class="bar-wrap"><div class="bar blue" style="width:99%"></div></div><div class="bar-val">$55.70</div></div><div class="bar-row"><div class="bar-label">Financial Activities</div><div class="bar-wrap"><div class="bar blue" style="width:88%"></div></div><div class="bar-val">$49.44</div></div><div class="bar-row"><div class="bar-label">Prof & Business Services</div><div class="bar-wrap"><div class="bar blue" style="width:81%"></div></div><div class="bar-val">$45.68</div></div><div class="bar-row"><div class="bar-label">Construction</div><div class="bar-wrap"><div class="bar blue" style="width:74%"></div></div><div class="bar-val">$41.46</div></div><div class="bar-row"><div class="bar-label">Goods-Producing</div><div class="bar-wrap"><div class="bar blue" style="width:69%"></div></div><div class="bar-val">$38.79</div></div><div class="bar-row"><div class="bar-label">Manufacturing</div><div class="bar-wrap"><div class="bar blue" style="width:65%"></div></div><div class="bar-val">$36.87</div></div><div class="bar-row"><div class="bar-label">Private Ed & Health</div><div class="bar-wrap"><div class="bar blue" style="width:64%"></div></div><div class="bar-val">$36.18</div></div><div class="bar-row"><div class="bar-label">Other Services</div><div class="bar-wrap"><div class="bar blue" style="width:60%"></div></div><div class="bar-val">$34.05</div></div><div class="bar-row"><div class="bar-label">Transport & Warehousing</div><div class="bar-wrap"><div class="bar blue" style="width:58%"></div></div><div class="bar-val">$32.63</div></div><div class="bar-row"><div class="bar-label">Retail Trade</div><div class="bar-wrap"><div class="bar blue" style="width:47%"></div></div><div class="bar-val">$26.23</div></div><div class="bar-row"><div class="bar-label">Leisure & Hospitality</div><div class="bar-wrap"><div class="bar blue" style="width:42%"></div></div><div class="bar-val">$23.63</div></div>
+  </div>
+</div>
+
+<div id="panel-crescimento" class="panel">
+  <div class="card"><h3>Crescimento YoY do AHE por setor (jul/25 → jul/26) — verde acima do agregado privado (+3.2%)</h3>
+    <div class="bar-row"><div class="bar-label">Utilities</div><div class="bar-wrap"><div class="bar green" style="width:100%"></div></div><div class="bar-val">+8.12%</div></div><div class="bar-row"><div class="bar-label">Information</div><div class="bar-wrap"><div class="bar green" style="width:72%"></div></div><div class="bar-val">+5.83%</div></div><div class="bar-row"><div class="bar-label">Construction</div><div class="bar-wrap"><div class="bar green" style="width:54%"></div></div><div class="bar-val">+4.35%</div></div><div class="bar-row"><div class="bar-label">Goods-Producing</div><div class="bar-wrap"><div class="bar green" style="width:51%"></div></div><div class="bar-val">+4.13%</div></div><div class="bar-row"><div class="bar-label">Financial Activities</div><div class="bar-wrap"><div class="bar green" style="width:48%"></div></div><div class="bar-val">+3.93%</div></div><div class="bar-row"><div class="bar-label">Manufacturing</div><div class="bar-wrap"><div class="bar green" style="width:47%"></div></div><div class="bar-val">+3.83%</div></div><div class="bar-row"><div class="bar-label">Leisure & Hospitality</div><div class="bar-wrap"><div class="bar green" style="width:44%"></div></div><div class="bar-val">+3.59%</div></div><div class="bar-row"><div class="bar-label">Transport & Warehousing</div><div class="bar-wrap"><div class="bar green" style="width:43%"></div></div><div class="bar-val">+3.52%</div></div><div class="bar-row"><div class="bar-label">Other Services</div><div class="bar-wrap"><div class="bar red" style="width:36%"></div></div><div class="bar-val">+2.93%</div></div><div class="bar-row"><div class="bar-label">Prof & Business Services</div><div class="bar-wrap"><div class="bar red" style="width:36%"></div></div><div class="bar-val">+2.88%</div></div><div class="bar-row"><div class="bar-label">Retail Trade</div><div class="bar-wrap"><div class="bar red" style="width:34%"></div></div><div class="bar-val">+2.78%</div></div><div class="bar-row"><div class="bar-label">Private Ed & Health</div><div class="bar-wrap"><div class="bar red" style="width:21%"></div></div><div class="bar-val">+1.69%</div></div>
+  </div>
+  <div class="card"><h3>Série AHE por setor — Table B-3 oficial ($/hora, SA)</h3>
+    <table>
+      <tr><th>Setor</th><th>jul/25</th><th>jun/26</th><th>jul/26</th><th>MoM</th><th>YoY</th></tr>
+      <tr><td><strong>Total privado</strong></td><td>$36.47</td><td>$37.60</td><td><strong>$37.62</strong></td><td>+0.05%</td><td><strong>+3.15%</strong></td></tr>
+      <tr><td>Utilities</td><td>$52.11</td><td>$55.91</td><td><strong>$56.34</strong></td><td class="pos">+0.77%</td><td class="pos">+8.12%</td></tr><tr><td>Information</td><td>$52.63</td><td>$55.44</td><td><strong>$55.70</strong></td><td class="pos">+0.47%</td><td class="pos">+5.83%</td></tr><tr><td>Construction</td><td>$39.73</td><td>$41.36</td><td><strong>$41.46</strong></td><td class="pos">+0.24%</td><td class="pos">+4.35%</td></tr><tr><td>Goods-Producing</td><td>$37.25</td><td>$38.66</td><td><strong>$38.79</strong></td><td class="pos">+0.34%</td><td class="pos">+4.13%</td></tr><tr><td>Financial Activities</td><td>$47.57</td><td>$49.52</td><td><strong>$49.44</strong></td><td class="neg">-0.16%</td><td class="pos">+3.93%</td></tr><tr><td>Manufacturing</td><td>$35.51</td><td>$36.74</td><td><strong>$36.87</strong></td><td class="pos">+0.35%</td><td class="pos">+3.83%</td></tr><tr><td>Leisure & Hospitality</td><td>$22.81</td><td>$23.64</td><td><strong>$23.63</strong></td><td class="neg">-0.04%</td><td class="pos">+3.59%</td></tr><tr><td>Transport & Warehousing</td><td>$31.52</td><td>$32.55</td><td><strong>$32.63</strong></td><td class="pos">+0.25%</td><td class="pos">+3.52%</td></tr><tr><td>Other Services</td><td>$33.08</td><td>$34.03</td><td><strong>$34.05</strong></td><td class="pos">+0.06%</td><td class="neg">+2.93%</td></tr><tr><td>Prof & Business Services</td><td>$44.40</td><td>$45.67</td><td><strong>$45.68</strong></td><td class="pos">+0.02%</td><td class="neg">+2.88%</td></tr><tr><td>Retail Trade</td><td>$25.52</td><td>$26.29</td><td><strong>$26.23</strong></td><td class="neg">-0.23%</td><td class="neg">+2.78%</td></tr><tr><td>Private Ed & Health</td><td>$35.58</td><td>$36.23</td><td><strong>$36.18</strong></td><td class="neg">-0.14%</td><td class="neg">+1.69%</td></tr>
+    </table>
+  </div>
+</div>
+
+<div id="panel-dispersao" class="panel">
+  <div class="card"><h3>Análise de dispersão — AHE YoY por setor (jul/25→jul/26)</h3>
+    <p style="font-size:12px;color:#a0aec0;line-height:1.7">
+    Amplitude de <b style="color:#e2e8f0">6.4pp</b> entre Utilities (+8.1%) e Private Ed & Health (+1.7%); mediana setorial em <b style="color:#e2e8f0">+3.7%</b>, acima do agregado (+3.2%) — o agregado é puxado para baixo pelos setores de maior peso com salário fraco.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card"><h3>Ed&amp;Saúde: âncora de emprego, lanterna de salário</h3>
+      <p style="font-size:11.5px;color:#a0aec0;line-height:1.7">O setor que segurou o payroll de jul (+25k) tem o <b>menor</b> AHE YoY (+1.7%) e MoM negativo (-0.14%). Volume de contratação sem pressão salarial: consistente com oferta abundante nessa faixa e reembolsos públicos limitando repasse.</p>
+    </div>
+    <div class="card"><h3>Goods acelera também em salário</h3>
+      <p style="font-size:11.5px;color:#a0aec0;line-height:1.7">A rotação para goods aparece no salário: Construction +4.35% e Manufacturing +3.83% YoY, ambos acima do agregado, com MoM positivo — coerente com o ISM de manufatura (emprego 52.8 em jul, 1ª expansão em 33 meses) e com goods +25k no CES.</p>
+    </div>
+  </div>
+  <div class="card"><h3>Utilities (+8.1%) e Information (+5.83%): aceleração que não é aperto de mercado de trabalho</h3>
+    <p style="font-size:11.5px;color:#a0aec0;line-height:1.7">Dois setores pequenos em emprego, com composição de ocupações de alto salário (data centers, energia, tech/mídia) — o YoY alto reflete mix e demanda específica, não uma espiral salarial ampla. Sem eles, a cauda superior da dispersão encolhe.</p>
+  </div>
+</div>
+
+<div id="panel-macro" class="panel">
+  <div class="alert-box"><strong>Leitura para o Fed:</strong> AHE privado desacelerou para +3.2% YoY (de +3.5% em jun) com MoM de +0.05% — folga crescente no mercado de trabalho pelo lado do preço, na mesma direção do quadro de quantidade (payroll -23k, média 3M +20k, LFPR em queda). O risco salarial para a inflação de serviços segue contido: os setores de consumo (retail -0.23% MoM, leisure -0.04% MoM) estão sem pressão.</div>
+  <div class="grid-2">
+    <div class="card"><h3>Mapa de risco inflacionário (AHE como proxy)</h3>
+      <table>
+        <tr><th>Setor</th><th>YoY</th><th style="text-align:left">Leitura</th></tr>
+        <tr><td>Utilities / Information</td><td>+8.1% / +5.83%</td><td style="text-align:left;color:#a0aec0">mix de ocupações, não espiral</td></tr>
+        <tr><td>Construction / Manufacturing</td><td>+4.35% / +3.83%</td><td style="text-align:left;color:#a0aec0">aquecendo com a rotação p/ goods — acompanhar</td></tr>
+        <tr><td>Retail / Leisure</td><td>+2.78% / +3.59%</td><td style="text-align:left;color:#a0aec0">MoM ~zero; consumo sem pressão</td></tr>
+        <tr><td>Ed&amp;Saúde</td><td>+1.7%</td><td style="text-align:left;color:#a0aec0">volume sem preço; desinflacionário</td></tr>
+      </table>
+    </div>
+    <div class="card"><h3>Para posicionamento</h3>
+      <p style="font-size:11.5px;color:#a0aec0;line-height:1.7">Salário desacelerando + payroll negativo + U-3 caindo pelos motivos errados = quadro que consolida ciclo de corte. Atenção ao ECI do Q3 (fim de outubro) para confirmar sem efeito-composição o que a B-3 sugere. Margens: setores com AHE acelerando e receita cíclica fraca (construção residencial ex-obra pública) são o ponto de aperto.</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Fonte: BLS, Employment Situation jul/2026 (release 07/08/2026, 8h30 ET), Table B-3 via API v2 — vintage atual, incorporando revisões (mai/26 +63k e jun/26 +20k no headline da B-1). AHE = average hourly earnings, all employees, private nonfarm, SA. YoY = jul/25→jul/26 exato. Próxima atualização: Employment Situation de ago/2026 (04/09/2026).
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>ASIF — Análise Setorial — Payroll EUA Julho 2026</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Segoe UI',sans-serif; background:#0f1117; color:#e2e8f0; font-size:13px; }
+.header { background:linear-gradient(135deg,#1a1f2e,#0f1117); border-bottom:1px solid #2d3748; padding:14px 20px; display:flex;align-items:center;gap:16px; }
+.header h1 { font-size:15px;font-weight:700;letter-spacing:.05em;text-transform:uppercase; }
+.header p { font-size:11px;color:#718096;margin-top:3px; }
+.tab-bar { display:flex;gap:2px;padding:10px 16px 0;background:#0f1117;border-bottom:1px solid #2d3748;flex-wrap:wrap; }
+.tab { padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;color:#718096;border-bottom:2px solid transparent;letter-spacing:.04em;text-transform:uppercase;transition:all .2s; }
+.tab.active { color:#63b3ed;border-bottom-color:#63b3ed; }
+.tab:hover { color:#a0aec0; }
+.panel { display:none;padding:16px; }
+.panel.active { display:block; }
+.pos { color:#68d391; } .neg { color:#fc8181; } .neu { color:#a0aec0; } .warn { color:#fbd38d; }
+.badge { display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle; }
+.bg-green { background:#276749;color:#9ae6b4; } .bg-red { background:#742a2a;color:#feb2b2; }
+.bg-yellow { background:#744210;color:#fbd38d; } .bg-blue { background:#2a4365;color:#90cdf4; }
+.bg-gray { background:#2d3748;color:#a0aec0; }
+.card { background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:14px;margin-bottom:14px; }
+.card h3 { font-size:11px;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px; }
+.grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px; }
+.grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px; }
+table { width:100%;border-collapse:collapse; }
+th { font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:5px 8px;border-bottom:1px solid #2d3748;font-weight:600;white-space:nowrap; }
+th:first-child { text-align:left; }
+td { font-size:12px;padding:5px 8px;border-bottom:1px solid #1e2536;text-align:right;color:#cbd5e0; }
+td:first-child { text-align:left;color:#e2e8f0; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#1e2a3a; }
+.indent1 { padding-left:14px!important;color:#a0aec0!important;font-size:11.5px!important; }
+.indent2 { padding-left:26px!important;color:#718096!important;font-size:11px!important; }
+.indent3 { padding-left:38px!important;color:#4a5568!important;font-size:11px!important; }
+.row-total { background:#161c28; }
+.row-total td { color:#e2e8f0!important;font-weight:700; }
+
+/* Bar horizontal */
+.hbar-row { display:flex;align-items:center;gap:8px;margin-bottom:5px; }
+.hbar-lbl { font-size:11px;color:#a0aec0;width:200px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.hbar-wrap { position:relative;height:18px;background:#2d3748;border-radius:3px;flex:1; }
+.hbar-fill { height:100%;border-radius:3px;position:absolute;top:0; }
+.hbar-fill.pos { background:linear-gradient(90deg,#276749,#68d391);left:50%; }
+.hbar-fill.neg { background:linear-gradient(90deg,#fc8181,#742a2a);right:50%; }
+.hbar-fill.neu { background:#4a5568;left:50%;width:1px; }
+.hbar-center { position:absolute;left:50%;top:0;width:1px;height:100%;background:#4a5568; }
+.hbar-val { font-size:11px;font-weight:700;width:50px;text-align:right;flex-shrink:0; }
+.hbar-avg { font-size:10px;color:#718096;width:60px;text-align:right;flex-shrink:0; }
+
+.info-box { background:#1a2040;border:1px solid #2a4365;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#90cdf4;line-height:1.6; }
+.warn-box { background:#2d1a1a;border:1px solid #742a2a;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#feb2b2;line-height:1.6; }
+.ok-box { background:#1a2a1a;border:1px solid #276749;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11.5px;color:#9ae6b4;line-height:1.6; }
+.sep { border:none;border-top:1px solid #2d3748;margin:10px 0; }
+.kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px; }
+.kpi { background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:12px 14px; }
+.kpi-lbl { font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px; }
+.kpi-val { font-size:20px;font-weight:700; }
+.kpi-sub { font-size:10px;color:#718096;margin-top:3px; }
+.contribution-bar { display:flex;height:28px;border-radius:4px;overflow:hidden;margin:10px 0; }
+.cb-seg { display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap; }
+.footer { padding:10px 20px 18px;font-size:10px;color:#4a5568;line-height:1.6;border-top:1px solid #1e2536; }
+.asif-badge { background:#C9A84C; color:#002147; font-size:17px; font-weight:900; padding:8px 16px; border-radius:6px; letter-spacing:.14em; text-transform:uppercase; flex-shrink:0; box-shadow:0 2px 8px rgba(201,168,76,.25); }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div class="header-text">
+    <h1>Análise Setorial — Payroll EUA</h1>
+    <p>BLS Table B-1 (CES) — Julho 2026 &nbsp;|&nbsp; Desagregação por setor, subsetor e narrativa de ciclo &nbsp;|&nbsp; Release: 07/08/2026</p>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('overview',this)">Visão Setorial</div>
+  <div class="tab" onclick="showTab('goods',this)">Goods &amp; Manufatura</div>
+  <div class="tab" onclick="showTab('consumo',this)">Consumo &amp; Serviços</div>
+  <div class="tab" onclick="showTab('government',this)">Governo</div>
+  <div class="tab" onclick="showTab('healthcare',this)">Ed &amp; Saúde</div>
+  <div class="tab" onclick="showTab('leading',this)">Leading Indicators</div>
+  <div class="tab" onclick="showTab('narrative',this)">Narrativa de Ciclo</div>
+</div>
+
+<!-- ========== VISÃO SETORIAL ========== -->
+<div id="panel-overview" class="panel active">
+
+  <div class="info-box">
+    <strong>Rotação, não colapso — mas com o governo no meio do caminho:</strong> Os <strong>-23k</strong> de julho 2026 (primeiro headline negativo desde fev/26) decompõem-se em <strong>privado +30k</strong> e <strong>governo -53k</strong> (local -57k). Dentro do privado, a rotação é nítida: <strong>goods-producing +25k</strong> — melhor mês do ano, com construção +22k e duráveis +18k — contra <strong>serviços de consumo em contração</strong>: leisure -40k (food services -26.1k), retail -19.4k e financial -14k. Ed&amp;Saúde (+25k) segue positivo, mas em menos da metade do ritmo de junho (+54k no vintage atual).
+  </div>
+
+  <div class="warn-box">
+    <strong>Revisões baixistas pesadas:</strong> mai/26 revisado de +129k para <strong>+63k (-66k)</strong> e jun/26 de +57k para <strong>+20k (-37k)</strong> — net de -103k em dois meses. A média 3M cai para <strong>+20k</strong>. O trimestre mai-jul, que no vintage anterior parecia de desaceleração moderada, é na verdade de quase-estagnação do emprego.
+  </div>
+
+  <!-- Barra de contribuição -->
+  <div class="card">
+    <h3>Contribuição para os -23k — Julho 2026 (fluxos brutos por setor principal)</h3>
+    <div class="contribution-bar">
+      <div class="cb-seg" style="width:9.5%;background:#276749;">Constr +22</div>
+      <div class="cb-seg" style="width:10.7%;background:#2a5f3f;">Ed&amp;S +25</div>
+      <div class="cb-seg" style="width:7.7%;background:#2a4365;">P&amp;B +18</div>
+      <div class="cb-seg" style="width:17.1%;background:#1f3a5f;">Outros pos. +40.1</div>
+      <div class="cb-seg" style="width:17.1%;background:#742a2a;">L&amp;H -40</div>
+      <div class="cb-seg" style="width:8.3%;background:#5a2222;">Retail -19.4</div>
+      <div class="cb-seg" style="width:22.7%;background:#8b3333;">Gov -53</div>
+      <div class="cb-seg" style="width:6.9%;background:#5a2222;">Fin/outros -16</div>
+    </div>
+    <div style="font-size:10.5px;color:#718096;margin-top:6px;">Larguras proporcionais aos fluxos brutos dos setores principais (positivos +105.1k / negativos -128.4k = líquido -23.3k ≈ -23k). "Outros pos." inclui Manufacturing +5k, T&amp;W +9.7k, Information +11k, Other Services +9k, Wholesale +4.7k, Utilities +0.7k. "Fin/outros" = Financial -14k e Mining -2k. Governo: local -57k, federal -3k, estadual +7k.</div>
+  </div>
+
+  <!-- Tabela completa com contexto -->
+  <div class="card">
+    <h3>Table B-1 — Desagregação (MoM, mil) &nbsp;<span class="badge bg-blue">SA</span></h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Setor</th>
+          <th>Mai-26r</th><th>Jun-26r</th><th>Jul-26p</th>
+          <th>Nível Jul-26</th><th>% NFP</th><th>Sinal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-total"><td>Total Nonfarm</td><td>+63</td><td>+20</td><td class="neg">-23</td><td>158,858</td><td>100%</td><td><span class="badge bg-red">1º negativo desde fev/26</span></td></tr>
+        <tr class="row-total"><td class="indent1">Total Privado</td><td>+61</td><td>+30</td><td class="pos">+30</td><td>135,588</td><td>85.4%</td><td></td></tr>
+
+        <tr><td class="indent1"><strong>Goods-Producing</strong></td><td>+3</td><td>+14</td><td class="pos">+25</td><td>21,561</td><td>13.6%</td><td><span class="badge bg-green">Melhor mês do ano</span></td></tr>
+        <tr><td class="indent2">Mining &amp; Logging</td><td>+3</td><td>-2</td><td class="neg">-2</td><td>607</td><td>0.4%</td><td></td></tr>
+        <tr><td class="indent2">Construction</td><td>+2</td><td>+5</td><td class="pos">+22</td><td>8,343</td><td>5.3%</td><td><span class="badge bg-green">Aceleração forte</span></td></tr>
+        <tr><td class="indent2"><strong>Manufacturing</strong></td><td>-2</td><td>+11</td><td class="pos">+5</td><td>12,611</td><td>7.9%</td><td><span class="badge bg-green">2º mês positivo</span></td></tr>
+        <tr><td class="indent3">Durables</td><td>+14</td><td>+12</td><td class="pos">+18</td><td>7,869</td><td>—</td><td><span class="badge bg-green">3 meses de alta</span></td></tr>
+        <tr><td class="indent3">Nondurables</td><td>-16</td><td>-1</td><td class="neg">-13</td><td>4,742</td><td>—</td><td><span class="badge bg-red">-1.0% YoY</span></td></tr>
+
+        <tr><td class="indent1"><strong>Private Services</strong></td><td>+58</td><td>+16</td><td class="neu">+5</td><td>114,027</td><td>71.8%</td><td><span class="badge bg-yellow">Quase zero</span></td></tr>
+        <tr><td class="indent2">Wholesale Trade</td><td>+2.5</td><td>+3.3</td><td>+4.7</td><td>6,062</td><td>3.8%</td><td></td></tr>
+        <tr><td class="indent2"><strong>Retail Trade</strong></td><td>+5.0</td><td>-3.7</td><td class="neg">-19.4</td><td>15,441</td><td>9.7%</td><td><span class="badge bg-red">Consumo esfriando</span></td></tr>
+        <tr><td class="indent2">Transport &amp; Warehousing</td><td>+0.8</td><td>-11.4</td><td class="pos">+9.7</td><td>6,596</td><td>4.2%</td><td></td></tr>
+        <tr><td class="indent2">Utilities</td><td>+0.8</td><td>-0.2</td><td>+0.7</td><td>608</td><td>0.4%</td><td></td></tr>
+        <tr><td class="indent2">Information</td><td>-5</td><td>-13</td><td class="pos">+11</td><td>2,780</td><td>1.7%</td><td><span class="badge bg-yellow">Respiro; -2.8% YoY</span></td></tr>
+        <tr><td class="indent2"><strong>Financial Activities</strong></td><td>-20</td><td>-2</td><td class="neg">-14</td><td>9,090</td><td>5.7%</td><td><span class="badge bg-red">Voltou a cair</span></td></tr>
+        <tr><td class="indent2">Prof. &amp; Business Services</td><td>+6</td><td>+34</td><td class="pos">+18</td><td>22,518</td><td>14.2%</td><td></td></tr>
+        <tr><td class="indent3">Temporary Help Services</td><td>-10.8</td><td>+12.9</td><td class="pos">+2.8</td><td>4,050</td><td>—</td><td><span class="badge bg-yellow">Leading ind.</span></td></tr>
+        <tr><td class="indent2"><strong>Private Ed. &amp; Health</strong></td><td>+24</td><td>+54</td><td class="pos">+25</td><td>27,962</td><td>17.6%</td><td><span class="badge bg-yellow">Positivo, desacelerou</span></td></tr>
+        <tr><td class="indent3">Health Care &amp; Social Assistance</td><td>+34.8</td><td>+41.0</td><td class="pos">+22.6</td><td>23,912</td><td>15.1%</td><td></td></tr>
+        <tr><td class="indent2"><strong>Leisure &amp; Hospitality</strong></td><td>+42</td><td>-43</td><td class="neg"><strong>-40</strong></td><td>16,931</td><td>10.7%</td><td><span class="badge bg-red">2º mês de queda forte</span></td></tr>
+        <tr><td class="indent3">Food Services &amp; Drinking Places</td><td>+24.9</td><td>-12.1</td><td class="neg">-26.1</td><td>12,347</td><td>—</td><td></td></tr>
+        <tr><td class="indent2">Other Services</td><td>+2</td><td>-2</td><td>+9</td><td>6,038</td><td>3.8%</td><td></td></tr>
+        <tr class="row-total"><td>Government (Total)</td><td>+2</td><td>-10</td><td class="neg"><strong>-53</strong></td><td>23,270</td><td>14.6%</td><td><span class="badge bg-red">Local -57k</span></td></tr>
+        <tr><td class="indent2">Federal</td><td>+4</td><td>+1</td><td class="neg">-3</td><td>2,683</td><td>1.7%</td><td><span class="badge bg-gray">Estável pós-ajuste</span></td></tr>
+        <tr><td class="indent2">Estadual</td><td>-2</td><td>-3</td><td class="pos">+7</td><td>5,471</td><td>3.4%</td><td></td></tr>
+        <tr><td class="indent2">Local</td><td>0</td><td>-8</td><td class="neg">-57</td><td>15,116</td><td>9.5%</td><td><span class="badge bg-red">Detrator #1 do mês</span></td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:10px;color:#4a5568;margin-top:8px;">p = preliminar; r = revisado (vintage atual da API, 07/08/2026: mai +129k→+63k; jun +57k→+20k). Média 3M (mai-jun-jul) = +20k. Private Services = Total Privado menos Goods-Producing (cálculo residual). Subsetores adicionais (Motor Vehicles, Couriers, Social Assistance, Nursing, Home Health) não disponíveis neste vintage da base local.</div>
+  </div>
+
+  <!-- Ranking -->
+  <div class="card">
+    <h3>Ranking de Contribuição — Julho 2026 (MoM, mil)</h3>
+    <div style="margin-top:4px;">
+      <div class="hbar-row"><div class="hbar-lbl">Private Ed. &amp; Health</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:21.9%"></div></div><div class="hbar-val pos">+25.0</div><div class="hbar-avg pos">desacelerou</div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Construction</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:19.3%"></div></div><div class="hbar-val pos">+22.0</div><div class="hbar-avg pos">acelerou</div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Prof. &amp; Business Services</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:15.8%"></div></div><div class="hbar-val pos">+18.0</div><div class="hbar-avg"></div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Information</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:9.6%"></div></div><div class="hbar-val pos">+11.0</div><div class="hbar-avg neu">respiro</div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Transport &amp; Warehousing</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:8.5%"></div></div><div class="hbar-val pos">+9.7</div><div class="hbar-avg"></div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Other Services</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:7.9%"></div></div><div class="hbar-val pos">+9.0</div><div class="hbar-avg"></div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Estadual</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:6.1%"></div></div><div class="hbar-val pos">+7.0</div><div class="hbar-avg"></div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Manufacturing</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:4.4%"></div></div><div class="hbar-val pos">+5.0</div><div class="hbar-avg pos">dur. +18</div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Wholesale Trade</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill pos" style="width:4.1%"></div></div><div class="hbar-val pos">+4.7</div><div class="hbar-avg"></div></div>
+      <div style="border-top:1px solid #2d3748;margin:6px 0;"></div>
+      <div class="hbar-row"><div class="hbar-lbl">Federal</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill neg" style="width:2.6%"></div></div><div class="hbar-val neg">-3.0</div><div class="hbar-avg"></div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Financial Activities</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill neg" style="width:12.3%"></div></div><div class="hbar-val neg">-14.0</div><div class="hbar-avg neg">reverteu</div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Retail Trade</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill neg" style="width:17.0%"></div></div><div class="hbar-val neg">-19.4</div><div class="hbar-avg neg">consumo</div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Leisure &amp; Hospitality</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill neg" style="width:35.1%"></div></div><div class="hbar-val neg">-40.0</div><div class="hbar-avg neg">2º mês</div></div>
+      <div class="hbar-row"><div class="hbar-lbl">Governo Local</div><div class="hbar-wrap"><div class="hbar-center"></div><div class="hbar-fill neg" style="width:50%"></div></div><div class="hbar-val neg">-57.0</div><div class="hbar-avg neg">detrator #1</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== GOODS & MANUFATURA ========== -->
+<div id="panel-goods" class="panel">
+  <div class="ok-box">
+    <strong>O lado goods virou na margem:</strong> Goods-producing somou <strong>+25k</strong> em julho — o melhor mês do ano (mai +3k, jun +14k, jul +25k) — puxado por <strong>construção +22k</strong> e <strong>duráveis +18k</strong> (terceiro mês seguido de alta: mai +14k, jun +12k, jul +18k). Manufatura total +5k, segundo mês positivo. A leitura é coerente com o ISM manufacturing employment em <strong>52.8 em julho — primeira expansão em 33 meses</strong> (ISM, press release público). O freio interno: nondurables -13k (-1.0% YoY), o lado mais exposto a custo de insumos.
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Goods-Producing MoM</div><div class="kpi-val pos">+25k</div><div class="kpi-sub">Jul-26 (prelim.) — melhor do ano</div></div>
+    <div class="kpi"><div class="kpi-lbl">Construction</div><div class="kpi-val pos">+22k</div><div class="kpi-sub">Nível 8,343k (+1.0% YoY)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Durables</div><div class="kpi-val pos">+18k</div><div class="kpi-sub">3º mês de alta; nível 7,869k</div></div>
+    <div class="kpi"><div class="kpi-lbl">Nondurables</div><div class="kpi-val neg">-13k</div><div class="kpi-sub">Nível 4,742k (-1.0% YoY)</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Decomposição Goods — Tendência (MoM, mil)</h3>
+      <table>
+        <thead><tr><th>Subsetor</th><th>Mai-26</th><th>Jun-26</th><th>Jul-26p</th><th>Nível Jul-26</th><th>YoY</th></tr></thead>
+        <tbody>
+          <tr class="row-total"><td>Goods-Producing</td><td>+3</td><td>+14</td><td class="pos">+25</td><td>21,561</td><td class="pos">+0.3%</td></tr>
+          <tr><td class="indent1">Mining &amp; Logging</td><td>+3</td><td>-2</td><td class="neg">-2</td><td>607</td><td class="neg">-0.5%</td></tr>
+          <tr><td class="indent1">Construction</td><td>+2</td><td>+5</td><td class="pos">+22</td><td>8,343</td><td class="pos">+1.0%</td></tr>
+          <tr><td class="indent1">Manufacturing</td><td>-2</td><td>+11</td><td class="pos">+5</td><td>12,611</td><td class="neg">-0.1%</td></tr>
+          <tr><td class="indent2">Durables</td><td>+14</td><td>+12</td><td class="pos">+18</td><td>7,869</td><td class="pos">+0.5%</td></tr>
+          <tr><td class="indent2">Nondurables</td><td>-16</td><td>-1</td><td class="neg">-13</td><td>4,742</td><td class="neg">-1.0%</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#718096;line-height:1.5;">AHE de manufacturing: $36.87 (+3.8% YoY); construção: $41.46 (+4.4% YoY) — salários do lado goods rodando acima da média privada (+3.2%), consistente com demanda por mão de obra firmando. Workweek e overtime de manufatura: sem dado neste vintage — ver Table B-2 do release.</div>
+    </div>
+    <div class="card">
+      <h3>Por Que a Virada Importa</h3>
+      <table>
+        <thead><tr><th>Sinal</th><th>Leitura</th></tr></thead>
+        <tbody>
+          <tr><td>Duráveis: 3 meses de alta (+14/+12/+18)</td><td class="pos">Não é ruído de um mês — tendência curta formada</td></tr>
+          <tr><td>ISM mfg employment 52.8 (jul)</td><td class="pos">1ª expansão em 33 meses; independente do CES, aponta na mesma direção</td></tr>
+          <tr><td>Construção +22k</td><td class="pos">Compatível com ciclo de juros esperado em queda</td></tr>
+          <tr><td>Nondurables -13k</td><td class="neg">Custo de insumos ainda morde o lado não-durável</td></tr>
+          <tr><td>Mining -2k (2º mês)</td><td class="neu">Arrasto pequeno (0.4% do nonfarm)</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#718096;line-height:1.5;">Goods-producing tem 13.6% do payroll — a virada não compensa sozinha a fraqueza de serviços de consumo (L&amp;H + Retail = 20.4% do payroll), mas muda a <em>composição</em> do ciclo: de "goods em recessão, serviços segurando" para "goods recuperando, consumo cedendo".</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CONSUMO & SERVIÇOS ========== -->
+<div id="panel-consumo" class="panel">
+  <div class="warn-box">
+    <strong>O consumidor confirmou o pisca-alerta de junho:</strong> Leisure &amp; Hospitality <strong>-40k</strong> em julho após -43k em junho (vintage atual) — dois meses seguidos de contração forte, com <strong>food services -26.1k</strong> no mês. Retail <strong>-19.4k</strong> aprofundou a queda de junho (-3.7k). Financial Activities <strong>-14k</strong> voltou a cair. Os setores que dependem do gasto discricionário das famílias estão encolhendo em conjunto — a transmissão "emprego fraco → renda fraca → consumo fraco" deixou de ser hipótese e virou dado.
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Leisure &amp; Hospitality</div><div class="kpi-val neg">-40k</div><div class="kpi-sub">Jun: -43k | acum. 2M: -83k</div></div>
+    <div class="kpi"><div class="kpi-lbl">Food Services</div><div class="kpi-val neg">-26.1k</div><div class="kpi-sub">Nível 12,347k (+1.0% YoY)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Retail Trade</div><div class="kpi-val neg">-19.4k</div><div class="kpi-sub">Nível 15,441k (+0.1% YoY)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Financial Activities</div><div class="kpi-val neg">-14k</div><div class="kpi-sub">Nível 9,090k (-1.2% YoY)</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Serviços de Consumo — Tendência (MoM, mil)</h3>
+      <table>
+        <thead><tr><th>Setor</th><th>Mai-26</th><th>Jun-26</th><th>Jul-26p</th><th>Acum. jun-jul</th></tr></thead>
+        <tbody>
+          <tr><td>Leisure &amp; Hospitality</td><td class="pos">+42</td><td class="neg">-43</td><td class="neg">-40</td><td class="neg">-83</td></tr>
+          <tr><td class="indent1">Food Services &amp; Drinking Places</td><td class="pos">+24.9</td><td class="neg">-12.1</td><td class="neg">-26.1</td><td class="neg">-38.2</td></tr>
+          <tr><td>Retail Trade</td><td class="pos">+5.0</td><td class="neg">-3.7</td><td class="neg">-19.4</td><td class="neg">-23.1</td></tr>
+          <tr><td>Financial Activities</td><td class="neg">-20</td><td class="neg">-2</td><td class="neg">-14</td><td class="neg">-16</td></tr>
+          <tr class="row-total"><td>Soma dos três setores</td><td class="pos">+27</td><td class="neg">-48.7</td><td class="neg">-73.4</td><td class="neg">-122.1</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#718096;line-height:1.5;">O +42k de L&amp;H em maio ficou isolado como outlier — junho e julho devolveram tudo e mais. Juntos, L&amp;H + Retail + Financial destruíram -122k postos em dois meses.</div>
+    </div>
+    <div class="card">
+      <h3>Sinais Cruzados — Por Que Não É (Ainda) Demissão em Massa</h3>
+      <table>
+        <thead><tr><th>Evidência</th><th>Leitura</th></tr></thead>
+        <tbody>
+          <tr><td>Claims semana de referência: 188k</td><td class="pos">Nível baixo — sem onda de layoffs (DOL, público)</td></tr>
+          <tr><td>ADP privado jul: +44k</td><td class="neu">Próximo do NFP privado +30k (gap de 14k)</td></tr>
+          <tr><td>AHE L&amp;H: -$0.01 MoM ($23.63)</td><td class="neg">Sem pressão salarial = sem disputa por trabalhador</td></tr>
+          <tr><td>PT involuntário: +123k (CPS)</td><td class="neg">Corte de horas antes de corte de gente</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#718096;line-height:1.5;">O padrão é de <strong>congelamento de contratação e corte de horas</strong>, não de demissões — típico de início de ajuste no consumo. Se a demanda não estabilizar, a próxima fase (layoffs, claims subindo) aparece primeiro em food services e retail.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== GOVERNO ========== -->
+<div id="panel-government" class="panel">
+  <div class="warn-box">
+    <strong>O choque mudou de esfera — do federal para o local:</strong> Em julho o governo total marcou <strong>-53k</strong>, pior mês da série recente, com o <strong>governo local em -57k</strong> (federal -3k, estadual +7k). O federal (2,683k) está estável há meses — o ajuste de 2025 (acumulado <strong>-330k, -11.0%</strong> desde o pico de 3,013k em out/24) terminou. O vetor fiscal negativo agora é subnacional: orçamentos municipais apertados chegando ao payroll de uma vez.
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Governo Total MoM</div><div class="kpi-val neg">-53k</div><div class="kpi-sub">Jul-26; nível 23,270k (-1.3% YoY)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Governo Local</div><div class="kpi-val neg">-57k</div><div class="kpi-sub">Nível 15,116k (-0.2% YoY)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Federal</div><div class="kpi-val neu">-3k</div><div class="kpi-sub">2,683k — estável pós-ajuste</div></div>
+    <div class="kpi"><div class="kpi-lbl">Federal acum. out/24→jul/26</div><div class="kpi-val neg">-330k</div><div class="kpi-sub">-11.0% do estoque (3,013k→2,683k)</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Evolução Recente — Governo por Esfera (MoM, k)</h3>
+      <table>
+        <thead><tr><th>Esfera</th><th>Abr-26</th><th>Mai-26</th><th>Jun-26</th><th>Jul-26p</th></tr></thead>
+        <tbody>
+          <tr><td>Federal</td><td>-1</td><td>+4</td><td>+1</td><td class="neg">-3</td></tr>
+          <tr><td>Estadual</td><td>0</td><td>-2</td><td>-3</td><td class="pos">+7</td></tr>
+          <tr><td>Local</td><td>-1</td><td>0</td><td>-8</td><td class="neg"><strong>-57</strong></td></tr>
+          <tr class="row-total"><td>Total</td><td>-2</td><td>+2</td><td>-10</td><td class="neg"><strong>-53</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#a0aec0;line-height:1.5;">O local vinha de meses aproximadamente estáveis (abr -1k, mai 0k, jun -8k) e caiu -57k de uma vez. <strong>Cautela na leitura:</strong> julho concentra a sazonalidade de educação municipal (fim do ano letivo) — o ajuste sazonal desse bloco é historicamente ruidoso e o dado é preliminar. Um mês não estabelece tendência; agosto decide se é aperto fiscal subnacional real ou artefato sazonal.</div>
+    </div>
+    <div class="card">
+      <h3>Canais de Transmissão Macro</h3>
+      <table>
+        <thead><tr><th>Canal</th><th>Efeito</th><th>Magnitude</th></tr></thead>
+        <tbody>
+          <tr><td>Renda direta (salários municipais)</td><td class="neg">Corte de -57k atinge folha local</td><td class="neg">Média-alta se persistir</td></tr>
+          <tr><td>Educação municipal</td><td class="neg">Bloco dominante do emprego local</td><td class="neu">Verificar B-1 detalhada do release</td></tr>
+          <tr><td>Muni credit</td><td class="neg">Orçamentos apertados = sinal p/ spreads munis</td><td class="neu">Monitorar</td></tr>
+          <tr><td>Federal estabilizado</td><td class="pos">Deixou de ser vetor mensal negativo</td><td class="pos">Dano acumulado -330k já incorrido</td></tr>
+          <tr><td>Saída da força de trabalho</td><td class="neg">LFPR 61.4% (-0.1pp em jul; -0.8pp YoY)</td><td class="neg">Alta</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#718096;line-height:1.5;"><strong>Nota CES:</strong> Furloughados são contados como empregados no payroll (recebem ou receberão pagamento no período de referência do dia 12). Cortes efetivos de folha, não licenças, é o que aparece no -57k.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ED & SAÚDE ========== -->
+<div id="panel-healthcare" class="panel">
+  <div class="ok-box">
+    <strong>Ainda positivo — mas o motor perdeu metade da força:</strong> Private Ed. &amp; Health somou <strong>+25k</strong> em julho (healthcare + social assistance: <strong>+22.6k</strong>), após +54k em junho (vintage atual; +69k no print original) e +24k em maio. É o único grande bloco de serviços com criação consistente no ano — mas o ritmo de julho é o piso da faixa recente e o YoY do bloco desacelerou para <strong>+2.0%</strong> (healthcare +2.4%).
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Private Ed. &amp; Health MoM</div><div class="kpi-val pos">+25k</div><div class="kpi-sub">Jul-26; jun +54k (vintage atual)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Health Care &amp; Soc. Asst.</div><div class="kpi-val pos">+22.6k</div><div class="kpi-sub">Jul-26; nível 23,912k (+2.4% YoY)</div></div>
+    <div class="kpi"><div class="kpi-lbl">Participação no nonfarm</div><div class="kpi-val neu">17.6%</div><div class="kpi-sub">27,962k — maior setor privado</div></div>
+    <div class="kpi"><div class="kpi-lbl">AHE Ed &amp; Saúde YoY</div><div class="kpi-val neg">+1.7%</div><div class="kpi-sub">$36.18 — menor YoY do painel</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Ed &amp; Saúde — Tendência 2026 (MoM, mil)</h3>
+      <table>
+        <thead><tr><th>Mês</th><th>Ed &amp; Health</th><th>HC &amp; Soc. Asst.</th></tr></thead>
+        <tbody>
+          <tr><td>Abr 2026</td><td class="pos">+67</td><td class="pos">+57.1</td></tr>
+          <tr><td>Mai 2026</td><td class="pos">+24</td><td class="pos">+34.8</td></tr>
+          <tr><td>Jun 2026</td><td class="pos">+54</td><td class="pos">+41.0</td></tr>
+          <tr><td><strong>Jul 2026p</strong></td><td class="pos"><strong>+25</strong></td><td class="pos"><strong>+22.6</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:10px;color:#4a5568;">Desagregação de Social Assistance / Nursing / Home Health não disponível neste vintage da base local — ver Table B-1 do release. Valores mai/jun já revisados (vintage atual).</div>
+    </div>
+    <div class="card">
+      <h3>Leitura do Setor</h3>
+      <table>
+        <thead><tr><th>Dimensão</th><th>Sinal</th></tr></thead>
+        <tbody>
+          <tr><td>Criação de emprego (jul +22.6k healthcare)</td><td class="pos">Positiva, mas metade do ritmo de jun</td></tr>
+          <tr><td>YoY do bloco: +2.0% (era +2.2% em jun)</td><td class="warn">Desaceleração gradual no ano</td></tr>
+          <tr><td>AHE +1.7% YoY — mínima do painel</td><td class="warn">Expansão de quantidade, não de salário</td></tr>
+          <tr><td>Dependência do headline</td><td class="neu">Sem Ed&amp;Saúde, o privado teria sido +5k em jul</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#718096;line-height:1.6;"><strong>Risco chave:</strong> o mercado de trabalho segue apoiado neste setor — se a desaceleração de julho (+25k vs média ~+42k abr-jun) virar tendência, o único pilar consistente de serviços perde força justo quando o consumo cede. Vetor de risco fiscal: cortes de Medicaid/Medicare no orçamento federal.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== LEADING INDICATORS ========== -->
+<div id="panel-leading" class="panel">
+  <div class="info-box">
+    <strong>Leading indicators disponíveis neste vintage:</strong> (1) Temporary Help Services — contratações temporárias precedem permanentes em 1–3 meses; (2) antecedentes públicos (ADP e claims da semana de referência) — ver página "Antecedentes"; (3) Diffusion Index — sem dado numérico via API (Table B-6 do release). Workweek de manufatura: sem dado neste vintage.
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>Temp Help Services</h3>
+      <div style="font-size:24px;font-weight:700;color:#68d391;margin:8px 0;">+2.8k</div>
+      <div style="font-size:11px;color:#718096;">Julho 2026</div>
+      <div class="sep"></div>
+      <table>
+        <thead><tr><th>Mês</th><th>MoM</th></tr></thead>
+        <tbody>
+          <tr><td>Mai 2026</td><td class="neg">-10.8k</td></tr>
+          <tr><td>Jun 2026</td><td class="pos">+12.9k</td></tr>
+          <tr><td>Jul 2026</td><td class="pos">+2.8k</td></tr>
+          <tr><td>Nível jul-26</td><td class="neu">4,050k (-0.1% YoY)</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#a0aec0;line-height:1.5;">Dois meses positivos seguidos, mas em desaceleração e com nível flat em 12 meses. <span class="neu">Sinal neutro-construtivo</span>: empresas seguem testando demanda via temporários em vez de cortar.</div>
+    </div>
+    <div class="card">
+      <h3>Antecedentes vs. Realizado (jul/26)</h3>
+      <table>
+        <thead><tr><th>Indicador</th><th>Antecipava</th><th>Realizado</th></tr></thead>
+        <tbody>
+          <tr><td>ADP privado</td><td>+44k</td><td class="pos">NFP privado +30k</td></tr>
+          <tr><td>Claims (ref-week)</td><td>188k (vs 227k jun)</td><td class="pos">Sem layoffs em massa</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#a0aec0;line-height:1.5;">O erro do ADP caiu para <strong>14k</strong> este mês — e a mensagem conjunta dos antecedentes se confirmou: o enfraquecimento veio de <strong>contratação fraca e governo</strong>, não de demissões. Claims baixos + payroll negativo = mercado congelado, não em colapso. Fontes: ADP National Employment Report e DOL (públicos); detalhe na página Antecedentes.</div>
+    </div>
+    <div class="card">
+      <h3>Diffusion Index</h3>
+      <div style="font-size:24px;font-weight:700;color:#718096;margin:8px 0;">n.d.</div>
+      <div style="font-size:11px;color:#718096;">Julho 2026 — sem dado numérico neste vintage</div>
+      <div class="sep"></div>
+      <table>
+        <thead><tr><th>Referência</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Diffusion privado (jul)</td><td class="neu">Ver Table B-6</td></tr>
+          <tr><td>Diffusion manufacturing (jul)</td><td class="neu">Ver Table B-6</td></tr>
+        </tbody>
+      </table>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:#a0aec0;line-height:1.5;">Leitura qualitativa: 9 blocos principais positivos vs 5 negativos, mas com os negativos concentrando -128k brutos — amplitude <span class="warn">estreita e assimétrica</span>.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Leitura Integrada dos Leading Indicators</h3>
+    <table>
+      <thead><tr><th>Indicador</th><th>Leitura atual</th><th>Sinal</th><th>Interpretação</th></tr></thead>
+      <tbody>
+        <tr><td>Temp Help (+2.8k, 2º mês positivo)</td><td class="neu">Neutro-positivo</td><td><span class="badge bg-yellow">Sem tendência</span></td><td>Nível flat em 12M (-0.1%); empresas em modo "esperar para ver"</td></tr>
+        <tr><td>ISM mfg employment 52.8 (jul)</td><td class="pos">Positivo</td><td><span class="badge bg-green">Virada goods</span></td><td>1ª expansão em 33 meses (ISM, público); coerente com duráveis +18k e mfg +5k no CES</td></tr>
+        <tr><td>Claims ref-week 188k</td><td class="pos">Positivo</td><td><span class="badge bg-green">Sem layoffs</span></td><td>Fraqueza vem de contratação, não de demissão — padrão de congelamento</td></tr>
+        <tr><td>LFPR 61.4% (força de trabalho -264k)</td><td class="neg">Negativo</td><td><span class="badge bg-red">Desengajamento</span></td><td>2º mês seguido de U-3 caindo pelo motivo errado; -1.3M de força de trabalho em 12M</td></tr>
+        <tr><td>L&amp;H -40k / Retail -19.4k (2º mês)</td><td class="neg">Negativo</td><td><span class="badge bg-red">Consumo confirmou</span></td><td>O pisca-alerta de junho virou tendência de dois meses — elo emprego→consumo ativo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ========== NARRATIVA DE CICLO ========== -->
+<div id="panel-narrative" class="panel">
+  <div class="card">
+    <h3>Três Histórias Simultâneas no Mercado de Trabalho de Julho 2026</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px;">
+      <div style="background:#1a2a1a;border:1px solid #276749;border-radius:6px;padding:12px;">
+        <div style="font-size:11px;font-weight:700;color:#9ae6b4;text-transform:uppercase;margin-bottom:8px;">1. Rotação — Goods acorda</div>
+        <div style="font-size:11.5px;color:#a0aec0;line-height:1.6;">Goods +25k (melhor mês do ano): construção +22k, duráveis +18k (3º mês de alta), manufatura +5k — com ISM mfg employment em 52.8, primeira expansão em 33 meses. O lado do ciclo que estava morto desde 2024 voltou a criar emprego na margem.</div>
+      </div>
+      <div style="background:#2d1a1a;border:1px solid #742a2a;border-radius:6px;padding:12px;">
+        <div style="font-size:11px;font-weight:700;color:#feb2b2;text-transform:uppercase;margin-bottom:8px;">2. Consumo — a fraqueza confirmada</div>
+        <div style="font-size:11.5px;color:#a0aec0;line-height:1.6;">Leisure -40k (2º mês; food services -26.1k), retail -19.4k, financial -14k. Dois meses seguidos de contração conjunta dos setores consumer-facing: a transmissão emprego→renda→consumo está operando. AHE de L&amp;H flat no mês reforça: não há disputa por trabalhador nesses setores.</div>
+      </div>
+      <div style="background:#2a1a2a;border:1px solid #553c6b;border-radius:6px;padding:12px;">
+        <div style="font-size:11px;font-weight:700;color:#d6bcfa;text-transform:uppercase;margin-bottom:8px;">3. Fiscal — o choque migra p/ o local</div>
+        <div style="font-size:11.5px;color:#a0aec0;line-height:1.6;">Governo local -57k derrubou o headline; federal (-3k) estável após o ajuste de -330k (out/24→jul/26). Se o dado sobreviver à revisão e à sazonalidade de educação municipal, é o aperto fiscal subnacional entrando no payroll — vetor novo, não mapeado no ciclo até aqui.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <strong>A quarta história — a oferta de trabalho segue encolhendo:</strong> força de trabalho -264k no mês e -1.3M em 12 meses; LFPR 61.4% (-0.8pp YoY); EPOP 58.9%. A U-3 em 4.1% é a estatística mais enganosa do release: caiu dois meses seguidos com o emprego household caindo junto. E o detalhe novo de julho: <strong>mesmo com a oferta encolhendo, o AHE desacelerou</strong> (+0.05% MoM; +3.2% YoY) — a demanda por trabalho está caindo mais rápido que a oferta. Isso desarma o argumento de que a contração da força re-apertaria salários.
+  </div>
+
+  <div class="card">
+    <h3>O Headline Esconde: Headline vs. Underlying</h3>
+    <table>
+      <thead><tr><th>Métrica</th><th>Valor</th><th>O que esconde</th></tr></thead>
+      <tbody>
+        <tr><td>Nonfarm Payroll: -23k (jul)</td><td class="neg">1º negativo desde fev/26</td><td>O privado criou +30k; o governo (-53k, local -57k) derrubou o total. Composição melhor que o headline — mas +30k de privado ainda é pouco.</td></tr>
+        <tr><td>U-3: 4.1% (-0.1pp)</td><td class="pos">Parece melhora</td><td>Força de trabalho -264k, LFPR 61.4%, EPOP 58.9%, PT involuntário +123k, U-6 parada em 7.9%. Segundo mês seguido de queda pelo motivo errado.</td></tr>
+        <tr><td>Média 3M: +20k</td><td class="neg">Quase estagnação</td><td>Revisões de -103k (mai +129k→+63k; jun +57k→+20k) reescreveram o trimestre: não era desaceleração moderada, era freada brusca.</td></tr>
+        <tr><td>AHE +3.2% YoY</td><td class="pos">Desinflação salarial</td><td>MoM +0.05% (~0.6% anualizado) desfaz o susto de junho; Ed&amp;Saúde a +1.7% YoY. A pressão residual (Utilities +8.1%) é custo regulado, não demanda.</td></tr>
+        <tr><td>Goods +25k</td><td class="pos">Virada real na margem</td><td>Mas goods = 13.6% do payroll; L&amp;H + Retail (20.4%) contraindo pesam mais no agregado de renda.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Cenários para os Próximos Releases (Ago–Set 2026)</h3>
+    <table>
+      <thead><tr><th>Cenário</th><th>Prob. indicativa</th><th>Trigger</th><th>Implicação Fed</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Estabilização com rotação</strong></td>
+          <td class="warn">35%</td>
+          <td>Governo local reverte em ago (sazonalidade), goods segue positivo, L&amp;H estanca; payroll volta a +50–100k</td>
+          <td class="neu">Corte em set/26 confirmado, ritmo gradual</td>
+        </tr>
+        <tr>
+          <td><strong>Deterioração progressiva</strong></td>
+          <td class="warn">45%</td>
+          <td>Consumo segue contraindo (L&amp;H/Retail 3º mês), Ed&amp;Saúde desacelera mais, payroll oscila em torno de zero</td>
+          <td class="pos">Corte em set/26 com sinalização de sequência</td>
+        </tr>
+        <tr>
+          <td><strong>Contração declarada</strong></td>
+          <td class="neg">20%</td>
+          <td>Claims rompem para cima (layoffs chegam a food services/retail), local não reverte, 2º headline negativo seguido</td>
+          <td class="pos">Cortes maiores/mais rápidos; discussão de 50bp</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:10.5px;color:#4a5568;margin-top:8px;">Probabilidades são indicativas para fins de posicionamento, baseadas na trajetória atual dos dados (média 3M +20k, dois meses de contração no consumo, claims baixos) e sem incorporar choques externos adicionais.</div>
+    <div class="sep"></div>
+    <div style="font-size:11px;color:#a0aec0;line-height:1.6;"><strong>Próximos catalisadores:</strong> Benchmark anual definitivo do CES — ago/2026 (o preliminar indicou -911k até mar/25) &nbsp;•&nbsp; Employment Situation de Agosto — 04/09/2026 &nbsp;•&nbsp; FOMC de setembro/2026.</div>
+  </div>
+</div>
+
+<div class="footer">
+  Fonte: BLS, Employment Situation de julho/2026 — Table B-1 (CES, SA) via BLS API v2, vintage 07/08/2026 (incorpora revisões: mai/26 de +129k para +63k; jun/26 de +57k para +20k). Menções a ISM (52.8), ADP (+44k) e claims (188k) referem-se a press releases públicos de ISM, ADP e DOL. Próxima divulgação: Employment Situation de agosto/2026 em 04/09/2026.
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
