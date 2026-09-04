@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASIF — Dispersão salarial por setor — EUA — Agosto 2026</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --up:#1baf7a; --down:#e34948; --acc:#2a78d6; --warn:#eda100;
+  --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s4:#008300;
+  --s5:#4a3aa7; --s6:#e34948; --s7:#e87ba4; --s8:#eb6834;
+  --asif-ouro:#C9A84C; --asif-navy:#002147;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:26px 30px 46px}
+.wrap{max-width:1180px;margin:0 auto}
+.marca{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.marca .badge{background:var(--asif-ouro);color:var(--asif-navy);font-weight:900;
+  letter-spacing:.18em;font-size:13px;padding:5px 10px 5px 12px;border-radius:6px}
+.marca .cap{font-family:Georgia,'Times New Roman',serif;font-style:italic;
+  color:#8a7433;font-size:13px;letter-spacing:.14em}
+h1{font-size:21px;font-weight:600}
+.sub{color:var(--ink2);font-size:13px;margin-top:4px;max-width:1000px}
+.navtop{font-size:12.5px;color:var(--muted);margin-top:10px}
+.navtop a{color:var(--acc);text-decoration:none}
+.navtop a:hover{text-decoration:underline}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0;border-bottom:1px solid var(--axis)}
+.tab{border:none;background:none;font:inherit;font-size:13px;color:var(--ink2);
+  padding:8px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-bottom-color:var(--asif-ouro);font-weight:600}
+.panel{display:none} .panel.on{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:18px 20px;margin-top:18px}
+.card h2{font-size:15px;font-weight:600}
+.card h3{font-size:13.5px;font-weight:600}
+.card .nota{color:var(--muted);font-size:12px;margin:3px 0 12px;line-height:1.55}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:18px}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi .v{font-size:26px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;margin-top:3px}
+.kpi .s{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--ink2)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px}
+th{color:var(--muted);font-weight:500;text-align:right;padding:6px 10px;
+  border-bottom:1px solid var(--axis);white-space:nowrap}
+td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--grid);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+tr:last-child td{border-bottom:none}
+tbody tr.tot td{font-weight:600;border-top:1px solid var(--axis)}
+.box{border:1px solid var(--border);border-left:3px solid var(--acc);border-radius:8px;
+  padding:12px 15px;margin-top:14px;font-size:13px;line-height:1.65;background:#fff}
+.box.ok{border-left-color:var(--up)} .box.al{border-left-color:var(--down)}
+.box.wa{border-left-color:var(--warn)}
+.bars{margin-top:8px}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-size:12.5px}
+.bar .lb{width:230px;flex-shrink:0;color:var(--ink2)}
+.bar .tr{flex:1;height:15px;background:var(--grid);border-radius:3px;position:relative}
+.bar .fi{position:absolute;top:0;height:100%;border-radius:3px}
+.bar .vl{width:70px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;font-weight:600}
+.zero{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--axis)}
+ul.lst{margin:8px 0 0 18px;font-size:13px;line-height:1.7}
+ul.lst li{margin-bottom:5px}
+.foot{color:var(--muted);font-size:11.5px;margin-top:26px;line-height:1.65;max-width:1050px}
+.foot p{margin-top:6px}
+svg text{font-family:inherit}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink2);border:1px solid var(--border);
+  border-radius:12px;padding:2px 9px;margin:10px 6px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="marca"><span class="badge">ASIF</span><span class="cap">Capital</span></div>
+<h1>Dispersão salarial por setor — EUA</h1>
+<div class="sub">O salário está acelerando ou desacelerando, e em quais setores? AHE (average hourly earnings) da Table B-3 do CES, all employees, série sazonalmente ajustada, ago/26.</div>
+<div class="navtop"><a href="index.html">Índice</a> &nbsp;·&nbsp; <a href="asif_labor_market_august2026.html">1 · Monitor</a> &nbsp;·&nbsp; <a href="asif_labor_sectoral_august2026.html">2 · Setorial</a> &nbsp;·&nbsp; <a href="asif_labor_shares_august2026.html">3 · Participação</a> &nbsp;·&nbsp; 4 · Salários &nbsp;·&nbsp; <a href="asif_labor_antecedentes.html">5 · Antecedentes</a></div>
+<div class="tabs"><button class="tab on" onclick="aba('cresc',this)">Crescimento</button><button class="tab" onclick="aba('nivel',this)">Nível</button><button class="tab" onclick="aba('disp',this)">Dispersão</button><button class="tab" onclick="aba('macro',this)">Leitura macro</button></div>
+<div class="panel on" id="p-cresc">
+<div class="card"><h3>Crescimento do AHE em 12 meses, por setor</h3>
+  <div class="nota">Variação de ago/26 contra ago/25. A linha do agregado privado (+3,09%) está na tabela
+  da aba "Nível". Séries com última observação diferente de ago/26 comparam o mesmo mês do ano
+  anterior — o rótulo do mês vai na aba "Nível".</div><div class="bars"><div class="bar"><div class="lb">Utilities</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:50.00%;background:var(--up)"></div></div><div class="vl up">+6,81%</div></div><div class="bar"><div class="lb">Informação</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:38.38%;background:var(--up)"></div></div><div class="vl up">+5,23%</div></div><div class="bar"><div class="lb">Atividades financeiras</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:31.81%;background:var(--up)"></div></div><div class="vl up">+4,34%</div></div><div class="bar"><div class="lb">Construção</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:30.84%;background:var(--up)"></div></div><div class="vl up">+4,20%</div></div><div class="bar"><div class="lb">Alimentação fora do domicílio</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:30.46%;background:var(--up)"></div></div><div class="vl up">+4,15%</div></div><div class="bar"><div class="lb">Bens (goods-producing)</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:29.24%;background:var(--up)"></div></div><div class="vl up">+3,99%</div></div><div class="bar"><div class="lb">Indústria de transformação</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:27.64%;background:var(--up)"></div></div><div class="vl up">+3,77%</div></div><div class="bar"><div class="lb">Lazer e hospitalidade</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:26.25%;background:var(--up)"></div></div><div class="vl up">+3,58%</div></div><div class="bar"><div class="lb">Transporte e armazenagem</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:25.04%;background:var(--up)"></div></div><div class="vl up">+3,41%</div></div><div class="bar"><div class="lb">Varejo</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:22.65%;background:var(--up)"></div></div><div class="vl up">+3,09%</div></div><div class="bar"><div class="lb">Total privado</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:22.64%;background:var(--up)"></div></div><div class="vl up">+3,09%</div></div><div class="bar"><div class="lb">Outros serviços</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:20.97%;background:var(--up)"></div></div><div class="vl up">+2,86%</div></div><div class="bar"><div class="lb">Serviços profissionais e empresariais</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:17.76%;background:var(--up)"></div></div><div class="vl up">+2,42%</div></div><div class="bar"><div class="lb">Educação e saúde (privado)</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:13.14%;background:var(--up)"></div></div><div class="vl up">+1,79%</div></div></div>
+  <div class="nota" style="margin-top:12px">No mês (ago/26):</div><div class="bars"><div class="bar"><div class="lb">Utilities</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:46.53%;width:3.47%;background:var(--down)"></div></div><div class="vl down">-0,05%</div></div><div class="bar"><div class="lb">Informação</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:30.15%;width:19.85%;background:var(--down)"></div></div><div class="vl down">-0,31%</div></div><div class="bar"><div class="lb">Atividades financeiras</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:50.00%;background:var(--up)"></div></div><div class="vl up">+0,77%</div></div><div class="bar"><div class="lb">Construção</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:25.08%;background:var(--up)"></div></div><div class="vl up">+0,39%</div></div><div class="bar"><div class="lb">Alimentação fora do domicílio</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:17.73%;background:var(--up)"></div></div><div class="vl up">+0,27%</div></div><div class="bar"><div class="lb">Bens (goods-producing)</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:15.09%;background:var(--up)"></div></div><div class="vl up">+0,23%</div></div><div class="bar"><div class="lb">Indústria de transformação</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:10.59%;background:var(--up)"></div></div><div class="vl up">+0,16%</div></div><div class="bar"><div class="lb">Lazer e hospitalidade</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:24.76%;background:var(--up)"></div></div><div class="vl up">+0,38%</div></div><div class="bar"><div class="lb">Transporte e armazenagem</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:23.94%;background:var(--up)"></div></div><div class="vl up">+0,37%</div></div><div class="bar"><div class="lb">Varejo</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:19.79%;background:var(--up)"></div></div><div class="vl up">+0,30%</div></div><div class="bar"><div class="lb">Total privado</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:17.28%;background:var(--up)"></div></div><div class="vl up">+0,27%</div></div><div class="bar"><div class="lb">Outros serviços</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:17.17%;background:var(--up)"></div></div><div class="vl up">+0,26%</div></div><div class="bar"><div class="lb">Serviços profissionais e empresariais</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:8.55%;background:var(--up)"></div></div><div class="vl up">+0,13%</div></div><div class="bar"><div class="lb">Educação e saúde (privado)</div><div class="tr"><div class="zero" style="left:50%"></div><div class="fi" style="left:50.00%;width:14.33%;background:var(--up)"></div></div><div class="vl up">+0,22%</div></div></div>
+</div></div><div class="panel" id="p-nivel">
+<div class="card"><h3>Nível do salário por hora — ago/26</h3>
+  <div class="nota">Ordenado por nível. "vs. média privada" compara com o agregado de
+  US$ 37,75/hora. AHE é salário bruto por hora trabalhada, não inclui benefícios — o ECI
+  inclui.</div><table><thead><tr><th>Setor</th><th>AHE (US$/h)</th><th>vs. média privada</th><th>no mês</th><th>em 12 meses</th><th>última obs.</th></tr></thead><tbody><tr><td>Utilities</td><td>56,28</td><td><span class="up">+49,1%</span></td><td><span class="down">-0,05%</span></td><td><span class="up">+6,81%</span></td><td>ago/26</td></tr><tr><td>Informação</td><td>55,53</td><td><span class="up">+47,1%</span></td><td><span class="down">-0,31%</span></td><td><span class="up">+5,23%</span></td><td>ago/26</td></tr><tr><td>Atividades financeiras</td><td>49,82</td><td><span class="up">+32,0%</span></td><td><span class="up">+0,77%</span></td><td><span class="up">+4,34%</span></td><td>ago/26</td></tr><tr><td>Serviços profissionais e empresariais</td><td>45,70</td><td><span class="up">+21,1%</span></td><td><span class="up">+0,13%</span></td><td><span class="up">+2,42%</span></td><td>ago/26</td></tr><tr><td>Construção</td><td>41,66</td><td><span class="up">+10,4%</span></td><td><span class="up">+0,39%</span></td><td><span class="up">+4,20%</span></td><td>ago/26</td></tr><tr><td>Bens (goods-producing)</td><td>38,88</td><td><span class="up">+3,0%</span></td><td><span class="up">+0,23%</span></td><td><span class="up">+3,99%</span></td><td>ago/26</td></tr><tr><td>Total privado</td><td>37,75</td><td><span class="flat">+0,0%</span></td><td><span class="up">+0,27%</span></td><td><span class="up">+3,09%</span></td><td>ago/26</td></tr><tr><td>Indústria de transformação</td><td>36,92</td><td><span class="down">-2,2%</span></td><td><span class="up">+0,16%</span></td><td><span class="up">+3,77%</span></td><td>ago/26</td></tr><tr><td>Educação e saúde (privado)</td><td>36,39</td><td><span class="down">-3,6%</span></td><td><span class="up">+0,22%</span></td><td><span class="up">+1,79%</span></td><td>ago/26</td></tr><tr><td>Outros serviços</td><td>34,19</td><td><span class="down">-9,4%</span></td><td><span class="up">+0,26%</span></td><td><span class="up">+2,86%</span></td><td>ago/26</td></tr><tr><td>Transporte e armazenagem</td><td>32,73</td><td><span class="down">-13,3%</span></td><td><span class="up">+0,37%</span></td><td><span class="up">+3,41%</span></td><td>ago/26</td></tr><tr><td>Varejo</td><td>26,38</td><td><span class="down">-30,1%</span></td><td><span class="up">+0,30%</span></td><td><span class="up">+3,09%</span></td><td>ago/26</td></tr><tr><td>Lazer e hospitalidade</td><td>23,74</td><td><span class="down">-37,1%</span></td><td><span class="up">+0,38%</span></td><td><span class="up">+3,58%</span></td><td>ago/26</td></tr><tr><td>Alimentação fora do domicílio</td><td>22,08</td><td><span class="down">-41,5%</span></td><td><span class="up">+0,27%</span></td><td><span class="up">+4,15%</span></td><td>jul/26</td></tr></tbody></table>
+</div></div><div class="panel" id="p-disp">
+<div class="card"><h3>Quão espalhado está o crescimento salarial?</h3>
+  <div class="nota">Estatísticas sobre os 12 setores da Table B-3 coletados, excluindo os
+  agregados "total privado" e "bens" para não contar duas vezes.</div><table><thead><tr><th>Medida (crescimento do AHE em 12 meses)</th><th>Valor</th></tr></thead><tbody><tr><td>Agregado privado (CES0500000003)</td><td>+3,09%</td></tr><tr><td>Mediana dos 12 setores</td><td>+3,67%</td></tr><tr><td>Maior: Utilities</td><td>+6,81%</td></tr><tr><td>Menor: Educação e saúde (privado)</td><td>+1,79%</td></tr><tr><td>Amplitude (maior − menor)</td><td>5,02pp</td></tr><tr><td>Setores acima do agregado</td><td>9 de 12</td></tr><tr><td>Setores abaixo do agregado</td><td>3 de 12</td></tr></tbody></table>
+  <div class="box">A amplitude entre o setor que mais paga aumento (Utilities, +6,81%) e o que menos paga (Educação e saúde (privado), +1,79%) é de <strong>5,02pp</strong>. A mediana setorial (+3,67%) está acima d o agregado privado (+3,09%) — sinal de que o número agregado está sendo puxado por poucos setores de peso, não por um aumento generalizado. O ponto que importa para inflação: <strong>educação e saúde</strong>, que é o maior setor da economia (17,6% do emprego) e responde por quase todo o crescimento da folha, é justamente o que menos remunera na margem (+1,79% em 12 meses). Emprego crescendo onde o salário cresce menos <em>reduz</em> o AHE agregado por composição — parte da desaceleração de +3,24% para +3,09% é efeito-mix, não desaceleração de salário individual. É por isso que o card AHE vs ECI da página 1 importa: o ECI, de composição fixa, é o teste dessa hipótese.</div>
+</div></div><div class="panel" id="p-macro"><div class="card"><h3>O que o salário diz para a Fed</h3><div class="nota">Leitura a partir dos números desta edição — não é recomendação de investimento.</div><div class="box">Três leituras para política monetária. <strong>(1) Nível de ritmo.</strong> O agregado roda +3,09% em 12 meses, mas +2,80% anualizado nos últimos 3 meses e +2,59% em 6 — a inclinação está para baixo. Com produtividade em torno de 1,5%, um salário nominal a +2,80% é consistente com inflação de 1,3% a 1,5%: <strong>abaixo</strong> da meta, não acima. <strong>(2) Composição.</strong> Os setores que mais aceleram salário — utilities (+6,81%) e informação (+5,23%) — são os que menos empregam (0,4% e 1,7% do total) e, no caso de informação, os que estão <em>cortando</em> gente (-115k em 12 meses). Isso é preço de escassez de qualificação específica, não aperto de mercado de trabalho. <strong>(3) Onde o aperto apareceria.</strong> Se houvesse pressão salarial de demanda, ela apareceria em lazer e hospitalidade e varejo, que empregam na base. Estão em +3,58% e +3,09% — acima do agregado, mas longe do 5%–6% de 2022. Conclusão: este release não entrega argumento salarial para adiar corte.</div></div></div>
+<div class="foot">Amplitude setorial de 5,02pp entre Utilities (+6,81%) e Educação e saúde (privado) (+1,79%) no crescimento em 12 meses.<p>Fonte: U.S. Bureau of Labor Statistics, API pública v2 — Current Employment Statistics (CES, <em>establishment survey</em>) e Current Population Survey (CPS, <em>household survey</em>). Mês de referência: <strong>ago/26</strong>. Todas as séries <strong>sazonalmente ajustadas (SA)</strong>, salvo indicação em contrário. Vintage da coleta: 04/09/2026 (dia do release do Employment Situation de Agosto 2026). Níveis de emprego em milhares de pessoas; AHE (average hourly earnings) em US$/hora correntes.</p></div>
+</div>
+<script>
+function aba(id,el){
+  var w=el.closest('.wrap');
+  w.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+  w.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+  el.classList.add('on');
+  document.getElementById('p-'+id).classList.add('on');
+}
+</script>
+</body>
+</html>

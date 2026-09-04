@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASIF — Participação setorial do emprego — EUA — Agosto 2026</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --up:#1baf7a; --down:#e34948; --acc:#2a78d6; --warn:#eda100;
+  --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s4:#008300;
+  --s5:#4a3aa7; --s6:#e34948; --s7:#e87ba4; --s8:#eb6834;
+  --asif-ouro:#C9A84C; --asif-navy:#002147;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:26px 30px 46px}
+.wrap{max-width:1180px;margin:0 auto}
+.marca{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.marca .badge{background:var(--asif-ouro);color:var(--asif-navy);font-weight:900;
+  letter-spacing:.18em;font-size:13px;padding:5px 10px 5px 12px;border-radius:6px}
+.marca .cap{font-family:Georgia,'Times New Roman',serif;font-style:italic;
+  color:#8a7433;font-size:13px;letter-spacing:.14em}
+h1{font-size:21px;font-weight:600}
+.sub{color:var(--ink2);font-size:13px;margin-top:4px;max-width:1000px}
+.navtop{font-size:12.5px;color:var(--muted);margin-top:10px}
+.navtop a{color:var(--acc);text-decoration:none}
+.navtop a:hover{text-decoration:underline}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0;border-bottom:1px solid var(--axis)}
+.tab{border:none;background:none;font:inherit;font-size:13px;color:var(--ink2);
+  padding:8px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-bottom-color:var(--asif-ouro);font-weight:600}
+.panel{display:none} .panel.on{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:18px 20px;margin-top:18px}
+.card h2{font-size:15px;font-weight:600}
+.card h3{font-size:13.5px;font-weight:600}
+.card .nota{color:var(--muted);font-size:12px;margin:3px 0 12px;line-height:1.55}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:18px}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi .v{font-size:26px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;margin-top:3px}
+.kpi .s{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--ink2)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px}
+th{color:var(--muted);font-weight:500;text-align:right;padding:6px 10px;
+  border-bottom:1px solid var(--axis);white-space:nowrap}
+td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--grid);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+tr:last-child td{border-bottom:none}
+tbody tr.tot td{font-weight:600;border-top:1px solid var(--axis)}
+.box{border:1px solid var(--border);border-left:3px solid var(--acc);border-radius:8px;
+  padding:12px 15px;margin-top:14px;font-size:13px;line-height:1.65;background:#fff}
+.box.ok{border-left-color:var(--up)} .box.al{border-left-color:var(--down)}
+.box.wa{border-left-color:var(--warn)}
+.bars{margin-top:8px}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-size:12.5px}
+.bar .lb{width:230px;flex-shrink:0;color:var(--ink2)}
+.bar .tr{flex:1;height:15px;background:var(--grid);border-radius:3px;position:relative}
+.bar .fi{position:absolute;top:0;height:100%;border-radius:3px}
+.bar .vl{width:70px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;font-weight:600}
+.zero{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--axis)}
+ul.lst{margin:8px 0 0 18px;font-size:13px;line-height:1.7}
+ul.lst li{margin-bottom:5px}
+.foot{color:var(--muted);font-size:11.5px;margin-top:26px;line-height:1.65;max-width:1050px}
+.foot p{margin-top:6px}
+svg text{font-family:inherit}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink2);border:1px solid var(--border);
+  border-radius:12px;padding:2px 9px;margin:10px 6px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="marca"><span class="badge">ASIF</span><span class="cap">Capital</span></div>
+<h1>Participação setorial do emprego — EUA</h1>
+<div class="sub">Onde estão os 159,1 milhões de empregos americanos, e como esse desenho mudou desde 2000. Níveis do CES (SA) e participação no total nonfarm.</div>
+<div class="navtop"><a href="index.html">Índice</a> &nbsp;·&nbsp; <a href="asif_labor_market_august2026.html">1 · Monitor</a> &nbsp;·&nbsp; <a href="asif_labor_sectoral_august2026.html">2 · Setorial</a> &nbsp;·&nbsp; 3 · Participação &nbsp;·&nbsp; <a href="asif_wage_dispersion_august2026.html">4 · Salários</a> &nbsp;·&nbsp; <a href="asif_labor_antecedentes.html">5 · Antecedentes</a></div>
+<div class="tabs"><button class="tab on" onclick="aba('rank',this)">Ranking</button><button class="tab" onclick="aba('mapa',this)">Mapa</button><button class="tab" onclick="aba('hist',this)">Mudança estrutural</button></div>
+<div class="panel on" id="p-rank">
+<div class="card"><h3>Setores por tamanho — ago/26</h3>
+  <div class="nota">Nível de emprego (SA, mil) e participação no total nonfarm de 159.075 mil.
+  Ordenado por tamanho.</div><table><thead><tr><th>Setor</th><th>Nível (mil)</th><th>% do total nonfarm</th><th>Variação em 12 meses (mil)</th><th>Contribuição de ago/26</th></tr></thead><tbody><tr><td>Educação e saúde (privado)</td><td>27.974</td><td>17,6%</td><td><span class="up">+539,0k</span></td><td><span class="up">+29,0k</span></td></tr><tr><td>Governo</td><td>23.323</td><td>14,7%</td><td><span class="down">-212,0k</span></td><td><span class="up">+35,0k</span></td></tr><tr><td>Serviços profissionais e empresariais</td><td>22.527</td><td>14,2%</td><td><span class="up">+152,0k</span></td><td><span class="up">+10,0k</span></td></tr><tr><td>Lazer e hospitalidade</td><td>17.001</td><td>10,7%</td><td><span class="up">+131,0k</span></td><td><span class="up">+62,0k</span></td></tr><tr><td>Varejo</td><td>15.488</td><td>9,7%</td><td><span class="up">+47,9k</span></td><td><span class="up">+1,4k</span></td></tr><tr><td>Indústria de transformação</td><td>12.638</td><td>7,9%</td><td><span class="up">+23,0k</span></td><td><span class="up">+16,0k</span></td></tr><tr><td>Atividades financeiras</td><td>9.086</td><td>5,7%</td><td><span class="down">-99,0k</span></td><td><span class="down">-11,0k</span></td></tr><tr><td>Construção</td><td>8.359</td><td>5,3%</td><td><span class="up">+120,0k</span></td><td><span class="up">+22,0k</span></td></tr><tr><td>Transporte e armazenagem</td><td>6.606</td><td>4,2%</td><td><span class="down">-51,5k</span></td><td><span class="up">+5,0k</span></td></tr><tr><td>Atacado</td><td>6.072</td><td>3,8%</td><td><span class="up">+29,1k</span></td><td><span class="up">+7,8k</span></td></tr><tr><td>Outros serviços</td><td>6.035</td><td>3,8%</td><td><span class="up">+27,0k</span></td><td><span class="up">+3,0k</span></td></tr><tr><td>Informação</td><td>2.745</td><td>1,7%</td><td><span class="down">-115,0k</span></td><td><span class="down">-23,0k</span></td></tr><tr><td>Utilities</td><td>612</td><td>0,4%</td><td><span class="up">+10,3k</span></td><td><span class="up">+2,5k</span></td></tr><tr><td>Mineração e extração</td><td>609</td><td>0,4%</td><td><span class="up">+2,0k</span></td><td><span class="up">+3,0k</span></td></tr><tr class="tot"><td><strong>Total nonfarm</strong></td><td><strong>159.075</strong></td><td><strong>100,0%</strong></td><td><strong>+603,0k</strong></td><td><strong>+162k</strong></td></tr></tbody></table>
+</div></div><div class="panel" id="p-mapa">
+<div class="card"><h3>Mapa de participação — ago/26</h3>
+  <div class="nota">Área proporcional ao nível de emprego de cada setor principal. Soma =
+  total nonfarm (159.075 mil). Setores muito pequenos ficam sem rótulo — os valores estão na
+  aba "Ranking".</div><svg viewBox="0 0 980 420" width="100%"><rect x="0.0" y="0.0" width="454.8" height="159.1" fill="#2a78d6" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="8.0" y="18.0" font-size="11.5" fill="#fff" font-weight="600">Educação e saúde (privado)</text><text x="8.0" y="33.0" font-size="11" fill="#fff" fill-opacity=".92">17,6% · 27.974 mil</text><rect x="0.0" y="159.1" width="454.8" height="132.7" fill="#1baf7a" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="8.0" y="177.1" font-size="11.5" fill="#fff" font-weight="600">Governo</text><text x="8.0" y="192.1" font-size="11" fill="#fff" fill-opacity=".92">14,7% · 23.323 mil</text><rect x="0.0" y="291.8" width="454.8" height="128.2" fill="#eda100" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="8.0" y="309.8" font-size="11.5" fill="#fff" font-weight="600">Serviços profissionais e e</text><text x="8.0" y="324.8" font-size="11" fill="#fff" fill-opacity=".92">14,2% · 22.527 mil</text><rect x="454.8" y="0.0" width="278.0" height="158.2" fill="#4a3aa7" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="462.8" y="18.0" font-size="11.5" fill="#fff" font-weight="600">Lazer e hospitalidade</text><text x="462.8" y="33.0" font-size="11" fill="#fff" fill-opacity=".92">10,7% · 17.001 mil</text><rect x="454.8" y="158.2" width="278.0" height="144.1" fill="#e87ba4" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="462.8" y="176.2" font-size="11.5" fill="#fff" font-weight="600">Varejo</text><text x="462.8" y="191.2" font-size="11" fill="#fff" fill-opacity=".92">9,7% · 15.488 mil</text><rect x="454.8" y="302.4" width="278.0" height="117.6" fill="#eb6834" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="462.8" y="320.4" font-size="11.5" fill="#fff" font-weight="600">Indústria de transformação</text><text x="462.8" y="335.4" font-size="11" fill="#fff" fill-opacity=".92">7,9% · 12.638 mil</text><rect x="732.8" y="0.0" width="148.2" height="158.7" fill="#008300" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="740.8" y="18.0" font-size="11.5" fill="#fff" font-weight="600">Atividades financeiras</text><text x="740.8" y="33.0" font-size="11" fill="#fff" fill-opacity=".92">5,7% · 9.086 mil</text><rect x="732.8" y="158.7" width="148.2" height="146.0" fill="#e34948" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="740.8" y="176.7" font-size="11.5" fill="#fff" font-weight="600">Construção</text><text x="740.8" y="191.7" font-size="11" fill="#fff" fill-opacity=".92">5,3% · 8.359 mil</text><rect x="732.8" y="304.6" width="148.2" height="115.4" fill="#7fb3e0" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="740.8" y="322.6" font-size="11.5" fill="#fff" font-weight="600">Transporte e armazenagem</text><text x="740.8" y="337.6" font-size="11" fill="#fff" fill-opacity=".92">4,2% · 6.606 mil</text><rect x="881.0" y="0.0" width="91.5" height="171.7" fill="#8a7433" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="889.0" y="18.0" font-size="11.5" fill="#fff" font-weight="600">Atacado</text><text x="889.0" y="33.0" font-size="11" fill="#fff" fill-opacity=".92">3,8% · 6.072 mil</text><rect x="881.0" y="171.7" width="91.5" height="170.7" fill="#5aa9a0" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="889.0" y="189.7" font-size="11.5" fill="#fff" font-weight="600">Outros serviços</text><text x="889.0" y="204.7" font-size="11" fill="#fff" fill-opacity=".92">3,8% · 6.035 mil</text><rect x="881.0" y="342.4" width="91.5" height="77.6" fill="#a0679c" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><text x="889.0" y="360.4" font-size="11.5" fill="#fff" font-weight="600">Informação</text><text x="889.0" y="375.4" font-size="11" fill="#fff" fill-opacity=".92">1,7% · 2.745 mil</text><rect x="972.5" y="0.0" width="7.5" height="210.5" fill="#c08a3e" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/><rect x="972.5" y="210.5" width="7.5" height="209.5" fill="#6b7280" fill-opacity=".82" stroke="#fcfcfb" stroke-width="2"/></svg>
+</div>
+<div class="box">A estrutura do emprego americano hoje é <strong>mais defensiva do que era em 2000</strong>: os dois maiores blocos — educação e saúde (17,6%) e governo (14,7%) — somam 32,2% do total e são os menos sensíveis ao ciclo. Isso explica por que a taxa de desemprego resiste tanto a choques: um terço do emprego está em setores cuja demanda é demográfica ou orçamentária, não cíclica. O reverso é que <strong>o mesmo desenho limita a aceleração</strong> — a folha cresce +0,38% em 12 meses, e +539k disso vem de saúde. Os setores que responderiam a um afrouxamento monetário (construção 5,3%, indústria 7,9%, informação 1,7%) somam 14,9% do emprego: mesmo que reajam, não movem o agregado com a força de 2000.</div></div><div class="panel" id="p-hist">
+<div class="card"><h3>Participação de cada setor em quatro cortes do tempo</h3>
+  <div class="nota">Nível SA de cada setor sobre o total nonfarm do <em>mesmo mês</em>, calculado
+  da série CES completa (jan/2000 em diante). Cortes: jan/2000 (pré-recessão de 2001),
+  jan/2010 (fundo do mercado de trabalho pós-crise), dez/2019 (último mês pré-pandemia) e
+  ago/26.</div><table><thead><tr><th>Setor</th><th>jan/2000</th><th>jan/2010</th><th>dez/2019</th><th>ago/26</th><th>Variação 2000 → hoje</th></tr></thead><tbody><tr><td>Educação e saúde (privado)</td><td>11,5%</td><td>15,3%</td><td>16,1%</td><td>17,6%</td><td><span class="up">+6,06pp</span></td></tr><tr><td>Governo</td><td>15,7%</td><td>17,3%</td><td>15,0%</td><td>14,7%</td><td><span class="down">-1,04pp</span></td></tr><tr><td>Serviços profissionais e empresariais</td><td>12,6%</td><td>12,8%</td><td>14,1%</td><td>14,2%</td><td><span class="up">+1,58pp</span></td></tr><tr><td>Lazer e hospitalidade</td><td>8,9%</td><td>10,0%</td><td>11,1%</td><td>10,7%</td><td><span class="up">+1,75pp</span></td></tr><tr><td>Varejo</td><td>11,6%</td><td>11,1%</td><td>10,2%</td><td>9,7%</td><td><span class="down">-1,84pp</span></td></tr><tr><td>Indústria de transformação</td><td>13,2%</td><td>8,8%</td><td>8,4%</td><td>7,9%</td><td><span class="down">-5,25pp</span></td></tr><tr><td>Atividades financeiras</td><td>5,9%</td><td>6,0%</td><td>5,8%</td><td>5,7%</td><td><span class="down">-0,22pp</span></td></tr><tr><td>Construção</td><td>5,2%</td><td>4,3%</td><td>5,0%</td><td>5,3%</td><td><span class="up">+0,10pp</span></td></tr><tr><td>Transporte e armazenagem</td><td>3,3%</td><td>3,2%</td><td>3,8%</td><td>4,2%</td><td><span class="up">+0,82pp</span></td></tr><tr><td>Atacado</td><td>4,5%</td><td>4,2%</td><td>3,9%</td><td>3,8%</td><td><span class="down">-0,69pp</span></td></tr><tr><td>Outros serviços</td><td>3,9%</td><td>4,1%</td><td>3,9%</td><td>3,8%</td><td><span class="down">-0,13pp</span></td></tr><tr><td>Informação</td><td>2,7%</td><td>2,1%</td><td>1,9%</td><td>1,7%</td><td><span class="down">-0,99pp</span></td></tr><tr><td>Utilities</td><td>0,5%</td><td>0,4%</td><td>0,4%</td><td>0,4%</td><td><span class="down">-0,08pp</span></td></tr><tr><td>Mineração e extração</td><td>0,5%</td><td>0,5%</td><td>0,5%</td><td>0,4%</td><td><span class="down">-0,07pp</span></td></tr></tbody></table>
+</div>
+<div class="box">Todas as colunas são calculadas da mesma série CES (nível SA de cada setor sobre o total nonfarm do mesmo mês) — nada aqui é aproximação. Três movimentos organizam 26 anos: <strong>educação e saúde</strong> saiu de 11,5% para 17,6% do emprego total (+6,06pp), o maior ganho de participação da economia americana; <strong>indústria de transformação</strong> caiu de 13,2% para 7,9% (-5,25pp), com quase toda a perda concentrada em 2000–2010; e <strong>informação</strong> encolheu de 2,7% para 1,7% (-0,99pp) sem nunca recuperar o nível pré-2001. O governo perdeu participação (-1,04pp) mas o movimento é recente — em jan/2010 estava em 17,3%, acima do nível de 2000. Varejo (-1,84pp) confirma a erosão lenta por e-commerce; transporte e armazenagem (+0,82pp) é a contrapartida.</div></div>
+<div class="foot">Histórico de participação calculado de bls_hist_ces.json (coleta CES 2000–2026, API BLS v2, duas janelas de até 20 anos).<p>Fonte: U.S. Bureau of Labor Statistics, API pública v2 — Current Employment Statistics (CES, <em>establishment survey</em>) e Current Population Survey (CPS, <em>household survey</em>). Mês de referência: <strong>ago/26</strong>. Todas as séries <strong>sazonalmente ajustadas (SA)</strong>, salvo indicação em contrário. Vintage da coleta: 04/09/2026 (dia do release do Employment Situation de Agosto 2026). Níveis de emprego em milhares de pessoas; AHE (average hourly earnings) em US$/hora correntes.</p></div>
+</div>
+<script>
+function aba(id,el){
+  var w=el.closest('.wrap');
+  w.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+  w.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+  el.classList.add('on');
+  document.getElementById('p-'+id).classList.add('on');
+}
+</script>
+</body>
+</html>

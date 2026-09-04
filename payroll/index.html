@@ -1,80 +1,104 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ASIF — Payroll EUA — Dashboards Julho 2026</title>
+<title>ASIF — Payroll EUA — Agosto 2026</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; font-size: 14px; min-height: 100vh; }
-  .header { background: linear-gradient(135deg,#1a1f2e,#0f1117); border-bottom: 1px solid #2d3748; padding: 28px 32px 22px; display:flex;align-items:center;gap:16px; }
-  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-  .header p { font-size: 12px; color: #718096; margin-top: 6px; }
-  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; padding: 20px 32px 6px; max-width: 1100px; }
-  .kpi { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 14px; }
-  .kpi-label { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
-  .kpi-value { font-size: 22px; font-weight: 700; }
-  .kpi-sub { font-size: 10.5px; color: #718096; margin-top: 3px; }
-  .pos { color: #68d391; } .neg { color: #fc8181; } .neu { color: #e2e8f0; } .warn { color: #fbd38d; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; padding: 20px 32px 32px; max-width: 1100px; }
-  a.card { display: block; background: #1a1f2e; border: 1px solid #2d3748; border-radius: 10px; padding: 20px; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
-  a.card:hover { border-color: #63b3ed; transform: translateY(-2px); }
-  .card h2 { font-size: 14px; font-weight: 700; color: #63b3ed; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 8px; }
-  .card p { font-size: 12px; color: #a0aec0; line-height: 1.6; }
-  .card .tag { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: .05em; text-transform: uppercase; background: #2a4365; color: #90cdf4; margin-top: 12px; margin-right: 4px; }
-  .footer { padding: 0 32px 28px; font-size: 10.5px; color: #4a5568; max-width: 1100px; line-height: 1.6; }
-.asif-badge { background:#C9A84C; color:#002147; font-size:17px; font-weight:900; padding:8px 16px; border-radius:6px; letter-spacing:.14em; text-transform:uppercase; flex-shrink:0; box-shadow:0 2px 8px rgba(201,168,76,.25); }
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --up:#1baf7a; --down:#e34948; --acc:#2a78d6; --warn:#eda100;
+  --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s4:#008300;
+  --s5:#4a3aa7; --s6:#e34948; --s7:#e87ba4; --s8:#eb6834;
+  --asif-ouro:#C9A84C; --asif-navy:#002147;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:26px 30px 46px}
+.wrap{max-width:1180px;margin:0 auto}
+.marca{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.marca .badge{background:var(--asif-ouro);color:var(--asif-navy);font-weight:900;
+  letter-spacing:.18em;font-size:13px;padding:5px 10px 5px 12px;border-radius:6px}
+.marca .cap{font-family:Georgia,'Times New Roman',serif;font-style:italic;
+  color:#8a7433;font-size:13px;letter-spacing:.14em}
+h1{font-size:21px;font-weight:600}
+.sub{color:var(--ink2);font-size:13px;margin-top:4px;max-width:1000px}
+.navtop{font-size:12.5px;color:var(--muted);margin-top:10px}
+.navtop a{color:var(--acc);text-decoration:none}
+.navtop a:hover{text-decoration:underline}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0;border-bottom:1px solid var(--axis)}
+.tab{border:none;background:none;font:inherit;font-size:13px;color:var(--ink2);
+  padding:8px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-bottom-color:var(--asif-ouro);font-weight:600}
+.panel{display:none} .panel.on{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:18px 20px;margin-top:18px}
+.card h2{font-size:15px;font-weight:600}
+.card h3{font-size:13.5px;font-weight:600}
+.card .nota{color:var(--muted);font-size:12px;margin:3px 0 12px;line-height:1.55}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:18px}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi .v{font-size:26px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;margin-top:3px}
+.kpi .s{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--ink2)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px}
+th{color:var(--muted);font-weight:500;text-align:right;padding:6px 10px;
+  border-bottom:1px solid var(--axis);white-space:nowrap}
+td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--grid);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+tr:last-child td{border-bottom:none}
+tbody tr.tot td{font-weight:600;border-top:1px solid var(--axis)}
+.box{border:1px solid var(--border);border-left:3px solid var(--acc);border-radius:8px;
+  padding:12px 15px;margin-top:14px;font-size:13px;line-height:1.65;background:#fff}
+.box.ok{border-left-color:var(--up)} .box.al{border-left-color:var(--down)}
+.box.wa{border-left-color:var(--warn)}
+.bars{margin-top:8px}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:5px;font-size:12.5px}
+.bar .lb{width:230px;flex-shrink:0;color:var(--ink2)}
+.bar .tr{flex:1;height:15px;background:var(--grid);border-radius:3px;position:relative}
+.bar .fi{position:absolute;top:0;height:100%;border-radius:3px}
+.bar .vl{width:70px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;font-weight:600}
+.zero{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--axis)}
+ul.lst{margin:8px 0 0 18px;font-size:13px;line-height:1.7}
+ul.lst li{margin-bottom:5px}
+.foot{color:var(--muted);font-size:11.5px;margin-top:26px;line-height:1.65;max-width:1050px}
+.foot p{margin-top:6px}
+svg text{font-family:inherit}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--ink2);border:1px solid var(--border);
+  border-radius:12px;padding:2px 9px;margin:10px 6px 0 0}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:20px}
+a.cardlink{display:block;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:18px 20px;text-decoration:none;color:inherit;
+  transition:border-color .15s,transform .15s}
+a.cardlink:hover{border-color:var(--asif-ouro);transform:translateY(-2px)}
+a.cardlink h2{font-size:14px;font-weight:600;color:var(--ink)}
+a.cardlink p{font-size:12.5px;color:var(--ink2);line-height:1.6;margin-top:7px}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="asif-badge">ASIF</div>
-  <div class="header-text">
-    <h1>US Payroll — Dashboards</h1>
-    <p>Employment Situation — Julho 2026 &nbsp;|&nbsp; Release BLS: 07/08/2026 &nbsp;|&nbsp; Fonte: BLS API v2 (CES + CPS), dados sazonalmente ajustados</p>
-  </div>
+<div class="wrap">
+<div class="marca"><span class="badge">ASIF</span><span class="cap">Capital</span></div>
+<h1>Payroll EUA — Employment Situation de Agosto 2026</h1>
+<div class="sub">O mercado de trabalho americano voltou a criar emprego — ou só corrigiu o mês
+passado? Release do BLS em 04/09/2026 (referência ago/26). Cinco painéis, todos calculados do mesmo vintage
+da API pública do BLS.</div>
+<div class="kpis"><div class="kpi"><div class="l">Payroll · ago/26</div><div class="v up">+162k</div><div class="d up">maior alta desde mar/26</div><div class="s">média 3M +71,3k · privado +127k</div></div><div class="kpi"><div class="l">Revisões · 2 meses</div><div class="v up">+55k</div><div class="d up">junho e julho para cima</div><div class="s">julho: de -23k para +21k</div></div><div class="kpi"><div class="l">Desemprego U-3</div><div class="v ">4,1%</div><div class="d flat">estável vs jul/26</div><div class="s">U-6 7,7% (-0,2pp)</div></div><div class="kpi"><div class="l">Participação · LFPR</div><div class="v ">61,6%</div><div class="d up">+0,2pp no mês</div><div class="s">força de trabalho +683 mil</div></div><div class="kpi"><div class="l">Salário · AHE</div><div class="v up">+3,09%</div><div class="d up">em 12 meses</div><div class="s">3m anualizado +2,80% — desacelerando</div></div></div>
+<div class="box ok"><strong>Resumo de ago/26.</strong> O payroll de ago/26 veio em <strong>+162k</strong> (total nonfarm, SA) — a maior criação mensal desde mar/26 — e, mais importante para a leitura de tendência, as revisões vieram <strong>para cima</strong>: junho passou de +20k para +31k e julho de -23k para +21k. O julho negativo que dominou a leitura do mês passado <strong>deixou de existir no vintage de hoje</strong>. Com isso a média móvel de 3 meses (jun/26 a ago/26) sobe para +71,3k, contra +20,0k no vintage anterior. A composição é ampla: privado +127k, governo +35k (governo local +50k, revertendo o -62k de jul/26). Do lado domiciliar, a U-3 ficou em 4,1% pelo motivo certo — a força de trabalho cresceu +683 mil e a participação subiu para 61,6% (+0,2pp), com EPOP em 59,1%. E o salário desacelera: AHE em +3,09% a/a, com ritmo de 3 meses anualizado de +2,80% — ou seja, <strong>mais oferta de trabalho sem mais pressão salarial</strong>.</div>
+<div class="cards"><a class="cardlink" href="asif_labor_market_august2026.html"><h2>1 · Monitor do mercado de trabalho</h2><p>Visão geral do Employment Situation de ago/26: headline de +162k, revisões de junho (+11k) e julho (+44k), household survey com participação em 61,6%, salários e mapeamento macro.</p><span class="tag">CES + CPS</span><span class="tag">Revisões</span><span class="tag">Sinais macro</span></a><a class="cardlink" href="asif_labor_sectoral_august2026.html"><h2>2 · Análise setorial</h2><p>De onde vieram os +162k: lazer e hospitalidade +62k (alimentação fora do domicílio +59,2k), governo local +50k revertendo julho, informação -23k e financeiras -11k no vermelho.</p><span class="tag">Table B-1</span><span class="tag">Rotação setorial</span><span class="tag">O que observar</span></a><a class="cardlink" href="asif_labor_shares_august2026.html"><h2>3 · Participação setorial</h2><p>Onde estão os 159,1 milhões de empregos: níveis, participação no total nonfarm, mapa de área e a mudança estrutural desde jan/2000 calculada da série CES completa.</p><span class="tag">Níveis</span><span class="tag">Mapa</span><span class="tag">2000 → hoje</span></a><a class="cardlink" href="asif_wage_dispersion_august2026.html"><h2>4 · Dispersão salarial</h2><p>AHE por setor (Table B-3): agregado em +3,09% a/a com ritmo de 3 meses em +2,80%, amplitude setorial de 5,02pp e a leitura de composição — o emprego cresce onde o salário cresce menos.</p><span class="tag">Table B-3</span><span class="tag">Dispersão</span><span class="tag">Fed</span></a><a class="cardlink" href="asif_labor_antecedentes.html"><h2>5 · Antecedentes</h2><p>O que ADP, pedidos de auxílio-desemprego e JOLTS dizem <em>antes</em> do próximo Employment Situation. Base própria (antecedentes.db, append-only) com vintages preservados. Neste mês o ADP errou por 89 mil.</p><span class="tag">ADP</span><span class="tag">Claims</span><span class="tag">JOLTS</span><span class="tag">Pré-payroll</span></a></div>
+<div class="foot">Fonte: U.S. Bureau of Labor Statistics, API pública v2 — Current Employment Statistics (CES, <em>establishment survey</em>) e Current Population Survey (CPS, <em>household survey</em>). Mês de referência: <strong>ago/26</strong>. Todas as séries <strong>sazonalmente ajustadas (SA)</strong>, salvo indicação em contrário. Vintage da coleta: 04/09/2026 (dia do release do Employment Situation de Agosto 2026). Níveis de emprego em milhares de pessoas; AHE (average hourly earnings) em US$/hora correntes.
+<p>Edição anterior arquivada em <code>Payroll\publicar_julho2026\</code>. Esta edição:
+<code>Payroll\publicar_agosto2026\</code>. Páginas estáticas — funcionam offline.
+Próxima atualização: Employment Situation de setembro/2026, divulgação em 02/10/2026.</p></div>
 </div>
-
-<div class="kpi-strip">
-  <div class="kpi"><div class="kpi-label">Payroll MoM</div><div class="kpi-value neg">-23k</div><div class="kpi-sub">1º negativo desde fev/26 · média 3M: +20k</div></div>
-  <div class="kpi"><div class="kpi-label">Desemprego U-3</div><div class="kpi-value neu">4.1%</div><div class="kpi-sub">-0.1pp, mas força de trabalho -264k</div></div>
-  <div class="kpi"><div class="kpi-label">LFPR</div><div class="kpi-value neg">61.4%</div><div class="kpi-sub">-0.1pp MoM · EPOP 58.9%</div></div>
-  <div class="kpi"><div class="kpi-label">AHE YoY</div><div class="kpi-value neu">+3.2%</div><div class="kpi-sub">$37.62/h · +0.05% MoM · desacelerando</div></div>
-  <div class="kpi"><div class="kpi-label">Destaque</div><div class="kpi-value warn">Gov. local -57k</div><div class="kpi-sub">Privado +30k; governo derrubou o headline</div></div>
-</div>
-
-<div class="cards">
-  <a class="card" href="asif_labor_market_july2026.html">
-    <h2>1 · Labor Market Monitor</h2>
-    <p>Visão geral do Employment Situation: KPIs do mês, revisões baixistas de mai (-66k) e jun (-37k), household survey (CPS), salários &amp; horas e mapeamento de sinais macro.</p>
-    <span class="tag">Overview</span><span class="tag">CES + CPS</span><span class="tag">Sinais Macro</span>
-  </a>
-  <a class="card" href="asif_labor_sectoral_july2026.html">
-    <h2>2 · Análise Setorial</h2>
-    <p>Desagregação da Table B-1: rotação goods (+25k, construção +22k) vs serviços de consumo (leisure -40k, retail -19k), governo local -57k, Ed&amp;Saúde +25k perdendo força como âncora.</p>
-    <span class="tag">Table B-1</span><span class="tag">Rotação Setorial</span><span class="tag">Cenários</span>
-  </a>
-  <a class="card" href="asif_labor_shares_july2026.html">
-    <h2>3 · Participação Setorial</h2>
-    <p>Estoque de emprego por setor: níveis, participação no total nonfarm (158.858k), treemap visual e contexto histórico da mudança estrutural desde 2000.</p>
-    <span class="tag">Níveis</span><span class="tag">Treemap</span><span class="tag">Histórico</span>
-  </a>
-  <a class="card" href="asif_wage_dispersion_july2026.html">
-    <h2>4 · Dispersão Salarial</h2>
-    <p>AHE por setor (Table B-3): ranking de nível, YoY exato jul/25→jul/26 (+3.15% no agregado, amplitude de 6.4pp), dispersão e leitura para política monetária.</p>
-    <span class="tag">Table B-3</span><span class="tag">AHE YoY</span><span class="tag">Fed</span>
-  </a>
-  <a class="card" href="asif_labor_antecedentes.html">
-    <h2>5 · Antecedentes</h2>
-    <p>O que ADP, claims (semana de referência) e JOLTS dizem antes do próximo Employment Situation: painel de última leitura, rastreio ADP vs NFP privado e histórico de claims. Base FRED atualizável (antecedentes.db).</p>
-    <span class="tag">ADP</span><span class="tag">Claims</span><span class="tag">JOLTS</span><span class="tag">Pré-payroll</span>
-  </a>
-</div>
-
-<div class="footer">
-  Dados públicos do Bureau of Labor Statistics (BLS), obtidos via API v2 em 07/08/2026 (vintage atual, incorporando revisões — mai/26 revisado de +129k para +63k e jun/26 de +57k para +20k). Dashboards standalone; funcionam offline. Próxima atualização: Employment Situation de agosto/2026 (04/09/2026).
-</div>
-
 </body>
 </html>
