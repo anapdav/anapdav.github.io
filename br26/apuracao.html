@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="60">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASIF — Apuração 1º Turno 2026 (TSE oficial)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+ * { box-sizing:border-box; margin:0; padding:0; }
+ body { font-family:'Segoe UI',sans-serif; background:#0f1117; color:#e2e8f0; font-size:13px; }
+ .header { background:linear-gradient(135deg,#1a1f2e,#0f1117); border-bottom:1px solid #2d3748;
+   padding:14px 20px; display:flex; align-items:center; gap:16px; }
+ .asif-badge { background:#C9A84C; color:#002147; font-size:17px; font-weight:900;
+   padding:8px 16px; border-radius:6px; letter-spacing:.14em; }
+ .header h1 { font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+ .header p { font-size:11px; color:#718096; margin-top:3px; }
+ .wrap { max-width:1100px; margin:0 auto; padding:16px; }
+ .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+ .kpi { background:#1a1f2e; border:1px solid #2d3748; border-radius:8px; padding:12px 14px; }
+ .kpi-label { font-size:10px; color:#718096; text-transform:uppercase; letter-spacing:.05em; }
+ .kpi-value { font-size:24px; font-weight:700; margin-top:4px; }
+ .kpi-sub { font-size:10px; color:#718096; margin-top:3px; }
+ .pos { color:#68d391; } .neg { color:#fc8181; } .blue { color:#63b3ed; }
+ .prog { height:8px; background:#2d3748; border-radius:4px; margin-top:8px; overflow:hidden; }
+ .prog div { height:100%; background:#C9A84C; width:9.1%; }
+ .cards { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+ .card { background:#1a1f2e; border:1px solid #2d3748; border-radius:10px; padding:16px; }
+ .card h2 { font-size:12px; color:#C9A84C; text-transform:uppercase; letter-spacing:.06em;
+   margin-bottom:10px; border-bottom:1px solid #2d3748; padding-bottom:6px; }
+ table { width:100%; border-collapse:collapse; font-size:12px; }
+ th { font-size:9.5px; color:#718096; text-transform:uppercase; padding:5px 8px;
+   border-bottom:1px solid #2d3748; text-align:right; }
+ th:first-child, td:first-child { text-align:left; }
+ td { padding:4px 8px; border-bottom:1px solid #1e2536; text-align:right; }
+ .tbl-scroll { max-height:520px; overflow-y:auto; }
+ footer { font-size:10px; color:#4a5568; padding:14px 0; line-height:1.5; }
+ @media (max-width:800px) { .cards { grid-template-columns:1fr; } }
+</style></head><body>
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div><h1>Apuração — Presidente, 1º turno 2026</h1>
+  <p>Fonte: TSE oficial (resultados.tse.jus.br) · atualizado 04/10/2026 17:52:50 ·
+  página recarrega a cada 60s</p></div>
+</div>
+<div class="wrap">
+ <div class="kpis">
+  <div class="kpi"><div class="kpi-label">Urnas apuradas</div>
+    <div class="kpi-value blue">9.1%</div>
+    <div class="prog"><div></div></div></div>
+  <div class="kpi"><div class="kpi-label">Lula (válidos)</div>
+    <div class="kpi-value" style="color:#63b3ed">41.0%</div></div>
+  <div class="kpi"><div class="kpi-label">Flávio Bolsonaro (válidos)</div>
+    <div class="kpi-value" style="color:#fc8181">50.8%</div></div>
+  <div class="kpi"><div class="kpi-label">Saldo Lula − Flávio</div>
+    <div class="kpi-value neg">-9.8 pp</div>
+    <div class="kpi-sub">em votos válidos</div></div>
+  <div class="kpi"><div class="kpi-label">Comparecimento</div>
+    <div class="kpi-value">78.5%</div>
+    <div class="kpi-sub">abstenção 21.5% · brancos 1.5% · nulos 2.4%</div></div>
+ </div>
+ <div class="cards">
+  <div class="card"><h2>Votos válidos por candidato</h2><canvas id="barras" height="230"></canvas></div>
+  <div class="card"><h2>Curva da noite — saldo Lula−Flávio × % apurado</h2><canvas id="curva" height="230"></canvas></div>
+ </div>
+ <div class="card" style="margin-top:14px"><h2>Por estado — 2026 (1ºT, parcial) × 2022 (2ºT) · margem Lula−adversário</h2>
+  <div class="tbl-scroll"><table>
+   <tr><th>UF</th><th>apurado</th><th>Lula 26</th><th>Flávio 26</th><th>marg 26</th><th>marg 22</th><th>swing</th></tr>
+   <tr><td>SP</td><td>1.4%</td><td>31.5</td><td>60.0</td><td>-28.5</td><td>-10.5</td><td class="neg">-18.0</td></tr><tr><td>MA</td><td>7.1%</td><td>61.2</td><td>33.4</td><td>+27.8</td><td>+42.3</td><td class="neg">-14.5</td></tr><tr><td>SE</td><td>1.5%</td><td>56.5</td><td>36.0</td><td>+20.5</td><td>+34.4</td><td class="neg">-13.9</td></tr><tr><td>RS</td><td>14.0%</td><td>32.6</td><td>59.0</td><td>-26.4</td><td>-12.7</td><td class="neg">-13.7</td></tr><tr><td>PI</td><td>8.3%</td><td>67.7</td><td>26.9</td><td>+40.9</td><td>+53.7</td><td class="neg">-12.8</td></tr><tr><td>CE</td><td>3.0%</td><td>61.1</td><td>33.1</td><td>+27.9</td><td>+39.9</td><td class="neg">-12.0</td></tr><tr><td>GO</td><td>6.9%</td><td>28.0</td><td>57.1</td><td>-29.1</td><td>-17.4</td><td class="neg">-11.7</td></tr><tr><td>AM</td><td>20.2%</td><td>41.4</td><td>50.7</td><td>-9.3</td><td>+2.2</td><td class="neg">-11.5</td></tr><tr><td>BA</td><td>3.0%</td><td>64.6</td><td>29.3</td><td>+35.3</td><td>+44.2</td><td class="neg">-9.0</td></tr><tr><td>TO</td><td>47.7%</td><td>43.8</td><td>50.0</td><td>-6.2</td><td>+2.7</td><td class="neg">-8.9</td></tr><tr><td>MS</td><td>27.3%</td><td>33.1</td><td>59.6</td><td>-26.6</td><td>-19.0</td><td class="neg">-7.6</td></tr><tr><td>PA</td><td>18.8%</td><td>47.5</td><td>45.3</td><td>+2.2</td><td>+9.5</td><td class="neg">-7.3</td></tr><tr><td>MG</td><td>7.1%</td><td>41.8</td><td>48.5</td><td>-6.7</td><td>+0.4</td><td class="neg">-7.1</td></tr><tr><td>PB</td><td>31.3%</td><td>60.5</td><td>33.6</td><td>+26.9</td><td>+33.2</td><td class="neg">-6.3</td></tr><tr><td>MT</td><td>22.2%</td><td>29.4</td><td>64.3</td><td>-35.0</td><td>-30.2</td><td class="neg">-4.8</td></tr><tr><td>ES</td><td>15.1%</td><td>36.1</td><td>56.6</td><td>-20.4</td><td>-16.1</td><td class="neg">-4.3</td></tr><tr><td>PE</td><td>4.7%</td><td>62.0</td><td>32.4</td><td>+29.6</td><td>+33.9</td><td class="neg">-4.3</td></tr><tr><td>RJ</td><td>1.1%</td><td>37.9</td><td>54.7</td><td>-16.7</td><td>-13.1</td><td class="neg">-3.7</td></tr><tr><td>PR</td><td>29.7%</td><td>31.1</td><td>59.5</td><td>-28.4</td><td>-24.8</td><td class="neg">-3.6</td></tr><tr><td>RN</td><td>8.2%</td><td>61.2</td><td>33.4</td><td>+27.8</td><td>+30.2</td><td class="neg">-2.4</td></tr><tr><td>AL</td><td>1.8%</td><td>57.1</td><td>38.1</td><td>+19.0</td><td>+17.4</td><td class="pos">+1.6</td></tr><tr><td>DF</td><td>61.9%</td><td>38.3</td><td>51.1</td><td>-12.9</td><td>-17.6</td><td class="pos">+4.8</td></tr><tr><td>AC</td><td>22.3%</td><td>30.5</td><td>62.9</td><td>-32.4</td><td>-40.6</td><td class="pos">+8.2</td></tr><tr><td>RO</td><td>26.3%</td><td>30.8</td><td>60.8</td><td>-30.0</td><td>-41.3</td><td class="pos">+11.3</td></tr><tr><td>SC</td><td>8.0%</td><td>32.5</td><td>58.3</td><td>-25.8</td><td>-38.5</td><td class="pos">+12.8</td></tr><tr><td>RR</td><td>6.5%</td><td>30.2</td><td>65.8</td><td>-35.6</td><td>-52.2</td><td class="pos">+16.5</td></tr><tr><td>AP</td><td>8.6%</td><td>55.9</td><td>37.3</td><td>+18.6</td><td>-2.7</td><td class="pos">+21.3</td></tr>
+  </table></div>
+  <div style="background:#ffffff;border-left:4px solid #C9A84C;border-radius:6px;padding:10px 14px;
+    margin-top:10px;font-size:11.5px;color:#1a202c;line-height:1.6">
+   <strong>Como ler esta tabela.</strong> "Margem" é sempre Lula − adversário em votos válidos:
+   em 2026 o adversário é Flávio Bolsonaro (1º turno, parcial), em 2022 era Jair Bolsonaro
+   (2º turno, resultado final). O <strong>swing</strong> é a diferença entre as duas margens —
+   verde quando Lula está indo <em>melhor</em> que em 2022 naquele estado, vermelho quando está
+   indo <em>pior</em>. Três cuidados: (1) compara-se 1º turno com 12 candidatos contra um
+   2º turno de 2 candidatos — Cury, Renan e Caiado tiram fatias dos dois lados, o que encolhe as
+   margens em toda parte; o informativo é o <em>padrão relativo</em> entre estados, não o número
+   absoluto; (2) a coluna "apurado" mostra que os estados totalizam em ritmos diferentes — o
+   interior conta primeiro e as capitais por último, então margens parciais ainda se movem;
+   (3) nos estados em que 2022 foi extremo (RR, AC, RO, SC de um lado; PI, CE do outro), a
+   tendência natural é o swing apontar para o centro — o voto pessoal de cada candidato não é
+   totalmente herdável e resultados extremos regridem à média.
+  </div>
+ </div>
+ <footer><strong>ASIF — Family Office Research.</strong> Dados oficiais do TSE em tempo real.
+ Material meramente ilustrativo e informativo; não nos responsabilizamos por qualquer uso.
+ Comparativo 2022: TSE (Portal de Dados Abertos).</footer>
+</div>
+<script>
+new Chart(document.getElementById('barras'), { type:'bar',
+ data: { labels:["Flavio Bolsonaro", "Lula", "Escritor Augusto Cury", "Ronaldo Caiado", "Renan Santos", "Zema", "Samara", "Clariana Barao"], datasets:[{ data:[50.79, 40.95, 3.0, 2.39, 2.31, 0.32, 0.11, 0.04], backgroundColor:["#fc8181", "#63b3ed", "#718096", "#718096", "#718096", "#718096", "#718096", "#718096"] }] },
+ options: { indexAxis:'y', plugins:{legend:{display:false}},
+  scales:{ x:{ grid:{color:'#2d3748'}, ticks:{color:'#a0aec0', callback:v=>v+'%'} },
+            y:{ grid:{display:false}, ticks:{color:'#e2e8f0'} } } } });
+new Chart(document.getElementById('curva'), { type:'line',
+ data: { datasets:[{ data:[{"x": 4.58, "y": -8.96}, {"x": 4.97, "y": -9.07}, {"x": 5.5, "y": -9.28}, {"x": 6.6, "y": -9.67}, {"x": 6.6, "y": -9.67}, {"x": 7.0, "y": -9.74}, {"x": 7.0, "y": -9.74}, {"x": 7.59, "y": -9.72}, {"x": 7.59, "y": -9.72}, {"x": 8.16, "y": -9.84}, {"x": 8.16, "y": -9.84}, {"x": 8.16, "y": -9.84}, {"x": 9.08, "y": -9.84}], borderColor:'#C9A84C', backgroundColor:'#C9A84C',
+   pointRadius:2, borderWidth:2, tension:.2 }] },
+ options: { parsing:false, plugins:{legend:{display:false}},
+  scales:{ x:{ type:'linear', min:0, max:100, grid:{color:'#2d3748'},
+     ticks:{color:'#a0aec0', callback:v=>v+'%'}, title:{display:true,text:'% urnas apuradas',color:'#718096'} },
+   y:{ grid:{color:'#2d3748'}, ticks:{color:'#a0aec0', callback:v=>(v>0?'+':'')+v.toFixed(1)+' pp'} } } } });
+</script>
+</body></html>

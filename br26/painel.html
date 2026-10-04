@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASIF — Eleições BR 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI', sans-serif; background:#0f1117;
+         color:#e2e8f0; font-size:13px; }
+  .header { background:linear-gradient(135deg,#1a1f2e,#0f1117);
+            border-bottom:1px solid #2d3748; padding:14px 20px;
+            display:flex; align-items:center; gap:16px; }
+  .asif-badge { background:#C9A84C; color:#002147; font-size:17px;
+                font-weight:900; padding:8px 16px; border-radius:6px;
+                letter-spacing:.14em; text-transform:uppercase;
+                flex-shrink:0; box-shadow:0 2px 8px rgba(201,168,76,.25); }
+  .header h1 { font-size:15px; font-weight:700; color:#e2e8f0;
+               letter-spacing:.05em; text-transform:uppercase; }
+  .header p { font-size:11px; color:#718096; margin-top:3px; }
+  .wrap { max-width:1160px; margin:0 auto; padding:16px; }
+  .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+             gap:10px; margin-bottom:14px; }
+  .kpi { background:#1a1f2e; border:1px solid #2d3748; border-radius:8px;
+         padding:12px 14px; }
+  .kpi-label { font-size:10px; color:#718096; text-transform:uppercase;
+               letter-spacing:.05em; margin-bottom:4px; }
+  .kpi-value { font-size:22px; font-weight:700; color:#e2e8f0; }
+  .kpi-sub { font-size:10px; color:#718096; margin-top:2px; }
+  .pos { color:#68d391; } .neg { color:#fc8181; } .neu { color:#a0aec0; }
+  .card { background:#1a1f2e; border:1px solid #2d3748; border-radius:8px;
+          padding:14px; margin-bottom:14px; }
+  .card h3 { font-size:11px; font-weight:600; color:#a0aec0;
+             text-transform:uppercase; letter-spacing:.05em;
+             margin-bottom:12px; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:900px){ .grid-2 { grid-template-columns:1fr; } }
+  .grid-2 .card { margin-bottom:14px; }
+  .ctl { display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+         margin-bottom:10px; font-size:11.5px; color:#a0aec0; }
+  select { font:inherit; font-size:12px; padding:5px 10px; color:#e2e8f0;
+           background:#161b27; border:1px solid #2d3748; border-radius:6px; }
+  .leg { display:flex; gap:14px; flex-wrap:wrap; font-size:11px;
+         color:#a0aec0; margin-bottom:8px; }
+  .leg span { display:flex; align-items:center; gap:5px; }
+  .sw { width:10px; height:10px; border-radius:2px; display:inline-block; }
+  .chart { position:relative; width:100%; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:10px; color:#718096; text-transform:uppercase;
+       letter-spacing:.04em; text-align:right; padding:4px 8px;
+       border-bottom:1px solid #2d3748; font-weight:600; }
+  th:first-child { text-align:left; }
+  td { font-size:12px; padding:5px 8px; border-bottom:1px solid #1e2536;
+       text-align:right; color:#cbd5e0; }
+  td:first-child { text-align:left; color:#e2e8f0; font-weight:500; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#1e2a3a; }
+  .info-box { background:#1a2040; border:1px solid #2a4365; border-radius:6px;
+              padding:10px 14px; margin-bottom:12px; font-size:11.5px;
+              color:#90cdf4; line-height:1.6; }
+  .badge { display:inline-block; font-size:9.5px; font-weight:700;
+           padding:2px 7px; border-radius:4px; letter-spacing:.05em;
+           text-transform:uppercase; }
+  .badge-blue { background:#2a4365; color:#90cdf4; }
+  .badge-red { background:#742a2a; color:#feb2b2; }
+  footer { font-size:11px; color:#718096; line-height:1.7;
+           border-top:1px solid #2d3748; padding:14px 4px; margin-top:8px; }
+  footer b { color:#a0aec0; }
+  #tip { position:absolute; pointer-events:none; background:#1a1f2e;
+         border:1px solid #2d3748; color:#e2e8f0; font-size:11.5px;
+         padding:7px 10px; border-radius:6px; opacity:0;
+         transition:opacity .1s; z-index:9; }
+  .hemis { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+  .avisomapa { font-size:11px; color:#718096; margin-top:4px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div>
+    <h1>Eleições BR 2026 — Monitor incumbente × oposição</h1>
+    <p id="meta"></p>
+  </div>
+</div>
+<div class="wrap">
+
+<div class="kpi-row" id="kpis"></div>
+
+<div class="card">
+  <h3>Evolução da probabilidade de vitória — 2º turno</h3>
+  <div class="ctl">
+    <label>Adversário: <select id="seladv"></select></label>
+    <span>ordenado do confronto mais apertado ao mais folgado</span>
+  </div>
+  <div class="leg">
+    <span><span class="sw" style="background:#63b3ed"></span>Incumbente (Lula)</span>
+    <span><span class="sw" style="background:#fc8181"></span>Oposição (adversário selecionado)</span>
+  </div>
+  <div class="chart" style="height:270px"><canvas id="chprob"></canvas></div>
+  <div class="info-box" id="comoprob" style="margin-top:12px"></div>
+  <div class="ctl" style="margin-top:6px">Saldo: linha = poll-of-polls ajustado (banda ±1σ) · pontos = pesquisas individuais por instituto</div>
+  <div class="leg" id="leginst"></div>
+  <div class="chart" style="height:240px"><canvas id="chsaldo"></canvas></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>1º turno — intenção de voto (média mensal dos institutos)</h3>
+    <div class="chart" style="height:250px"><canvas id="ch1t"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>2º turno — vantagem de Lula sobre cada adversário</h3>
+    <div class="ctl" style="margin-bottom:4px">Barra = saldo em pontos percentuais (% Lula − % adversário) no poll-of-polls mais recente, ajustado por recência e house effect. Rótulo = saldo · P(inc) = probabilidade do modelo para o incumbente nesse confronto.</div>
+    <div class="leg">
+      <span><span class="sw" style="background:#63b3ed"></span>Lula à frente</span>
+      <span><span class="sw" style="background:#fc8181"></span>Adversário à frente</span>
+    </div>
+    <div class="chart" style="height:250px"><canvas id="ch2t"></canvas></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>2º turno por instituto — evolução no confronto selecionado <span class="badge badge-blue" id="badgeadv2"></span></h3>
+  <div class="leg">
+    <span><span class="sw" style="background:#63b3ed"></span>Lula</span>
+    <span><span class="sw" style="background:#fc8181"></span>Adversário</span>
+    <span><span class="sw" style="background:#fbd38d"></span>Branco/Nulo/NS/Indecisos</span>
+  </div>
+  <div id="smallmult" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px"></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Institutos — 2º turno no confronto selecionado <span class="badge badge-blue" id="badgeadv"></span></h3>
+    <table id="tabinst2t"></table>
+  </div>
+  <div class="card">
+    <h3>Institutos — 1º turno, última leitura (Lula × Flávio)</h3>
+    <table id="tabinst1t"></table>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Aprovação do governo Lula 3 — aprova, por instituto</h3>
+    <div class="leg" id="legapr"></div>
+    <div class="chart" style="height:220px"><canvas id="chapr"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Desaprovação do governo Lula 3 — desaprova, por instituto</h3>
+    <div class="leg" id="legdes"></div>
+    <div class="chart" style="height:220px"><canvas id="chdes"></canvas></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Incumbentes no 1º semestre do ano eleitoral</h3>
+    <table id="tabinc"></table>
+  </div>
+  <div class="card" id="cardcfp" style="display:none">
+    <h3>Contrafactual — participação por idade <span class="badge badge-blue" id="cfpbadge"></span></h3>
+    <table id="tabcfp"></table>
+    <div class="ctl" style="margin-top:8px" id="cfpnota"></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Eleição 2022 — 2º turno por UF (margem Lula − Bolsonaro)</h3>
+    <div class="info-box" id="tot2022" style="margin-bottom:10px"></div>
+    <div id="mapa" style="position:relative"></div>
+    <div class="avisomapa" id="avisomapa"></div>
+  </div>
+  <div class="card">
+    <h3>Congresso hoje (abr/2026) — blocos face ao governo</h3>
+    <div class="hemis" id="hemis"></div>
+    <div class="leg" style="justify-content:center;margin-top:10px">
+      <span><span class="sw" style="background:#63b3ed"></span>Base governo</span>
+      <span><span class="sw" style="background:#4a5568"></span>Centrão</span>
+      <span><span class="sw" style="background:#fc8181"></span>Oposição</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>10 maiores partidos — cadeiras e posição face ao governo (abr/2026)</h3>
+  <table id="tabtop10"></table>
+</div>
+
+<footer id="rodape"></footer>
+</div>
+<div id="tip"></div>
+
+<script>
+const D = {"gerado_em": "2026-10-03", "eleicao": "2026-10-04", "sigma_pesq": 3.0, "drift": 1.2, "janela": 180.0, "sig2_now": 4.0, "tau2_pre": 0.08, "tau2_camp": 0.35, "versao_modelo": "v2 (pesos de precisão, 08/09/2026)", "meses2t": ["2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10"], "s2t": {"Bolsonaro": [null, {"saldo": 7.67, "lula": 47.3, "adv": 39.2, "sigma": 6.16, "prob": 89.4, "n": 2}, {"saldo": 0.96, "lula": 44.8, "adv": 43.7, "sigma": 6.05, "prob": 56.3, "n": 5}, {"saldo": 1.7, "lula": 44.6, "adv": 42.6, "sigma": 5.93, "prob": 61.3, "n": 6}, {"saldo": 2.83, "lula": 46.2, "adv": 43.1, "sigma": 5.8, "prob": 68.7, "n": 8}, {"saldo": 1.16, "lula": 45.0, "adv": 43.5, "sigma": 5.68, "prob": 58.1, "n": 10}, {"saldo": -1.1, "lula": 43.2, "adv": 44.3, "sigma": 5.55, "prob": 42.2, "n": 14}, {"saldo": 0.13, "lula": 43.7, "adv": 43.3, "sigma": 5.42, "prob": 51.0, "n": 14}, {"saldo": 0.09, "lula": 44.1, "adv": 44.1, "sigma": 5.28, "prob": 50.7, "n": 13}, {"saldo": 2.96, "lula": 45.5, "adv": 42.3, "sigma": 5.14, "prob": 71.7, "n": 15}, {"saldo": 3.82, "lula": 46.0, "adv": 42.0, "sigma": 5.0, "prob": 77.8, "n": 15}, {"saldo": 4.18, "lula": 46.2, "adv": 41.8, "sigma": 4.85, "prob": 80.6, "n": 17}, {"saldo": 5.45, "lula": 47.4, "adv": 41.7, "sigma": 4.7, "prob": 87.7, "n": 15}, {"saldo": 5.19, "lula": 47.8, "adv": 42.4, "sigma": 4.54, "prob": 87.3, "n": 14}, {"saldo": 5.11, "lula": 47.9, "adv": 42.5, "sigma": 4.39, "prob": 87.7, "n": 13}, {"saldo": 3.56, "lula": 47.5, "adv": 43.9, "sigma": 4.22, "prob": 80.0, "n": 11}, {"saldo": 3.16, "lula": 47.4, "adv": 44.2, "sigma": 4.05, "prob": 78.2, "n": 9}, {"saldo": 3.58, "lula": 48.2, "adv": 44.7, "sigma": 3.87, "prob": 82.3, "n": 6}, {"saldo": 1.36, "lula": 47.8, "adv": 46.6, "sigma": 3.68, "prob": 64.4, "n": 5}, {"saldo": 2.86, "lula": 48.3, "adv": 45.5, "sigma": 3.47, "prob": 79.4, "n": 5}, {"saldo": 2.79, "lula": 47.7, "adv": 45.1, "sigma": 3.26, "prob": 80.4, "n": 5}, {"saldo": 3.18, "lula": 48.0, "adv": 44.9, "sigma": 3.03, "prob": 85.3, "n": 4}, {"saldo": 3.18, "lula": 48.0, "adv": 45.0, "sigma": 3.01, "prob": 85.5, "n": 4}], "Caiado": [null, {"saldo": 17.8, "lula": 47.8, "adv": 29.3, "sigma": 6.16, "prob": 99.8, "n": 4}, {"saldo": 15.2, "lula": 47.7, "adv": 32.0, "sigma": 6.05, "prob": 99.4, "n": 5}, {"saldo": 14.9, "lula": 46.6, "adv": 31.1, "sigma": 5.93, "prob": 99.4, "n": 6}, {"saldo": 13.37, "lula": 46.3, "adv": 32.5, "sigma": 5.8, "prob": 98.9, "n": 7}, {"saldo": 11.76, "lula": 45.4, "adv": 33.2, "sigma": 5.68, "prob": 98.1, "n": 9}, {"saldo": 10.76, "lula": 45.1, "adv": 33.9, "sigma": 5.55, "prob": 97.4, "n": 8}, {"saldo": 9.57, "lula": 44.6, "adv": 34.4, "sigma": 5.42, "prob": 96.1, "n": 7}, {"saldo": 8.8, "lula": 45.1, "adv": 35.8, "sigma": 5.28, "prob": 95.2, "n": 7}, {"saldo": 11.72, "lula": 46.2, "adv": 33.8, "sigma": 5.14, "prob": 98.9, "n": 9}, {"saldo": 12.75, "lula": 47.1, "adv": 33.8, "sigma": 5.0, "prob": 99.5, "n": 10}, {"saldo": 11.13, "lula": 46.9, "adv": 35.1, "sigma": 4.85, "prob": 98.9, "n": 11}, {"saldo": 10.94, "lula": 46.8, "adv": 35.2, "sigma": 4.7, "prob": 99.0, "n": 13}, {"saldo": 10.63, "lula": 46.8, "adv": 35.6, "sigma": 4.54, "prob": 99.0, "n": 14}, {"saldo": 10.19, "lula": 45.8, "adv": 35.7, "sigma": 4.39, "prob": 99.0, "n": 19}, {"saldo": 8.99, "lula": 45.4, "adv": 36.7, "sigma": 4.22, "prob": 98.3, "n": 22}, {"saldo": 7.28, "lula": 45.2, "adv": 37.5, "sigma": 4.05, "prob": 96.4, "n": 26}, {"saldo": 6.9, "lula": 45.4, "adv": 38.4, "sigma": 3.87, "prob": 96.3, "n": 33}, {"saldo": 7.62, "lula": 45.9, "adv": 38.2, "sigma": 3.68, "prob": 98.1, "n": 39}, {"saldo": 6.98, "lula": 45.5, "adv": 38.8, "sigma": 3.47, "prob": 97.8, "n": 46}, {"saldo": 5.93, "lula": 45.5, "adv": 39.9, "sigma": 3.26, "prob": 96.6, "n": 52}, {"saldo": 5.39, "lula": 45.7, "adv": 40.4, "sigma": 3.03, "prob": 96.2, "n": 51}, {"saldo": 5.44, "lula": 45.7, "adv": 40.4, "sigma": 3.01, "prob": 96.5, "n": 51}], "Flávio Bolsonaro": [null, null, null, null, null, null, null, {"saldo": 9.53, "lula": 47.7, "adv": 37.3, "sigma": 5.42, "prob": 96.1, "n": 2}, {"saldo": 9.44, "lula": 47.6, "adv": 37.4, "sigma": 5.28, "prob": 96.3, "n": 2}, {"saldo": 9.39, "lula": 47.6, "adv": 37.4, "sigma": 5.14, "prob": 96.6, "n": 2}, {"saldo": 9.36, "lula": 47.6, "adv": 37.4, "sigma": 5.0, "prob": 96.9, "n": 2}, {"saldo": 9.0, "lula": 46.3, "adv": 38.1, "sigma": 4.85, "prob": 96.8, "n": 3}, {"saldo": 11.05, "lula": 49.0, "adv": 37.8, "sigma": 4.7, "prob": 99.1, "n": 5}, {"saldo": 7.78, "lula": 47.3, "adv": 39.6, "sigma": 4.54, "prob": 95.7, "n": 8}, {"saldo": 4.25, "lula": 45.7, "adv": 42.0, "sigma": 4.39, "prob": 83.3, "n": 14}, {"saldo": 2.34, "lula": 45.1, "adv": 43.2, "sigma": 4.22, "prob": 71.0, "n": 20}, {"saldo": 1.29, "lula": 45.1, "adv": 43.6, "sigma": 4.05, "prob": 62.5, "n": 26}, {"saldo": 2.23, "lula": 45.3, "adv": 43.1, "sigma": 3.87, "prob": 71.8, "n": 38}, {"saldo": 3.02, "lula": 45.9, "adv": 42.9, "sigma": 3.68, "prob": 79.4, "n": 43}, {"saldo": 3.31, "lula": 45.8, "adv": 43.0, "sigma": 3.47, "prob": 83.0, "n": 51}, {"saldo": 2.91, "lula": 45.7, "adv": 43.3, "sigma": 3.26, "prob": 81.4, "n": 60}, {"saldo": 1.3, "lula": 45.5, "adv": 44.6, "sigma": 3.03, "prob": 66.6, "n": 79}, {"saldo": 1.36, "lula": 45.7, "adv": 44.6, "sigma": 3.01, "prob": 67.4, "n": 81}], "Michelle Bolsonaro": [null, null, {"saldo": 5.06, "lula": 43.4, "adv": 39.0, "sigma": 6.05, "prob": 79.9, "n": 2}, {"saldo": 5.14, "lula": 43.7, "adv": 38.4, "sigma": 5.93, "prob": 80.7, "n": 3}, {"saldo": 4.99, "lula": 46.0, "adv": 40.8, "sigma": 5.8, "prob": 80.5, "n": 5}, {"saldo": 2.38, "lula": 45.1, "adv": 42.4, "sigma": 5.68, "prob": 66.2, "n": 7}, {"saldo": 1.35, "lula": 43.9, "adv": 42.9, "sigma": 5.55, "prob": 59.6, "n": 10}, {"saldo": 2.97, "lula": 44.4, "adv": 41.4, "sigma": 5.42, "prob": 70.8, "n": 11}, {"saldo": 2.3, "lula": 45.0, "adv": 42.9, "sigma": 5.28, "prob": 66.8, "n": 12}, {"saldo": 4.49, "lula": 46.2, "adv": 41.7, "sigma": 5.14, "prob": 80.9, "n": 13}, {"saldo": 5.7, "lula": 46.7, "adv": 41.0, "sigma": 5.0, "prob": 87.3, "n": 13}, {"saldo": 6.18, "lula": 46.8, "adv": 40.6, "sigma": 4.85, "prob": 89.9, "n": 15}, {"saldo": 7.05, "lula": 47.9, "adv": 40.6, "sigma": 4.7, "prob": 93.3, "n": 14}, {"saldo": 6.54, "lula": 47.9, "adv": 41.2, "sigma": 4.54, "prob": 92.5, "n": 14}, {"saldo": 6.06, "lula": 47.7, "adv": 41.3, "sigma": 4.39, "prob": 91.6, "n": 14}, {"saldo": 4.81, "lula": 47.4, "adv": 42.4, "sigma": 4.22, "prob": 87.2, "n": 13}, {"saldo": 4.51, "lula": 47.3, "adv": 42.5, "sigma": 4.05, "prob": 86.7, "n": 11}, {"saldo": 5.04, "lula": 47.4, "adv": 42.3, "sigma": 3.87, "prob": 90.4, "n": 10}, {"saldo": 4.89, "lula": 47.6, "adv": 42.7, "sigma": 3.68, "prob": 90.8, "n": 10}, {"saldo": 5.48, "lula": 47.0, "adv": 42.0, "sigma": 3.47, "prob": 94.3, "n": 12}, {"saldo": 5.6, "lula": 47.0, "adv": 42.0, "sigma": 3.26, "prob": 95.7, "n": 10}, {"saldo": 5.95, "lula": 47.0, "adv": 41.7, "sigma": 3.03, "prob": 97.5, "n": 9}, {"saldo": 5.95, "lula": 47.0, "adv": 41.7, "sigma": 3.01, "prob": 97.6, "n": 9}], "Ratinho Jr": [null, null, null, {"saldo": 6.94, "lula": 42.6, "adv": 34.7, "sigma": 5.93, "prob": 87.9, "n": 2}, {"saldo": 9.79, "lula": 45.0, "adv": 34.8, "sigma": 5.8, "prob": 95.4, "n": 3}, {"saldo": 6.92, "lula": 43.5, "adv": 36.1, "sigma": 5.68, "prob": 88.9, "n": 5}, {"saldo": 7.11, "lula": 43.6, "adv": 36.0, "sigma": 5.55, "prob": 90.0, "n": 5}, {"saldo": 5.35, "lula": 43.2, "adv": 37.2, "sigma": 5.42, "prob": 83.8, "n": 6}, {"saldo": 5.67, "lula": 44.3, "adv": 38.2, "sigma": 5.28, "prob": 85.9, "n": 7}, {"saldo": 8.13, "lula": 45.2, "adv": 36.4, "sigma": 5.14, "prob": 94.3, "n": 9}, {"saldo": 9.42, "lula": 45.9, "adv": 35.9, "sigma": 5.0, "prob": 97.0, "n": 10}, {"saldo": 8.27, "lula": 45.8, "adv": 36.9, "sigma": 4.85, "prob": 95.6, "n": 11}, {"saldo": 8.31, "lula": 46.2, "adv": 37.2, "sigma": 4.7, "prob": 96.1, "n": 14}, {"saldo": 8.44, "lula": 46.1, "adv": 37.4, "sigma": 4.54, "prob": 96.8, "n": 16}, {"saldo": 7.93, "lula": 45.4, "adv": 37.8, "sigma": 4.39, "prob": 96.4, "n": 20}, {"saldo": 6.84, "lula": 44.9, "adv": 38.4, "sigma": 4.22, "prob": 94.7, "n": 22}, {"saldo": 6.6, "lula": 44.8, "adv": 38.5, "sigma": 4.05, "prob": 94.8, "n": 20}, {"saldo": 6.29, "lula": 44.8, "adv": 38.8, "sigma": 3.87, "prob": 94.8, "n": 18}, {"saldo": 6.56, "lula": 45.1, "adv": 38.9, "sigma": 3.68, "prob": 96.3, "n": 16}, {"saldo": 6.13, "lula": 44.8, "adv": 39.1, "sigma": 3.47, "prob": 96.1, "n": 12}, {"saldo": 5.5, "lula": 45.0, "adv": 39.5, "sigma": 3.26, "prob": 95.4, "n": 6}, {"saldo": 6.09, "lula": 46.3, "adv": 39.9, "sigma": 3.03, "prob": 97.8, "n": 2}, {"saldo": 6.08, "lula": 46.3, "adv": 39.9, "sigma": 3.01, "prob": 97.8, "n": 2}], "Renan Santos": [null, null, null, null, null, null, null, null, null, null, null, null, null, {"saldo": 20.53, "lula": 46.3, "adv": 24.7, "sigma": 4.54, "prob": 100.0, "n": 2}, {"saldo": 20.53, "lula": 46.3, "adv": 24.7, "sigma": 4.39, "prob": 100.0, "n": 2}, {"saldo": 20.52, "lula": 46.3, "adv": 24.7, "sigma": 4.22, "prob": 100.0, "n": 2}, {"saldo": 17.06, "lula": 45.5, "adv": 26.8, "sigma": 4.05, "prob": 100.0, "n": 6}, {"saldo": 17.68, "lula": 46.0, "adv": 27.8, "sigma": 3.87, "prob": 100.0, "n": 12}, {"saldo": 16.05, "lula": 46.8, "adv": 30.3, "sigma": 3.68, "prob": 100.0, "n": 18}, {"saldo": 14.34, "lula": 46.2, "adv": 32.1, "sigma": 3.47, "prob": 100.0, "n": 24}, {"saldo": 13.45, "lula": 46.3, "adv": 33.0, "sigma": 3.26, "prob": 100.0, "n": 34}, {"saldo": 13.4, "lula": 46.3, "adv": 32.9, "sigma": 3.03, "prob": 100.0, "n": 36}, {"saldo": 13.42, "lula": 46.3, "adv": 32.9, "sigma": 3.01, "prob": 100.0, "n": 36}], "Zema": [null, {"saldo": 14.42, "lula": 45.5, "adv": 30.1, "sigma": 6.16, "prob": 99.0, "n": 2}, {"saldo": 9.85, "lula": 46.2, "adv": 35.8, "sigma": 6.05, "prob": 94.8, "n": 3}, {"saldo": 10.55, "lula": 44.9, "adv": 33.6, "sigma": 5.93, "prob": 96.2, "n": 4}, {"saldo": 9.06, "lula": 45.2, "adv": 35.8, "sigma": 5.8, "prob": 94.1, "n": 5}, {"saldo": 8.12, "lula": 44.4, "adv": 35.9, "sigma": 5.68, "prob": 92.4, "n": 7}, {"saldo": 8.35, "lula": 44.5, "adv": 35.7, "sigma": 5.55, "prob": 93.4, "n": 7}, {"saldo": 7.87, "lula": 44.2, "adv": 35.7, "sigma": 5.42, "prob": 92.7, "n": 7}, {"saldo": 7.58, "lula": 44.9, "adv": 36.9, "sigma": 5.28, "prob": 92.4, "n": 7}, {"saldo": 10.32, "lula": 45.9, "adv": 35.0, "sigma": 5.14, "prob": 97.8, "n": 9}, {"saldo": 11.97, "lula": 47.1, "adv": 34.5, "sigma": 5.0, "prob": 99.2, "n": 10}, {"saldo": 10.94, "lula": 47.2, "adv": 35.5, "sigma": 4.85, "prob": 98.8, "n": 11}, {"saldo": 10.88, "lula": 47.1, "adv": 35.6, "sigma": 4.7, "prob": 99.0, "n": 13}, {"saldo": 10.34, "lula": 47.3, "adv": 36.4, "sigma": 4.54, "prob": 98.9, "n": 14}, {"saldo": 9.33, "lula": 46.2, "adv": 36.8, "sigma": 4.39, "prob": 98.3, "n": 18}, {"saldo": 8.01, "lula": 45.7, "adv": 37.8, "sigma": 4.22, "prob": 97.1, "n": 21}, {"saldo": 6.38, "lula": 45.4, "adv": 38.6, "sigma": 4.05, "prob": 94.2, "n": 25}, {"saldo": 7.18, "lula": 45.7, "adv": 38.4, "sigma": 3.87, "prob": 96.8, "n": 32}, {"saldo": 7.91, "lula": 46.3, "adv": 38.2, "sigma": 3.68, "prob": 98.4, "n": 38}, {"saldo": 7.67, "lula": 46.0, "adv": 38.5, "sigma": 3.47, "prob": 98.6, "n": 44}, {"saldo": 7.29, "lula": 46.1, "adv": 39.0, "sigma": 3.26, "prob": 98.7, "n": 51}, {"saldo": 7.39, "lula": 46.2, "adv": 38.9, "sigma": 3.03, "prob": 99.3, "n": 50}, {"saldo": 7.38, "lula": 46.2, "adv": 38.9, "sigma": 3.01, "prob": 99.3, "n": 50}]}, "brutos": {"Bolsonaro": [{"i": "Atlas", "d": "2025-01-31", "m": "2025-01", "l": 47.6, "a": 43.4, "s": 4.2, "b": 9.0}, {"i": "Quaest", "d": "2025-01-31", "m": "2025-01", "l": 47.0, "a": 35.0, "s": 12.0, "b": null}, {"i": "Paraná", "d": "2025-02-16", "m": "2025-02", "l": 40.2, "a": 45.1, "s": -4.9, "b": 14.7}, {"i": "CNT", "d": "2025-02-28", "m": "2025-02", "l": 42.0, "a": 43.0, "s": -1.0, "b": 17.0}, {"i": "Atlas", "d": "2025-02-28", "m": "2025-02", "l": 48.0, "a": 49.0, "s": -1.0, "b": 4.0}, {"i": "Quaest", "d": "2025-03-31", "m": "2025-03", "l": 44.0, "a": 40.0, "s": 4.0, "b": null}, {"i": "Datafolha", "d": "2025-04-03", "m": "2025-04", "l": 49.0, "a": 40.0, "s": 9.0, "b": 11.0}, {"i": "Atlas", "d": "2025-04-30", "m": "2025-04", "l": 48.5, "a": 46.4, "s": 2.1, "b": 5.2}, {"i": "Atlas", "d": "2025-05-31", "m": "2025-05", "l": 45.5, "a": 47.5, "s": -2.0, "b": 7.0}, {"i": "Quaest", "d": "2025-05-31", "m": "2025-05", "l": 41.0, "a": 41.0, "s": 0.0, "b": null}, {"i": "Datafolha", "d": "2025-06-11", "m": "2025-06", "l": 44.0, "a": 45.0, "s": -1.0, "b": 11.0}, {"i": "Paraná", "d": "2025-06-19", "m": "2025-06", "l": 40.4, "a": 46.0, "s": -5.6, "b": 13.6}, {"i": "Paraná", "d": "2025-06-22", "m": "2025-06", "l": 39.7, "a": 46.5, "s": -6.8, "b": 13.8}, {"i": "CNT", "d": "2025-06-30", "m": "2025-06", "l": 41.0, "a": 44.0, "s": -3.0, "b": 15.0}, {"i": "Datafolha", "d": "2025-07-30", "m": "2025-07", "l": 47.0, "a": 43.0, "s": 4.0, "b": 11.0}, {"i": "Quaest", "d": "2025-07-31", "m": "2025-07", "l": 43.0, "a": 37.0, "s": 6.0, "b": null}, {"i": "Paraná", "d": "2025-08-21", "m": "2025-08", "l": 41.5, "a": 44.4, "s": -2.9, "b": 14.2}, {"i": "Atlas", "d": "2025-08-31", "m": "2025-08", "l": 48.3, "a": 48.3, "s": 0.0, "b": 1.4}, {"i": "Atlas", "d": "2025-09-14", "m": "2025-09", "l": 51.8, "a": 44.8, "s": 7.0, "b": 3.4}, {"i": "Quaest", "d": "2025-09-14", "m": "2025-09", "l": 47.0, "a": 34.0, "s": 13.0, "b": 19.0}, {"i": "CNT", "d": "2025-09-30", "m": "2025-09", "l": 46.0, "a": 38.0, "s": 8.0, "b": 17.0}, {"i": "Quaest", "d": "2025-10-05", "m": "2025-10", "l": 46.0, "a": 36.0, "s": 10.0, "b": 27.0}, {"i": "Atlas", "d": "2025-10-19", "m": "2025-10", "l": 52.0, "a": 44.0, "s": 8.0, "b": 4.0}, {"i": "Quaest", "d": "2025-11-09", "m": "2025-11", "l": 42.0, "a": 39.0, "s": 3.0, "b": 19.0}, {"i": "Paraná", "d": "2025-11-10", "m": "2025-11", "l": 43.7, "a": 43.1, "s": 0.6, "b": 13.2}, {"i": "CNT", "d": "2025-11-23", "m": "2025-11", "l": 49.2, "a": 36.9, "s": 12.3, "b": 13.9}, {"i": "Atlas", "d": "2025-11-27", "m": "2025-11", "l": 49.0, "a": 47.0, "s": 2.0, "b": 4.0}, {"i": "Datafolha", "d": "2025-12-04", "m": "2025-12", "l": 49.0, "a": 40.0, "s": 9.0, "b": 11.0}, {"i": "Atlas", "d": "2025-12-15", "m": "2025-12", "l": 50.0, "a": 46.0, "s": 4.0, "b": 4.0}, {"i": "Atlas", "d": "2026-01-20", "m": "2026-01", "l": 49.0, "a": 46.0, "s": 3.0, "b": 5.0}, {"i": "Atlas", "d": "2026-02-24", "m": "2026-02", "l": 47.3, "a": 45.5, "s": 1.8, "b": 7.8}, {"i": "Atlas", "d": "2026-03-23", "m": "2026-03", "l": 46.6, "a": 47.4, "s": -0.8, "b": 6.0}, {"i": "Atlas", "d": "2026-05-18", "m": "2026-05", "l": 48.5, "a": 43.4, "s": 5.1, "b": 8.1}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 47.8, "a": 48.6, "s": -0.8, "b": 3.6}, {"i": "Atlas", "d": "2026-07-27", "m": "2026-07", "l": 49.2, "a": 43.9, "s": 5.3, "b": 6.9}, {"i": "Atlas", "d": "2026-08-30", "m": "2026-08", "l": 46.8, "a": 44.1, "s": 2.7, "b": null}], "Caiado": [{"i": "Quaest", "d": "2024-12-31", "m": "2024-12", "l": 54.0, "a": 20.0, "s": 34.0, "b": 26.0}, {"i": "Quaest", "d": "2025-01-26", "m": "2025-01", "l": 45.0, "a": 26.0, "s": 19.0, "b": 29.0}, {"i": "Atlas", "d": "2025-01-31", "m": "2025-01", "l": 47.4, "a": 36.5, "s": 10.9, "b": 16.1}, {"i": "Quaest", "d": "2025-01-31", "m": "2025-01", "l": 47.0, "a": 31.0, "s": 16.0, "b": 22.0}, {"i": "Atlas", "d": "2025-02-28", "m": "2025-02", "l": 47.0, "a": 39.0, "s": 8.0, "b": 14.0}, {"i": "Quaest", "d": "2025-03-31", "m": "2025-03", "l": 44.0, "a": 30.0, "s": 14.0, "b": 26.0}, {"i": "Atlas", "d": "2025-04-30", "m": "2025-04", "l": 45.0, "a": 36.3, "s": 8.7, "b": 18.7}, {"i": "Atlas", "d": "2025-05-31", "m": "2025-05", "l": 45.2, "a": 36.1, "s": 9.1, "b": 18.7}, {"i": "Quaest", "d": "2025-05-31", "m": "2025-05", "l": 43.0, "a": 33.0, "s": 10.0, "b": 24.0}, {"i": "Datafolha", "d": "2025-07-30", "m": "2025-07", "l": 47.0, "a": 35.0, "s": 12.0, "b": 19.0}, {"i": "Quaest", "d": "2025-07-31", "m": "2025-07", "l": 42.0, "a": 33.0, "s": 9.0, "b": 25.0}, {"i": "Atlas", "d": "2025-08-31", "m": "2025-08", "l": 46.7, "a": 40.3, "s": 6.4, "b": 13.0}, {"i": "Atlas", "d": "2025-09-14", "m": "2025-09", "l": 51.7, "a": 34.0, "s": 17.7, "b": 14.3}, {"i": "Quaest", "d": "2025-09-14", "m": "2025-09", "l": 46.0, "a": 31.0, "s": 15.0, "b": 23.0}, {"i": "CNT", "d": "2025-09-30", "m": "2025-09", "l": 44.8, "a": 30.4, "s": 14.4, "b": 24.8}, {"i": "Quaest", "d": "2025-10-05", "m": "2025-10", "l": 46.0, "a": 31.0, "s": 15.0, "b": 23.0}, {"i": "Atlas", "d": "2025-10-19", "m": "2025-10", "l": 52.0, "a": 36.0, "s": 16.0, "b": 12.0}, {"i": "Quaest", "d": "2025-11-09", "m": "2025-11", "l": 42.0, "a": 35.0, "s": 7.0, "b": 23.0}, {"i": "CNT", "d": "2025-11-23", "m": "2025-11", "l": 46.9, "a": 33.7, "s": 13.2, "b": 19.4}, {"i": "Atlas", "d": "2025-11-27", "m": "2025-11", "l": 49.0, "a": 41.0, "s": 8.0, "b": 10.0}, {"i": "Quaest", "d": "2025-12-14", "m": "2025-12", "l": 44.0, "a": 33.0, "s": 11.0, "b": 23.0}, {"i": "Atlas", "d": "2025-12-15", "m": "2025-12", "l": 49.0, "a": 39.0, "s": 10.0, "b": 12.0}, {"i": "Quaest", "d": "2026-01-11", "m": "2026-01", "l": 44.0, "a": 33.0, "s": 11.0, "b": 23.0}, {"i": "Ideia", "d": "2026-01-12", "m": "2026-01", "l": 46.3, "a": 36.5, "s": 9.8, "b": 17.3}, {"i": "Atlas", "d": "2026-01-20", "m": "2026-01", "l": 49.0, "a": 39.0, "s": 10.0, "b": 13.0}, {"i": "Ideia", "d": "2026-02-02", "m": "2026-02", "l": 45.0, "a": 34.0, "s": 11.0, "b": 21.0}, {"i": "Gerp", "d": "2026-02-02", "m": "2026-02", "l": 47.0, "a": 34.0, "s": 13.0, "b": 19.0}, {"i": "Futura/Apex", "d": "2026-02-07", "m": "2026-02", "l": 43.1, "a": 42.3, "s": 0.8, "b": null}, {"i": "Quaest", "d": "2026-02-09", "m": "2026-02", "l": 42.0, "a": 32.0, "s": 10.0, "b": 26.0}, {"i": "Atlas", "d": "2026-02-24", "m": "2026-02", "l": 45.7, "a": 37.6, "s": 8.1, "b": 16.7}, {"i": "Paraná", "d": "2026-02-25", "m": "2026-02", "l": 45.3, "a": 36.2, "s": 9.1, "b": 18.4}, {"i": "Realtime Bigdata", "d": "2026-03-02", "m": "2026-03", "l": 45.0, "a": 36.0, "s": 9.0, "b": 19.0}, {"i": "Futura/Apex", "d": "2026-03-06", "m": "2026-03", "l": 41.4, "a": 41.2, "s": 0.2, "b": 17.7}, {"i": "Quaest", "d": "2026-03-09", "m": "2026-03", "l": 44.0, "a": 32.0, "s": 12.0, "b": 24.0}, {"i": "Ideia", "d": "2026-03-10", "m": "2026-03", "l": 46.5, "a": 37.5, "s": 9.0, "b": 16.1}, {"i": "Atlas", "d": "2026-03-23", "m": "2026-03", "l": 46.2, "a": 36.7, "s": 9.5, "b": 17.1}, {"i": "Nexus-BTG", "d": "2026-03-29", "m": "2026-03", "l": 46.0, "a": 41.0, "s": 5.0, "b": 12.0}, {"i": "Ideia", "d": "2026-04-07", "m": "2026-04", "l": 45.0, "a": 39.0, "s": 6.0, "b": 16.0}, {"i": "Datafolha", "d": "2026-04-09", "m": "2026-04", "l": 45.0, "a": 42.0, "s": 3.0, "b": 13.0}, {"i": "MDA-CNT", "d": "2026-04-12", "m": "2026-04", "l": 44.4, "a": 32.7, "s": 11.7, "b": 22.9}, {"i": "Quaest", "d": "2026-04-13", "m": "2026-04", "l": 43.0, "a": 35.0, "s": 8.0, "b": 22.0}, {"i": "Nexus-BTG", "d": "2026-04-26", "m": "2026-04", "l": 45.0, "a": 41.0, "s": 4.0, "b": 13.0}, {"i": "Atlas", "d": "2026-04-27", "m": "2026-04", "l": 46.8, "a": 42.2, "s": 4.6, "b": 11.0}, {"i": "Realtime Bigdata", "d": "2026-05-04", "m": "2026-05", "l": 43.0, "a": 42.0, "s": 1.0, "b": 15.0}, {"i": "Ideia", "d": "2026-05-05", "m": "2026-05", "l": 44.7, "a": 40.0, "s": 4.7, "b": 15.3}, {"i": "Quaest", "d": "2026-05-11", "m": "2026-05", "l": 44.0, "a": 35.0, "s": 9.0, "b": 21.0}, {"i": "Datafolha", "d": "2026-05-13", "m": "2026-05", "l": 46.0, "a": 40.0, "s": 6.0, "b": 15.0}, {"i": "Atlas", "d": "2026-05-18", "m": "2026-05", "l": 47.5, "a": 38.5, "s": 9.0, "b": 14.0}, {"i": "Futura/Apex", "d": "2026-05-20", "m": "2026-05", "l": 47.6, "a": 36.5, "s": 11.1, "b": 15.9}, {"i": "Datafolha", "d": "2026-05-21", "m": "2026-05", "l": 48.0, "a": 39.0, "s": 9.0, "b": 13.0}, {"i": "Nexus-BTG", "d": "2026-05-24", "m": "2026-05", "l": 46.0, "a": 40.0, "s": 6.0, "b": 13.0}, {"i": "Ideia", "d": "2026-05-27", "m": "2026-05", "l": 46.0, "a": 40.0, "s": 6.0, "b": 14.0}, {"i": "Realtime Bigdata", "d": "2026-05-30", "m": "2026-05", "l": 43.0, "a": 43.0, "s": 0.0, "b": 14.0}, {"i": "Quaest", "d": "2026-06-08", "m": "2026-06", "l": 45.0, "a": 35.0, "s": 10.0, "b": 20.0}, {"i": "Nexus-BTG", "d": "2026-06-14", "m": "2026-06", "l": 48.0, "a": 39.0, "s": 9.0, "b": 13.0}, {"i": "MDA-CNT", "d": "2026-06-14", "m": "2026-06", "l": 48.4, "a": 32.2, "s": 16.2, "b": 19.4}, {"i": "Datafolha", "d": "2026-06-18", "m": "2026-06", "l": 47.0, "a": 41.0, "s": 6.0, "b": 12.0}, {"i": "PoderData", "d": "2026-06-24", "m": "2026-06", "l": 45.0, "a": 42.0, "s": 3.0, "b": 13.0}, {"i": "Nexus-BTG", "d": "2026-06-28", "m": "2026-06", "l": 47.0, "a": 39.0, "s": 8.0, "b": 14.0}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 48.0, "a": 39.0, "s": 9.0, "b": 13.1}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 47.8, "a": 35.3, "s": 12.5, "b": 17.0}, {"i": "Ideia", "d": "2026-07-06", "m": "2026-07", "l": 45.0, "a": 37.6, "s": 7.4, "b": 17.4}, {"i": "Gerp", "d": "2026-07-07", "m": "2026-07", "l": 40.0, "a": 36.0, "s": 4.0, "b": 23.0}, {"i": "Futura/Apex", "d": "2026-07-11", "m": "2026-07", "l": 45.1, "a": 38.9, "s": 6.2, "b": null}, {"i": "Nexus-BTG", "d": "2026-07-12", "m": "2026-07", "l": 47.0, "a": 38.0, "s": 9.0, "b": 15.0}, {"i": "Quaest", "d": "2026-07-13", "m": "2026-07", "l": 45.0, "a": 36.0, "s": 9.0, "b": 20.0}, {"i": "PoderData", "d": "2026-07-15", "m": "2026-07", "l": 44.0, "a": 43.0, "s": 1.0, "b": 14.0}, {"i": "Realtime Bigdata", "d": "2026-07-20", "m": "2026-07", "l": 43.0, "a": 44.0, "s": -1.0, "b": null}, {"i": "Datafolha", "d": "2026-07-24", "m": "2026-07", "l": 47.0, "a": 40.0, "s": 7.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-07-26", "m": "2026-07", "l": 45.0, "a": 43.0, "s": 2.0, "b": 12.0}, {"i": "Atlas", "d": "2026-07-27", "m": "2026-07", "l": 48.2, "a": 38.9, "s": 9.3, "b": 12.9}, {"i": "Nexus-BTG", "d": "2026-08-02", "m": "2026-08", "l": 46.0, "a": 42.0, "s": 4.0, "b": 13.0}, {"i": "Quaest", "d": "2026-08-03", "m": "2026-08", "l": 45.0, "a": 37.0, "s": 8.0, "b": 18.0}, {"i": "Futura/Apex", "d": "2026-08-07", "m": "2026-08", "l": 45.3, "a": 39.2, "s": 6.1, "b": null}, {"i": "MDA-CNT", "d": "2026-08-08", "m": "2026-08", "l": 47.9, "a": 35.9, "s": 12.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-08-09", "m": "2026-08", "l": 46.0, "a": 42.0, "s": 4.0, "b": null}, {"i": "PoderData", "d": "2026-08-12", "m": "2026-08", "l": 45.0, "a": 44.0, "s": 1.0, "b": 11.0}, {"i": "Nexus-BTG", "d": "2026-08-16", "m": "2026-08", "l": 45.0, "a": 42.0, "s": 3.0, "b": 13.0}, {"i": "Datafolha", "d": "2026-08-20", "m": "2026-08", "l": 47.0, "a": 40.0, "s": 7.0, "b": 14.0}, {"i": "Nexus-BTG", "d": "2026-08-23", "m": "2026-08", "l": 46.0, "a": 42.0, "s": 4.0, "b": 13.0}, {"i": "PoderData", "d": "2026-08-26", "m": "2026-08", "l": 44.0, "a": 43.0, "s": 1.0, "b": null}, {"i": "Vox Brasil", "d": "2026-08-27", "m": "2026-08", "l": 45.5, "a": 41.1, "s": 4.4, "b": null}, {"i": "Atlas", "d": "2026-08-30", "m": "2026-08", "l": 46.6, "a": 41.0, "s": 5.6, "b": null}, {"i": "Realtime Bigdata", "d": "2026-08-31", "m": "2026-08", "l": 43.0, "a": 45.0, "s": -2.0, "b": null}, {"i": "Datafolha", "d": "2026-09-03", "m": "2026-09", "l": 46.0, "a": 41.0, "s": 5.0, "b": null}, {"i": "Atlas", "d": "2026-09-09", "m": "2026-09", "l": 45.7, "a": 45.7, "s": 0.0, "b": null}, {"i": "Atlas", "d": "2026-09-22", "m": "2026-09", "l": 46.6, "a": 44.0, "s": 2.6, "b": null}, {"i": "Datafolha", "d": "2026-09-23", "m": "2026-09", "l": 46.0, "a": 44.0, "s": 2.0, "b": null}], "Flávio Bolsonaro": [{"i": "Datafolha", "d": "2025-06-11", "m": "2025-06", "l": 47.0, "a": 38.0, "s": 9.0, "b": 15.0}, {"i": "Datafolha", "d": "2025-07-30", "m": "2025-07", "l": 48.0, "a": 37.0, "s": 11.0, "b": 14.0}, {"i": "Paraná", "d": "2025-11-10", "m": "2025-11", "l": 45.4, "a": 38.6, "s": 6.8, "b": 16.0}, {"i": "Datafolha", "d": "2025-12-04", "m": "2025-12", "l": 51.0, "a": 36.0, "s": 15.0, "b": 13.0}, {"i": "Quaest", "d": "2025-12-14", "m": "2025-12", "l": 46.0, "a": 36.0, "s": 10.0, "b": 18.0}, {"i": "Atlas", "d": "2025-12-15", "m": "2025-12", "l": 53.0, "a": 41.0, "s": 12.0, "b": 6.0}, {"i": "Quaest", "d": "2026-01-11", "m": "2026-01", "l": 45.0, "a": 38.0, "s": 7.0, "b": 17.0}, {"i": "Ideia", "d": "2026-01-12", "m": "2026-01", "l": 46.2, "a": 36.0, "s": 10.2, "b": 17.8}, {"i": "Atlas", "d": "2026-01-20", "m": "2026-01", "l": 49.0, "a": 45.0, "s": 4.0, "b": 6.0}, {"i": "Paraná", "d": "2026-01-28", "m": "2026-01", "l": 44.8, "a": 42.2, "s": 2.6, "b": 13.0}, {"i": "Gerp", "d": "2026-02-02", "m": "2026-02", "l": 45.0, "a": 45.0, "s": 0.0, "b": 10.0}, {"i": "Ideia", "d": "2026-02-02", "m": "2026-02", "l": 45.8, "a": 41.1, "s": 4.7, "b": 13.1}, {"i": "Futura/Apex", "d": "2026-02-07", "m": "2026-02", "l": 42.4, "a": 48.2, "s": -5.8, "b": null}, {"i": "Quaest", "d": "2026-02-09", "m": "2026-02", "l": 43.0, "a": 38.0, "s": 5.0, "b": 19.0}, {"i": "Atlas", "d": "2026-02-24", "m": "2026-02", "l": 46.2, "a": 46.3, "s": -0.1, "b": 7.5}, {"i": "Paraná", "d": "2026-02-25", "m": "2026-02", "l": 43.8, "a": 44.4, "s": -0.6, "b": 11.9}, {"i": "Realtime Bigdata", "d": "2026-03-02", "m": "2026-03", "l": 42.0, "a": 41.0, "s": 1.0, "b": 17.0}, {"i": "Futura/Apex", "d": "2026-03-06", "m": "2026-03", "l": 40.5, "a": 48.8, "s": -8.3, "b": 10.7}, {"i": "Quaest", "d": "2026-03-09", "m": "2026-03", "l": 41.0, "a": 41.0, "s": 0.0, "b": 18.0}, {"i": "Ideia", "d": "2026-03-10", "m": "2026-03", "l": 47.4, "a": 45.3, "s": 2.1, "b": 7.3}, {"i": "Atlas", "d": "2026-03-23", "m": "2026-03", "l": 46.6, "a": 47.6, "s": -1.0, "b": 6.8}, {"i": "Nexus-BTG", "d": "2026-03-29", "m": "2026-03", "l": 46.0, "a": 46.0, "s": 0.0, "b": 7.0}, {"i": "Ideia", "d": "2026-04-07", "m": "2026-04", "l": 45.5, "a": 45.8, "s": -0.3, "b": 8.7}, {"i": "Datafolha", "d": "2026-04-09", "m": "2026-04", "l": 45.0, "a": 46.0, "s": -1.0, "b": 9.0}, {"i": "MDA-CNT", "d": "2026-04-12", "m": "2026-04", "l": 44.9, "a": 40.2, "s": 4.7, "b": 14.9}, {"i": "Quaest", "d": "2026-04-13", "m": "2026-04", "l": 40.0, "a": 42.0, "s": -2.0, "b": 18.0}, {"i": "Nexus-BTG", "d": "2026-04-26", "m": "2026-04", "l": 46.0, "a": 45.0, "s": 1.0, "b": 7.0}, {"i": "Atlas", "d": "2026-04-27", "m": "2026-04", "l": 47.5, "a": 47.8, "s": -0.3, "b": 4.7}, {"i": "Realtime Bigdata", "d": "2026-05-04", "m": "2026-05", "l": 43.0, "a": 44.0, "s": -1.0, "b": 13.0}, {"i": "Datafolha", "d": "2026-05-05", "m": "2026-05", "l": 46.0, "a": 43.0, "s": 3.0, "b": 11.0}, {"i": "Datafolha", "d": "2026-05-05", "m": "2026-05", "l": 43.0, "a": 41.0, "s": 2.0, "b": 15.0}, {"i": "Ideia", "d": "2026-05-05", "m": "2026-05", "l": 44.7, "a": 45.3, "s": -0.6, "b": 10.0}, {"i": "Futura/Apex", "d": "2026-05-08", "m": "2026-05", "l": 44.4, "a": 46.9, "s": -2.5, "b": 8.6}, {"i": "Quaest", "d": "2026-05-11", "m": "2026-05", "l": 42.0, "a": 41.0, "s": 1.0, "b": 17.0}, {"i": "Datafolha", "d": "2026-05-13", "m": "2026-05", "l": 45.0, "a": 45.0, "s": 0.0, "b": 10.0}, {"i": "Atlas", "d": "2026-05-18", "m": "2026-05", "l": 48.9, "a": 41.8, "s": 7.1, "b": 9.3}, {"i": "Futura/Apex", "d": "2026-05-20", "m": "2026-05", "l": 47.7, "a": 42.2, "s": 5.5, "b": 10.2}, {"i": "Datafolha", "d": "2026-05-21", "m": "2026-05", "l": 47.0, "a": 43.0, "s": 4.0, "b": 11.0}, {"i": "Nexus-BTG", "d": "2026-05-24", "m": "2026-05", "l": 47.0, "a": 43.0, "s": 4.0, "b": 10.0}, {"i": "Ideia", "d": "2026-05-27", "m": "2026-05", "l": 46.5, "a": 41.4, "s": 5.1, "b": 12.2}, {"i": "Realtime Bigdata", "d": "2026-05-30", "m": "2026-05", "l": 45.0, "a": 40.0, "s": 5.0, "b": 15.0}, {"i": "Quaest", "d": "2026-06-08", "m": "2026-06", "l": 44.0, "a": 38.0, "s": 6.0, "b": 18.0}, {"i": "Futura/Apex", "d": "2026-06-12", "m": "2026-06", "l": 48.1, "a": 42.9, "s": 5.2, "b": 9.0}, {"i": "Nexus-BTG", "d": "2026-06-14", "m": "2026-06", "l": 49.0, "a": 43.0, "s": 6.0, "b": 9.0}, {"i": "MDA-CNT", "d": "2026-06-14", "m": "2026-06", "l": 49.3, "a": 36.8, "s": 12.5, "b": 13.9}, {"i": "Datafolha", "d": "2026-06-18", "m": "2026-06", "l": 47.0, "a": 43.0, "s": 4.0, "b": 9.0}, {"i": "PoderData", "d": "2026-06-24", "m": "2026-06", "l": 46.0, "a": 43.0, "s": 3.0, "b": 11.0}, {"i": "Nexus-BTG", "d": "2026-06-28", "m": "2026-06", "l": 47.0, "a": 44.0, "s": 3.0, "b": 9.0}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 48.8, "a": 42.3, "s": 6.5, "b": 8.9}, {"i": "Ideia", "d": "2026-07-06", "m": "2026-07", "l": 45.0, "a": 40.0, "s": 5.0, "b": 15.0}, {"i": "Gerp", "d": "2026-07-07", "m": "2026-07", "l": 42.0, "a": 45.0, "s": -3.0, "b": 13.0}, {"i": "Futura/Apex", "d": "2026-07-11", "m": "2026-07", "l": 46.3, "a": 46.1, "s": 0.2, "b": null}, {"i": "Nexus-BTG", "d": "2026-07-12", "m": "2026-07", "l": 47.0, "a": 44.0, "s": 3.0, "b": 9.0}, {"i": "Quaest", "d": "2026-07-13", "m": "2026-07", "l": 45.0, "a": 37.0, "s": 8.0, "b": 18.0}, {"i": "PoderData", "d": "2026-07-15", "m": "2026-07", "l": 45.0, "a": 43.0, "s": 2.0, "b": 11.0}, {"i": "Gerp", "d": "2026-07-17", "m": "2026-07", "l": 45.0, "a": 46.0, "s": -1.0, "b": null}, {"i": "Realtime Bigdata", "d": "2026-07-20", "m": "2026-07", "l": 45.0, "a": 42.0, "s": 3.0, "b": null}, {"i": "Datafolha", "d": "2026-07-24", "m": "2026-07", "l": 48.0, "a": 43.0, "s": 5.0, "b": 8.0}, {"i": "Nexus-BTG", "d": "2026-07-26", "m": "2026-07", "l": 47.0, "a": 43.0, "s": 4.0, "b": 10.0}, {"i": "Atlas", "d": "2026-07-27", "m": "2026-07", "l": 49.2, "a": 42.9, "s": 6.3, "b": 7.9}, {"i": "PoderData", "d": "2026-07-29", "m": "2026-07", "l": 46.0, "a": 43.0, "s": 3.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-08-02", "m": "2026-08", "l": 46.0, "a": 45.0, "s": 1.0, "b": 10.0}, {"i": "Quaest", "d": "2026-08-03", "m": "2026-08", "l": 44.0, "a": 39.0, "s": 5.0, "b": 17.0}, {"i": "Futura/Apex", "d": "2026-08-07", "m": "2026-08", "l": 46.5, "a": 44.0, "s": 2.5, "b": null}, {"i": "MDA-CNT", "d": "2026-08-08", "m": "2026-08", "l": 48.0, "a": 39.1, "s": 8.9, "b": 13.0}, {"i": "Nexus-BTG", "d": "2026-08-09", "m": "2026-08", "l": 47.0, "a": 44.0, "s": 3.0, "b": null}, {"i": "PoderData", "d": "2026-08-12", "m": "2026-08", "l": 46.0, "a": 45.0, "s": 1.0, "b": 9.0}, {"i": "Quaest", "d": "2026-08-13", "m": "2026-08", "l": 43.0, "a": 40.0, "s": 3.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-08-16", "m": "2026-08", "l": 47.0, "a": 44.0, "s": 3.0, "b": 9.0}, {"i": "Datafolha", "d": "2026-08-20", "m": "2026-08", "l": 47.0, "a": 43.0, "s": 4.0, "b": 11.0}, {"i": "Nexus-BTG", "d": "2026-08-23", "m": "2026-08", "l": 46.0, "a": 45.0, "s": 1.0, "b": 9.0}, {"i": "Gerp", "d": "2026-08-25", "m": "2026-08", "l": 42.0, "a": 47.0, "s": -5.0, "b": 11.0}, {"i": "PoderData", "d": "2026-08-26", "m": "2026-08", "l": 45.0, "a": 44.0, "s": 1.0, "b": null}, {"i": "Vox Brasil", "d": "2026-08-27", "m": "2026-08", "l": 44.5, "a": 45.1, "s": -0.6, "b": null}, {"i": "Atlas", "d": "2026-08-30", "m": "2026-08", "l": 47.1, "a": 42.6, "s": 4.5, "b": null}, {"i": "Nexus-BTG", "d": "2026-08-30", "m": "2026-08", "l": 46.0, "a": 45.0, "s": 1.0, "b": null}, {"i": "Realtime Bigdata", "d": "2026-08-31", "m": "2026-08", "l": 44.0, "a": 44.0, "s": 0.0, "b": null}, {"i": "PoderData", "d": "2026-09-02", "m": "2026-09", "l": 44.0, "a": 45.0, "s": -1.0, "b": null}, {"i": "Datafolha", "d": "2026-09-03", "m": "2026-09", "l": 46.0, "a": 44.0, "s": 2.0, "b": null}, {"i": "Quaest", "d": "2026-09-06", "m": "2026-09", "l": 41.0, "a": 41.0, "s": 0.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-09-07", "m": "2026-09", "l": 45.0, "a": 46.0, "s": -1.0, "b": null}, {"i": "Gerp", "d": "2026-09-08", "m": "2026-09", "l": 40.0, "a": 47.0, "s": -7.0, "b": 11.0}, {"i": "Atlas", "d": "2026-09-09", "m": "2026-09", "l": 46.2, "a": 46.4, "s": -0.2, "b": null}, {"i": "Datafolha", "d": "2026-09-10", "m": "2026-09", "l": 46.0, "a": 44.0, "s": 2.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-09-13", "m": "2026-09", "l": 47.0, "a": 46.0, "s": 1.0, "b": null}, {"i": "MDA-CNT", "d": "2026-09-13", "m": "2026-09", "l": 47.3, "a": 40.0, "s": 7.3, "b": null}, {"i": "Quaest", "d": "2026-09-13", "m": "2026-09", "l": 40.0, "a": 42.0, "s": -2.0, "b": 18.0}, {"i": "Atlas", "d": "2026-09-16", "m": "2026-09", "l": 46.8, "a": 47.2, "s": -0.4, "b": null}, {"i": "PoderData", "d": "2026-09-16", "m": "2026-09", "l": 44.0, "a": 46.0, "s": -2.0, "b": 10.0}, {"i": "Gerp", "d": "2026-09-16", "m": "2026-09", "l": 43.0, "a": 50.0, "s": -7.0, "b": null}, {"i": "Datafolha", "d": "2026-09-16", "m": "2026-09", "l": 46.0, "a": 44.0, "s": 2.0, "b": null}, {"i": "Quaest", "d": "2026-09-20", "m": "2026-09", "l": 41.0, "a": 42.0, "s": -1.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-09-20", "m": "2026-09", "l": 46.0, "a": 45.0, "s": 1.0, "b": null}, {"i": "Atlas", "d": "2026-09-22", "m": "2026-09", "l": 47.7, "a": 47.4, "s": 0.3, "b": null}, {"i": "Datafolha", "d": "2026-09-23", "m": "2026-09", "l": 47.0, "a": 45.0, "s": 2.0, "b": null}, {"i": "Quaest", "d": "2026-09-27", "m": "2026-09", "l": 42.0, "a": 42.0, "s": 0.0, "b": 16.0}, {"i": "Nexus-BTG", "d": "2026-09-27", "m": "2026-09", "l": 46.0, "a": 44.0, "s": 2.0, "b": 9.0}, {"i": "Atlas", "d": "2026-09-28", "m": "2026-09", "l": 50.0, "a": 50.0, "s": 0.0, "b": null}, {"i": "Gerp", "d": "2026-09-28", "m": "2026-09", "l": 43.0, "a": 50.0, "s": -7.0, "b": 6.0}, {"i": "Vox Brasil", "d": "2026-09-28", "m": "2026-09", "l": 44.7, "a": 45.2, "s": -0.5, "b": null}, {"i": "Realtime Bigdata", "d": "2026-09-30", "m": "2026-09", "l": 49.0, "a": 51.0, "s": -2.0, "b": null}, {"i": "Datafolha", "d": "2026-10-01", "m": "2026-10", "l": 48.0, "a": 45.0, "s": 3.0, "b": null}, {"i": "Datafolha", "d": "2026-10-03", "m": "2026-10", "l": 47.0, "a": 46.0, "s": 1.0, "b": 8.0}], "Michelle Bolsonaro": [{"i": "Quaest", "d": "2025-01-31", "m": "2025-01", "l": 47.0, "a": 34.0, "s": 13.0, "b": 19.0}, {"i": "Paraná", "d": "2025-02-16", "m": "2025-02", "l": 40.5, "a": 42.9, "s": -2.4, "b": 16.6}, {"i": "Quaest", "d": "2025-03-31", "m": "2025-03", "l": 44.0, "a": 38.0, "s": 6.0, "b": 18.0}, {"i": "Datafolha", "d": "2025-04-03", "m": "2025-04", "l": 50.0, "a": 38.0, "s": 12.0, "b": 13.0}, {"i": "Atlas", "d": "2025-04-30", "m": "2025-04", "l": 46.6, "a": 46.1, "s": 0.5, "b": 7.3}, {"i": "Atlas", "d": "2025-05-31", "m": "2025-05", "l": 45.3, "a": 49.8, "s": -4.5, "b": 4.9}, {"i": "Quaest", "d": "2025-05-31", "m": "2025-05", "l": 43.0, "a": 39.0, "s": 4.0, "b": 18.0}, {"i": "Datafolha", "d": "2025-06-11", "m": "2025-06", "l": 46.0, "a": 42.0, "s": 4.0, "b": 12.0}, {"i": "Paraná", "d": "2025-06-19", "m": "2025-06", "l": 41.0, "a": 45.0, "s": -4.0, "b": 14.0}, {"i": "Paraná", "d": "2025-06-22", "m": "2025-06", "l": 40.6, "a": 44.4, "s": -3.8, "b": 15.0}, {"i": "Datafolha", "d": "2025-07-30", "m": "2025-07", "l": 48.0, "a": 40.0, "s": 8.0, "b": 12.0}, {"i": "Quaest", "d": "2025-07-31", "m": "2025-07", "l": 43.0, "a": 36.0, "s": 7.0, "b": 21.0}, {"i": "Paraná", "d": "2025-08-21", "m": "2025-08", "l": 42.3, "a": 43.4, "s": -1.1, "b": 14.3}, {"i": "Atlas", "d": "2025-08-31", "m": "2025-08", "l": 48.8, "a": 47.9, "s": 0.9, "b": 1.3}, {"i": "Atlas", "d": "2025-09-14", "m": "2025-09", "l": 51.9, "a": 44.6, "s": 7.3, "b": 3.6}, {"i": "Quaest", "d": "2025-09-14", "m": "2025-09", "l": 47.0, "a": 32.0, "s": 15.0, "b": 21.0}, {"i": "Quaest", "d": "2025-10-05", "m": "2025-10", "l": 46.0, "a": 34.0, "s": 12.0, "b": 20.0}, {"i": "Atlas", "d": "2025-10-19", "m": "2025-10", "l": 52.0, "a": 43.0, "s": 9.0, "b": 5.0}, {"i": "Quaest", "d": "2025-11-09", "m": "2025-11", "l": 44.0, "a": 35.0, "s": 9.0, "b": 21.0}, {"i": "Paraná", "d": "2025-11-10", "m": "2025-11", "l": 44.1, "a": 42.7, "s": 1.4, "b": 13.1}, {"i": "CNT", "d": "2025-11-23", "m": "2025-11", "l": 49.1, "a": 35.6, "s": 13.5, "b": 15.3}, {"i": "Atlas", "d": "2025-11-27", "m": "2025-11", "l": 49.0, "a": 47.0, "s": 2.0, "b": 4.0}, {"i": "Datafolha", "d": "2025-12-04", "m": "2025-12", "l": 50.0, "a": 39.0, "s": 11.0, "b": 11.0}, {"i": "Atlas", "d": "2025-12-15", "m": "2025-12", "l": 50.0, "a": 45.0, "s": 5.0, "b": 5.0}, {"i": "Ideia", "d": "2026-01-12", "m": "2026-01", "l": 46.0, "a": 39.0, "s": 7.0, "b": 15.1}, {"i": "Atlas", "d": "2026-01-20", "m": "2026-01", "l": 49.0, "a": 45.0, "s": 4.0, "b": 6.0}, {"i": "Ideia", "d": "2026-02-02", "m": "2026-02", "l": 45.0, "a": 40.7, "s": 4.3, "b": 14.3}, {"i": "Atlas", "d": "2026-02-24", "m": "2026-02", "l": 47.5, "a": 44.7, "s": 2.8, "b": 7.8}, {"i": "Atlas", "d": "2026-03-23", "m": "2026-03", "l": 46.8, "a": 47.0, "s": -0.2, "b": 6.2}, {"i": "Futura/Apex", "d": "2026-05-20", "m": "2026-05", "l": 47.9, "a": 41.6, "s": 6.3, "b": 10.6}, {"i": "Datafolha", "d": "2026-05-21", "m": "2026-05", "l": 48.0, "a": 43.0, "s": 5.0, "b": 9.0}, {"i": "Ideia", "d": "2026-05-27", "m": "2026-05", "l": 46.0, "a": 40.0, "s": 6.0, "b": 14.0}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 48.0, "a": 47.5, "s": 0.5, "b": 4.5}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 48.7, "a": 38.9, "s": 9.8, "b": 12.4}, {"i": "Ideia", "d": "2026-07-06", "m": "2026-07", "l": 45.0, "a": 36.0, "s": 9.0, "b": 19.0}, {"i": "Gerp", "d": "2026-07-07", "m": "2026-07", "l": 45.0, "a": 41.0, "s": 4.0, "b": 15.0}, {"i": "Futura/Apex", "d": "2026-07-11", "m": "2026-07", "l": 46.1, "a": 44.3, "s": 1.8, "b": null}, {"i": "Atlas", "d": "2026-07-27", "m": "2026-07", "l": 48.8, "a": 42.5, "s": 6.3, "b": 8.8}], "Ratinho Jr": [{"i": "Quaest", "d": "2025-01-31", "m": "2025-01", "l": 44.0, "a": 34.0, "s": 10.0, "b": 22.0}, {"i": "Quaest", "d": "2025-03-31", "m": "2025-03", "l": 42.0, "a": 35.0, "s": 7.0, "b": 23.0}, {"i": "Atlas", "d": "2025-04-30", "m": "2025-04", "l": 47.2, "a": 34.9, "s": 12.3, "b": 17.9}, {"i": "Atlas", "d": "2025-05-31", "m": "2025-05", "l": 45.2, "a": 36.1, "s": 9.1, "b": 18.8}, {"i": "Quaest", "d": "2025-05-31", "m": "2025-05", "l": 40.0, "a": 38.0, "s": 2.0, "b": 22.0}, {"i": "Datafolha", "d": "2025-07-30", "m": "2025-07", "l": 45.0, "a": 40.0, "s": 5.0, "b": 15.0}, {"i": "Quaest", "d": "2025-07-31", "m": "2025-07", "l": 41.0, "a": 36.0, "s": 5.0, "b": 23.0}, {"i": "Atlas", "d": "2025-08-31", "m": "2025-08", "l": 46.9, "a": 41.1, "s": 5.8, "b": 11.9}, {"i": "Atlas", "d": "2025-09-14", "m": "2025-09", "l": 51.6, "a": 34.9, "s": 16.7, "b": 13.5}, {"i": "Quaest", "d": "2025-09-14", "m": "2025-09", "l": 44.0, "a": 32.0, "s": 12.0, "b": 24.0}, {"i": "CNT", "d": "2025-09-30", "m": "2025-09", "l": 43.4, "a": 36.7, "s": 6.7, "b": 19.9}, {"i": "Quaest", "d": "2025-10-05", "m": "2025-10", "l": 44.0, "a": 31.0, "s": 13.0, "b": 25.0}, {"i": "Atlas", "d": "2025-10-19", "m": "2025-10", "l": 51.0, "a": 37.0, "s": 14.0, "b": 12.0}, {"i": "Quaest", "d": "2025-11-09", "m": "2025-11", "l": 40.0, "a": 35.0, "s": 5.0, "b": 25.0}, {"i": "CNT", "d": "2025-11-23", "m": "2025-11", "l": 45.8, "a": 38.7, "s": 7.1, "b": 15.5}, {"i": "Atlas", "d": "2025-11-27", "m": "2025-11", "l": 49.0, "a": 40.0, "s": 9.0, "b": 11.0}, {"i": "Datafolha", "d": "2025-12-04", "m": "2025-12", "l": 47.0, "a": 41.0, "s": 6.0, "b": 12.0}, {"i": "Quaest", "d": "2025-12-14", "m": "2025-12", "l": 45.0, "a": 35.0, "s": 10.0, "b": 20.0}, {"i": "Atlas", "d": "2025-12-15", "m": "2025-12", "l": 49.0, "a": 39.0, "s": 10.0, "b": 12.0}, {"i": "Quaest", "d": "2026-01-11", "m": "2026-01", "l": 43.0, "a": 36.0, "s": 7.0, "b": 21.0}, {"i": "Ideia", "d": "2026-01-12", "m": "2026-01", "l": 46.0, "a": 37.0, "s": 9.0, "b": 17.1}, {"i": "Atlas", "d": "2026-01-20", "m": "2026-01", "l": 49.0, "a": 39.0, "s": 10.0, "b": 12.0}, {"i": "Paraná", "d": "2026-01-28", "m": "2026-01", "l": 44.7, "a": 38.9, "s": 5.8, "b": 16.4}, {"i": "Gerp", "d": "2026-02-02", "m": "2026-02", "l": 45.0, "a": 41.0, "s": 4.0, "b": 14.0}, {"i": "Ideia", "d": "2026-02-02", "m": "2026-02", "l": 45.0, "a": 38.0, "s": 7.0, "b": 17.0}, {"i": "Futura/Apex", "d": "2026-02-07", "m": "2026-02", "l": 43.0, "a": 35.0, "s": 8.0, "b": 22.0}, {"i": "Atlas", "d": "2026-02-24", "m": "2026-02", "l": 45.5, "a": 39.0, "s": 6.5, "b": 15.5}, {"i": "Paraná", "d": "2026-02-25", "m": "2026-02", "l": 43.6, "a": 39.7, "s": 3.9, "b": 16.7}, {"i": "Realtime Bigdata", "d": "2026-03-02", "m": "2026-03", "l": 43.0, "a": 39.0, "s": 4.0, "b": 15.0}, {"i": "Futura/Apex", "d": "2026-03-06", "m": "2026-03", "l": 41.0, "a": 44.5, "s": -3.5, "b": 14.5}, {"i": "Quaest", "d": "2026-03-09", "m": "2026-03", "l": 42.0, "a": 33.0, "s": 9.0, "b": 25.0}, {"i": "Ideia", "d": "2026-03-10", "m": "2026-03", "l": 46.5, "a": 40.7, "s": 5.8, "b": 12.7}, {"i": "Atlas", "d": "2026-03-23", "m": "2026-03", "l": 46.1, "a": 38.7, "s": 7.4, "b": 15.2}, {"i": "Datafolha", "d": "2026-05-05", "m": "2026-05", "l": 45.0, "a": 41.0, "s": 4.0, "b": 15.0}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 47.3, "a": 39.0, "s": 8.3, "b": 13.7}], "Renan Santos": [{"i": "Quaest", "d": "2026-01-11", "m": "2026-01", "l": 46.0, "a": 26.0, "s": 20.0, "b": 28.0}, {"i": "Ideia", "d": "2026-01-12", "m": "2026-01", "l": 46.5, "a": 23.5, "s": 23.0, "b": 30.1}, {"i": "Ideia", "d": "2026-04-07", "m": "2026-04", "l": 45.0, "a": 26.4, "s": 18.6, "b": 28.6}, {"i": "MDA-CNT", "d": "2026-04-12", "m": "2026-04", "l": 45.0, "a": 28.3, "s": 16.7, "b": 26.7}, {"i": "Quaest", "d": "2026-04-13", "m": "2026-04", "l": 44.0, "a": 24.0, "s": 20.0, "b": 32.0}, {"i": "Atlas", "d": "2026-04-27", "m": "2026-04", "l": 47.1, "a": 29.5, "s": 17.6, "b": 23.5}, {"i": "Realtime Bigdata", "d": "2026-05-04", "m": "2026-05", "l": 48.0, "a": 24.0, "s": 24.0, "b": 28.0}, {"i": "Ideia", "d": "2026-05-05", "m": "2026-05", "l": 44.7, "a": 27.6, "s": 17.1, "b": 27.7}, {"i": "Quaest", "d": "2026-05-11", "m": "2026-05", "l": 45.0, "a": 28.0, "s": 17.0, "b": 27.0}, {"i": "Atlas", "d": "2026-05-18", "m": "2026-05", "l": 47.8, "a": 28.4, "s": 19.4, "b": 23.8}, {"i": "Ideia", "d": "2026-05-27", "m": "2026-05", "l": 46.0, "a": 31.0, "s": 15.0, "b": 23.0}, {"i": "Realtime Bigdata", "d": "2026-05-30", "m": "2026-05", "l": 46.0, "a": 30.0, "s": 16.0, "b": 24.0}, {"i": "Quaest", "d": "2026-06-08", "m": "2026-06", "l": 45.0, "a": 31.0, "s": 14.0, "b": 24.0}, {"i": "Nexus-BTG", "d": "2026-06-14", "m": "2026-06", "l": 49.0, "a": 36.0, "s": 13.0, "b": 15.0}, {"i": "MDA-CNT", "d": "2026-06-14", "m": "2026-06", "l": 49.3, "a": 28.0, "s": 21.3, "b": 22.8}, {"i": "PoderData", "d": "2026-06-24", "m": "2026-06", "l": 45.0, "a": 38.0, "s": 7.0, "b": 17.0}, {"i": "Nexus-BTG", "d": "2026-06-28", "m": "2026-06", "l": 48.0, "a": 36.0, "s": 12.0, "b": 17.0}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 49.2, "a": 28.9, "s": 20.3, "b": 21.9}, {"i": "Ideia", "d": "2026-07-06", "m": "2026-07", "l": 45.0, "a": 33.0, "s": 12.0, "b": 22.0}, {"i": "Gerp", "d": "2026-07-07", "m": "2026-07", "l": 41.0, "a": 30.0, "s": 11.0, "b": 29.0}, {"i": "Futura/Apex", "d": "2026-07-11", "m": "2026-07", "l": 46.4, "a": 33.1, "s": 13.3, "b": null}, {"i": "Nexus-BTG", "d": "2026-07-12", "m": "2026-07", "l": 49.0, "a": 35.0, "s": 14.0, "b": 16.0}, {"i": "Quaest", "d": "2026-07-13", "m": "2026-07", "l": 45.0, "a": 33.0, "s": 12.0, "b": 22.0}, {"i": "PoderData", "d": "2026-07-15", "m": "2026-07", "l": 43.0, "a": 38.0, "s": 5.0, "b": 19.0}, {"i": "Nexus-BTG", "d": "2026-07-26", "m": "2026-07", "l": 47.0, "a": 39.0, "s": 8.0, "b": 15.0}, {"i": "Atlas", "d": "2026-07-27", "m": "2026-07", "l": 47.6, "a": 30.2, "s": 17.4, "b": 22.2}, {"i": "Nexus-BTG", "d": "2026-08-02", "m": "2026-08", "l": 47.0, "a": 37.0, "s": 10.0, "b": 16.0}, {"i": "Quaest", "d": "2026-08-03", "m": "2026-08", "l": 45.0, "a": 35.0, "s": 10.0, "b": 20.0}, {"i": "MDA-CNT", "d": "2026-08-08", "m": "2026-08", "l": 48.6, "a": 33.0, "s": 15.6, "b": null}, {"i": "Nexus-BTG", "d": "2026-08-09", "m": "2026-08", "l": 46.0, "a": 37.0, "s": 9.0, "b": null}, {"i": "PoderData", "d": "2026-08-12", "m": "2026-08", "l": 46.0, "a": 37.0, "s": 9.0, "b": 17.0}, {"i": "Nexus-BTG", "d": "2026-08-16", "m": "2026-08", "l": 47.0, "a": 36.0, "s": 11.0, "b": 17.0}, {"i": "Datafolha", "d": "2026-08-20", "m": "2026-08", "l": 47.0, "a": 37.0, "s": 10.0, "b": 16.0}, {"i": "Nexus-BTG", "d": "2026-08-23", "m": "2026-08", "l": 47.0, "a": 35.0, "s": 12.0, "b": 17.0}, {"i": "PoderData", "d": "2026-08-26", "m": "2026-08", "l": 44.0, "a": 37.0, "s": 7.0, "b": null}, {"i": "Atlas", "d": "2026-08-30", "m": "2026-08", "l": 47.5, "a": 26.0, "s": 21.5, "b": null}, {"i": "Datafolha", "d": "2026-09-03", "m": "2026-09", "l": 47.0, "a": 38.0, "s": 9.0, "b": null}, {"i": "Atlas", "d": "2026-09-09", "m": "2026-09", "l": 46.0, "a": 33.8, "s": 12.2, "b": null}], "Zema": [{"i": "Quaest", "d": "2025-01-26", "m": "2025-01", "l": 45.0, "a": 28.0, "s": 17.0, "b": 27.0}, {"i": "Quaest", "d": "2025-01-31", "m": "2025-01", "l": 46.0, "a": 32.0, "s": 14.0, "b": 22.0}, {"i": "Atlas", "d": "2025-02-28", "m": "2025-02", "l": 47.0, "a": 43.0, "s": 4.0, "b": 9.0}, {"i": "Quaest", "d": "2025-03-31", "m": "2025-03", "l": 43.0, "a": 31.0, "s": 12.0, "b": 26.0}, {"i": "Atlas", "d": "2025-04-30", "m": "2025-04", "l": 45.6, "a": 39.5, "s": 6.1, "b": 14.8}, {"i": "Atlas", "d": "2025-05-31", "m": "2025-05", "l": 45.2, "a": 39.5, "s": 5.7, "b": 15.3}, {"i": "Quaest", "d": "2025-05-31", "m": "2025-05", "l": 42.0, "a": 33.0, "s": 9.0, "b": 25.0}, {"i": "Datafolha", "d": "2025-07-30", "m": "2025-07", "l": 46.0, "a": 36.0, "s": 10.0, "b": 18.0}, {"i": "Quaest", "d": "2025-07-31", "m": "2025-07", "l": 42.0, "a": 33.0, "s": 9.0, "b": 25.0}, {"i": "Atlas", "d": "2025-08-31", "m": "2025-08", "l": 47.1, "a": 40.9, "s": 6.2, "b": 12.0}, {"i": "Atlas", "d": "2025-09-14", "m": "2025-09", "l": 51.4, "a": 36.7, "s": 14.7, "b": 11.9}, {"i": "Quaest", "d": "2025-09-14", "m": "2025-09", "l": 45.0, "a": 32.0, "s": 13.0, "b": 23.0}, {"i": "CNT", "d": "2025-09-30", "m": "2025-09", "l": 45.0, "a": 30.7, "s": 14.3, "b": 24.3}, {"i": "Quaest", "d": "2025-10-05", "m": "2025-10", "l": 47.0, "a": 32.0, "s": 15.0, "b": 21.0}, {"i": "Atlas", "d": "2025-10-19", "m": "2025-10", "l": 52.0, "a": 35.0, "s": 17.0, "b": 14.0}, {"i": "Quaest", "d": "2025-11-09", "m": "2025-11", "l": 43.0, "a": 36.0, "s": 7.0, "b": 21.0}, {"i": "CNT", "d": "2025-11-23", "m": "2025-11", "l": 47.9, "a": 33.5, "s": 14.4, "b": 18.6}, {"i": "Atlas", "d": "2025-11-27", "m": "2025-11", "l": 49.0, "a": 41.0, "s": 8.0, "b": 10.0}, {"i": "Quaest", "d": "2025-12-14", "m": "2025-12", "l": 45.0, "a": 33.0, "s": 12.0, "b": 22.0}, {"i": "Atlas", "d": "2025-12-15", "m": "2025-12", "l": 49.0, "a": 39.0, "s": 10.0, "b": 12.0}, {"i": "Quaest", "d": "2026-01-11", "m": "2026-01", "l": 46.0, "a": 31.0, "s": 15.0, "b": 23.0}, {"i": "Ideia", "d": "2026-01-12", "m": "2026-01", "l": 46.3, "a": 36.1, "s": 10.2, "b": 17.7}, {"i": "Atlas", "d": "2026-01-20", "m": "2026-01", "l": 49.0, "a": 45.0, "s": 4.0, "b": 6.0}, {"i": "Ideia", "d": "2026-02-02", "m": "2026-02", "l": 45.0, "a": 35.5, "s": 9.5, "b": 20.5}, {"i": "Gerp", "d": "2026-02-02", "m": "2026-02", "l": 47.0, "a": 36.0, "s": 11.0, "b": 17.0}, {"i": "Futura/Apex", "d": "2026-02-07", "m": "2026-02", "l": 43.3, "a": 42.4, "s": 0.9, "b": null}, {"i": "Quaest", "d": "2026-02-09", "m": "2026-02", "l": 43.0, "a": 32.0, "s": 11.0, "b": 25.0}, {"i": "Atlas", "d": "2026-02-24", "m": "2026-02", "l": 46.0, "a": 41.7, "s": 4.3, "b": 12.3}, {"i": "Realtime Bigdata", "d": "2026-03-02", "m": "2026-03", "l": 44.0, "a": 35.0, "s": 9.0, "b": 21.0}, {"i": "Futura/Apex", "d": "2026-03-06", "m": "2026-03", "l": 42.5, "a": 40.5, "s": 2.0, "b": 17.0}, {"i": "Quaest", "d": "2026-03-09", "m": "2026-03", "l": 44.0, "a": 34.0, "s": 10.0, "b": 22.0}, {"i": "Ideia", "d": "2026-03-10", "m": "2026-03", "l": 46.1, "a": 38.0, "s": 8.1, "b": 16.0}, {"i": "Atlas", "d": "2026-03-23", "m": "2026-03", "l": 46.6, "a": 43.7, "s": 2.9, "b": 9.8}, {"i": "Nexus-BTG", "d": "2026-03-29", "m": "2026-03", "l": 46.0, "a": 40.0, "s": 6.0, "b": 14.0}, {"i": "Ideia", "d": "2026-04-07", "m": "2026-04", "l": 44.7, "a": 38.7, "s": 6.0, "b": 16.6}, {"i": "Datafolha", "d": "2026-04-09", "m": "2026-04", "l": 45.0, "a": 42.0, "s": 3.0, "b": 13.0}, {"i": "MDA-CNT", "d": "2026-04-12", "m": "2026-04", "l": 45.2, "a": 31.6, "s": 13.6, "b": 23.2}, {"i": "Quaest", "d": "2026-04-13", "m": "2026-04", "l": 43.0, "a": 36.0, "s": 7.0, "b": 21.0}, {"i": "Nexus-BTG", "d": "2026-04-26", "m": "2026-04", "l": 45.0, "a": 41.0, "s": 4.0, "b": 14.0}, {"i": "Atlas", "d": "2026-04-27", "m": "2026-04", "l": 47.4, "a": 46.5, "s": 0.9, "b": 6.1}, {"i": "Realtime Bigdata", "d": "2026-05-04", "m": "2026-05", "l": 43.0, "a": 39.0, "s": 4.0, "b": 18.0}, {"i": "Ideia", "d": "2026-05-05", "m": "2026-05", "l": 44.0, "a": 39.0, "s": 5.0, "b": 17.0}, {"i": "Quaest", "d": "2026-05-11", "m": "2026-05", "l": 44.0, "a": 37.0, "s": 7.0, "b": 19.0}, {"i": "Datafolha", "d": "2026-05-13", "m": "2026-05", "l": 46.0, "a": 40.0, "s": 6.0, "b": 15.0}, {"i": "Atlas", "d": "2026-05-18", "m": "2026-05", "l": 47.8, "a": 37.6, "s": 10.2, "b": 14.6}, {"i": "Futura/Apex", "d": "2026-05-20", "m": "2026-05", "l": 48.3, "a": 35.9, "s": 12.4, "b": 15.8}, {"i": "Datafolha", "d": "2026-05-21", "m": "2026-05", "l": 48.0, "a": 39.0, "s": 9.0, "b": 13.0}, {"i": "Nexus-BTG", "d": "2026-05-24", "m": "2026-05", "l": 49.0, "a": 38.0, "s": 11.0, "b": 13.0}, {"i": "Ideia", "d": "2026-05-27", "m": "2026-05", "l": 46.0, "a": 37.0, "s": 9.0, "b": 17.0}, {"i": "Realtime Bigdata", "d": "2026-05-30", "m": "2026-05", "l": 43.0, "a": 40.0, "s": 3.0, "b": 17.0}, {"i": "Quaest", "d": "2026-06-08", "m": "2026-06", "l": 45.0, "a": 35.0, "s": 10.0, "b": 20.0}, {"i": "Nexus-BTG", "d": "2026-06-14", "m": "2026-06", "l": 49.0, "a": 39.0, "s": 10.0, "b": 12.0}, {"i": "MDA-CNT", "d": "2026-06-14", "m": "2026-06", "l": 48.8, "a": 31.6, "s": 17.2, "b": 19.6}, {"i": "Datafolha", "d": "2026-06-18", "m": "2026-06", "l": 48.0, "a": 39.0, "s": 9.0, "b": 13.0}, {"i": "PoderData", "d": "2026-06-24", "m": "2026-06", "l": 45.0, "a": 42.0, "s": 3.0, "b": 13.0}, {"i": "Nexus-BTG", "d": "2026-06-28", "m": "2026-06", "l": 48.0, "a": 38.0, "s": 10.0, "b": 15.0}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 48.2, "a": 38.5, "s": 9.7, "b": 13.3}, {"i": "Atlas", "d": "2026-06-30", "m": "2026-06", "l": 48.0, "a": 38.6, "s": 9.4, "b": 13.5}, {"i": "Ideia", "d": "2026-07-06", "m": "2026-07", "l": 45.0, "a": 37.0, "s": 8.0, "b": 18.0}, {"i": "Gerp", "d": "2026-07-07", "m": "2026-07", "l": 41.0, "a": 36.0, "s": 5.0, "b": 23.0}, {"i": "Futura/Apex", "d": "2026-07-11", "m": "2026-07", "l": 46.0, "a": 38.1, "s": 7.9, "b": null}, {"i": "Nexus-BTG", "d": "2026-07-12", "m": "2026-07", "l": 47.0, "a": 40.0, "s": 7.0, "b": 13.0}, {"i": "Quaest", "d": "2026-07-13", "m": "2026-07", "l": 45.0, "a": 35.0, "s": 10.0, "b": 20.0}, {"i": "PoderData", "d": "2026-07-15", "m": "2026-07", "l": 44.0, "a": 41.0, "s": 3.0, "b": 15.0}, {"i": "Datafolha", "d": "2026-07-24", "m": "2026-07", "l": 48.0, "a": 40.0, "s": 8.0, "b": null}, {"i": "Nexus-BTG", "d": "2026-07-26", "m": "2026-07", "l": 46.0, "a": 42.0, "s": 4.0, "b": 12.0}, {"i": "Atlas", "d": "2026-07-27", "m": "2026-07", "l": 48.6, "a": 39.6, "s": 9.0, "b": 11.8}, {"i": "Nexus-BTG", "d": "2026-08-02", "m": "2026-08", "l": 46.0, "a": 40.0, "s": 6.0, "b": 13.0}, {"i": "Quaest", "d": "2026-08-03", "m": "2026-08", "l": 46.0, "a": 34.0, "s": 12.0, "b": 20.0}, {"i": "Futura/Apex", "d": "2026-08-07", "m": "2026-08", "l": 46.5, "a": 39.8, "s": 6.7, "b": null}, {"i": "MDA-CNT", "d": "2026-08-08", "m": "2026-08", "l": 49.1, "a": 34.9, "s": 14.2, "b": null}, {"i": "Nexus-BTG", "d": "2026-08-09", "m": "2026-08", "l": 47.0, "a": 40.0, "s": 7.0, "b": null}, {"i": "PoderData", "d": "2026-08-12", "m": "2026-08", "l": 45.0, "a": 43.0, "s": 2.0, "b": 11.0}, {"i": "Nexus-BTG", "d": "2026-08-16", "m": "2026-08", "l": 46.0, "a": 41.0, "s": 5.0, "b": 13.0}, {"i": "Datafolha", "d": "2026-08-20", "m": "2026-08", "l": 48.0, "a": 38.0, "s": 10.0, "b": 14.0}, {"i": "Nexus-BTG", "d": "2026-08-23", "m": "2026-08", "l": 47.0, "a": 40.0, "s": 7.0, "b": 13.0}, {"i": "PoderData", "d": "2026-08-26", "m": "2026-08", "l": 44.0, "a": 43.0, "s": 1.0, "b": null}, {"i": "Vox Brasil", "d": "2026-08-27", "m": "2026-08", "l": 45.5, "a": 39.3, "s": 6.2, "b": null}, {"i": "Atlas", "d": "2026-08-30", "m": "2026-08", "l": 47.0, "a": 40.7, "s": 6.3, "b": null}, {"i": "Realtime Bigdata", "d": "2026-08-31", "m": "2026-08", "l": 43.0, "a": 40.0, "s": 3.0, "b": null}, {"i": "Datafolha", "d": "2026-09-03", "m": "2026-09", "l": 48.0, "a": 39.0, "s": 9.0, "b": null}, {"i": "Atlas", "d": "2026-09-09", "m": "2026-09", "l": 46.2, "a": 46.0, "s": 0.2, "b": null}, {"i": "Quaest", "d": "2026-09-20", "m": "2026-09", "l": 46.0, "a": 32.0, "s": 14.0, "b": null}, {"i": "Atlas", "d": "2026-09-22", "m": "2026-09", "l": 47.6, "a": 42.2, "s": 5.4, "b": null}]}, "house": {"Atlas": -0.15, "CNT": 1.67, "Datafolha": 0.79, "Futura/Apex": -2.25, "Gerp": -2.58, "Ideia": 0.95, "MDA-CNT": 5.98, "Nexus-BTG": -0.34, "Paraná": -1.96, "PoderData": -3.56, "Quaest": 1.01, "Realtime Bigdata": -1.82, "Vox Brasil": -0.8}, "default_adv": "Flávio Bolsonaro", "meses1t": ["2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10"], "s1t": {"Lula": [35.0, 42.5, 42.1, 38.7, 41.3, 43.3, 44.1, 39.1, 41.6, 42.6, 37.8, 42.5, 39.2, 41.5, 41.4, 40.1, 39.6, 39.8, 39.8, 42.6, 41.1, 39.4, 39.2, 42.0], "Flávio Bolsonaro": [null, null, null, null, null, null, null, null, 18.0, null, null, null, 21.1, 23.0, 28.0, 33.5, 36.1, 34.9, 33.2, 33.1, 34.1, 33.7, 35.1, 38.0], "Michele Bolsonaro": [null, 0.0, 0.0, null, null, 31.3, 33.5, 28.2, 24.0, 29.7, 18.0, 23.6, 23.9, 25.7, 29.9, 32.9, null, null, 26.8, null, 29.4, null, null, null], "Ratinho Jr": [null, 0.0, 0.0, null, null, 2.7, 3.0, 7.4, 11.3, 4.4, 8.8, 8.0, 9.3, 8.8, 6.8, 7.3, 7.4, null, 9.7, null, null, null, null, null], "Romeu Zema": [null, null, null, 5.6, 1.6, 2.3, 2.7, 5.7, 6.3, 4.9, 5.8, 5.3, 5.3, 4.8, 4.3, 4.7, 3.6, 3.7, 4.5, 2.6, 3.3, 3.0, 1.0, null], "Ronaldo Caiado": [null, 2.9, 5.9, 4.9, 3.8, 4.7, 4.7, 4.6, 6.5, 3.4, 5.7, 6.4, 6.6, 6.2, 5.6, 4.5, 4.4, 5.0, 4.7, 3.8, 4.9, 4.7, 3.7, null]}, "inst1t": [{"i": "Datafolha", "d": "2026-10-01", "lula": 42.0, "flavio": 38.0}, {"i": "Vox Brasil", "d": "2026-09-28", "lula": 41.1, "flavio": 37.8}, {"i": "Nexus-BTG", "d": "2026-09-27", "lula": 42.0, "flavio": 37.0}, {"i": "Quaest", "d": "2026-09-27", "lula": 39.0, "flavio": 34.0}, {"i": "Atlas", "d": "2026-09-16", "lula": 44.1, "flavio": 41.7}, {"i": "PoderData", "d": "2026-09-16", "lula": 37.0, "flavio": 36.0}, {"i": "MDA-CNT", "d": "2026-09-13", "lula": 40.5, "flavio": 30.4}, {"i": "Gerp", "d": "2026-09-08", "lula": 34.0, "flavio": 37.0}, {"i": "Realtime Bigdata", "d": "2026-08-31", "lula": 38.0, "flavio": 29.0}, {"i": "Futura/Apex", "d": "2026-08-07", "lula": 38.8, "flavio": 34.1}, {"i": "Ideia", "d": "2026-07-06", "lula": 40.4, "flavio": 32.0}, {"i": "Paraná", "d": "2026-02-25", "lula": 40.0, "flavio": 36.0}, {"i": "Ipsos-IPEC", "d": "2025-12-08", "lula": 38.2, "flavio": 19.0}], "trims": ["2023Q1", "2023Q2", "2023Q3", "2023Q4", "2024Q1", "2024Q2", "2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3", "2025Q4", "2026Q1", "2026Q2", "2026Q3"], "aprova": [53.4, 52.4, 54.1, 51.3, 50.0, 49.8, 50.8, 48.5, 43.2, 42.9, 46.1, 47.0, 44.5, 46.1, 45.9], "desaprova": [36.0, 40.0, 41.1, 43.0, 43.6, 45.5, 44.2, 46.8, 52.9, 53.1, 50.5, 50.2, 51.5, 49.9, 50.2], "apr_inst": {"Atlas": [51.0, 50.0, 52.5, 50.0, 49.5, 51.0, 50.2, 48.6, 45.5, 46.3, 49.0, 48.5, 47.1, 47.2, 45.4], "CNT": [null, 57.0, 55.0, null, 55.0, 51.0, null, 50.0, 40.0, 41.0, 44.0, 48.0, null, 47.0, 45.9], "Datafolha": [null, null, null, null, null, null, null, null, null, 47.0, 47.0, 49.0, 47.0, 46.0, 47.5], "Futura": [null, null, null, null, null, null, null, null, null, null, null, null, null, 49.6, 46.0], "Gerp": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 43.0], "IPEC": [57.0, 53.5, 56.0, 51.0, 49.0, null, 49.5, 47.0, null, 39.5, 44.0, 42.0, 43.0, null, null], "Ipespe": [51.0, 51.5, 55.0, 52.0, 50.0, 49.0, null, null, 41.0, 40.0, 46.5, null, null, null, null], "Nexus-BTG": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 48.0], "Poder360": [52.0, 50.0, 48.0, 46.0, 48.0, 47.0, null, 45.5, 41.5, 39.0, 43.0, 42.0, 39.0, 43.5, 42.5], "Quaest": [56.0, 53.5, 60.0, 54.0, 51.0, 50.0, 54.0, 51.5, 44.0, 40.0, 45.0, 47.7, 45.3, 45.3, 46.7], "Vox Brasil": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 45.1]}, "des_inst": {"Atlas": [42.0, 44.0, 46.0, 47.0, 44.5, 46.0, 44.9, 47.6, 52.7, 51.9, 50.4, 50.9, 52.1, 52.0, 53.2], "CNT": [null, 35.0, 39.0, null, 40.0, 44.0, null, 46.0, 55.0, 53.0, 49.0, 49.0, null, 48.0, 49.7], "Datafolha": [null, null, null, null, null, null, null, null, null, 49.5, 49.0, 48.0, 49.0, 50.0, 49.8], "Futura": [null, null, null, null, null, null, null, null, null, null, null, null, null, 47.7, 49.7], "Gerp": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 51.0], "IPEC": [35.0, 38.5, 39.0, 43.0, 45.0, null, 44.5, 46.0, null, 55.0, 51.0, 52.0, 51.0, null, null], "Ipespe": [36.0, 39.0, 38.0, 41.0, 42.0, 43.0, null, null, 54.0, 54.0, 49.5, null, null, null, null], "Nexus-BTG": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 49.0], "Poder360": [39.0, 42.0, 45.0, 44.0, 43.5, 47.0, null, 47.0, 52.0, 56.0, 52.0, 52.0, 55.0, 51.0, 50.5], "Quaest": [28.0, 41.0, 35.0, 42.5, 46.0, 47.0, 43.0, 46.0, 52.5, 57.0, 51.7, 49.3, 49.7, 49.7, 48.0], "Vox Brasil": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 53.3]}, "tot2022": {"lula": 60345999, "bolso": 58206354, "pct_lula": 50.9, "pct_bolso": 49.1}, "top10": [{"partido": "PL", "camara": 97, "senado": 16, "bloco": "oposicao"}, {"partido": "PT", "camara": 66, "senado": 9, "bloco": "governo"}, {"partido": "PP", "camara": 54, "senado": 7, "bloco": "centrao"}, {"partido": "PSD", "camara": 46, "senado": 13, "bloco": "centrao"}, {"partido": "UNIÃO", "camara": 51, "senado": 4, "bloco": "centrao"}, {"partido": "Republicanos", "camara": 41, "senado": 6, "bloco": "centrao"}, {"partido": "MDB", "camara": 36, "senado": 10, "bloco": "centrao"}, {"partido": "PODE", "camara": 27, "senado": 5, "bloco": "centrao"}, {"partido": "PSB", "camara": 20, "senado": 5, "bloco": "governo"}, {"partido": "PSDB", "camara": 19, "senado": 3, "bloco": "oposicao"}], "incumbentes": [{"rot": "FHC 1998", "pos": 35.0, "neg": 22.1, "res": "reeleito", "n": 8}, {"rot": "Lula 2006", "pos": 37.9, "neg": 22.3, "res": "reeleito", "n": 12}, {"rot": "Dilma 2014", "pos": 35.0, "neg": 28.1, "res": "reeleita", "n": 12}, {"rot": "Bolsonaro 2022", "pos": 27.7, "neg": 51.4, "res": "derrotado", "n": 24}, {"rot": "Lula 3 2026", "pos": 34.4, "neg": 42.7, "res": "?", "n": 23}], "mapa": {"Acre": {"uf": "AC", "lula": 29.7, "bolso": 70.3, "margem": -40.6, "vencedor": "BOLSONARO", "votos": 409316}, "Alagoas": {"uf": "AL", "lula": 58.68, "bolso": 41.32, "margem": 17.36, "vencedor": "LULA", "votos": 1664658}, "Amazonas": {"uf": "AM", "lula": 51.1, "bolso": 48.9, "margem": 2.2, "vencedor": "LULA", "votos": 1966732}, "Amapá": {"uf": "AP", "lula": 48.64, "bolso": 51.36, "margem": -2.72, "vencedor": "BOLSONARO", "votos": 390465}, "Bahia": {"uf": "BA", "lula": 72.12, "bolso": 27.88, "margem": 44.24, "vencedor": "LULA", "votos": 8454843}, "Ceará": {"uf": "CE", "lula": 69.97, "bolso": 30.03, "margem": 39.94, "vencedor": "LULA", "votos": 5442368}, "Distrito Federal": {"uf": "DF", "lula": 41.19, "bolso": 58.81, "margem": -17.62, "vencedor": "BOLSONARO", "votos": 1770626}, "Espírito Santo": {"uf": "ES", "lula": 41.96, "bolso": 58.04, "margem": -16.08, "vencedor": "BOLSONARO", "votos": 2208912}, "Goiás": {"uf": "GO", "lula": 41.29, "bolso": 58.71, "margem": -17.42, "vencedor": "BOLSONARO", "votos": 3735156}, "Maranhão": {"uf": "MA", "lula": 71.14, "bolso": 28.86, "margem": 42.28, "vencedor": "LULA", "votos": 3751174}, "Minas Gerais": {"uf": "MG", "lula": 50.2, "bolso": 49.8, "margem": 0.4, "vencedor": "LULA", "votos": 12332270}, "Mato Grosso do Sul": {"uf": "MS", "lula": 40.51, "bolso": 59.49, "margem": -18.98, "vencedor": "BOLSONARO", "votos": 1480153}, "Mato Grosso": {"uf": "MT", "lula": 34.92, "bolso": 65.08, "margem": -30.16, "vencedor": "BOLSONARO", "votos": 1869516}, "Pará": {"uf": "PA", "lula": 54.75, "bolso": 45.25, "margem": 9.5, "vencedor": "LULA", "votos": 4582979}, "Paraíba": {"uf": "PB", "lula": 66.62, "bolso": 33.38, "margem": 33.24, "vencedor": "LULA", "votos": 2404455}, "Pernambuco": {"uf": "PE", "lula": 66.93, "bolso": 33.07, "margem": 33.86, "vencedor": "LULA", "votos": 5439765}, "Piauí": {"uf": "PI", "lula": 76.86, "bolso": 23.14, "margem": 53.72, "vencedor": "LULA", "votos": 2018448}, "Paraná": {"uf": "PR", "lula": 37.6, "bolso": 62.4, "margem": -24.8, "vencedor": "BOLSONARO", "votos": 6665948}, "Rio de Janeiro": {"uf": "RJ", "lula": 43.47, "bolso": 56.53, "margem": -13.06, "vencedor": "BOLSONARO", "votos": 9560111}, "Rio Grande do Norte": {"uf": "RN", "lula": 65.1, "bolso": 34.9, "margem": 30.2, "vencedor": "LULA", "votos": 2038166}, "Rondônia": {"uf": "RO", "lula": 29.34, "bolso": 70.66, "margem": -41.32, "vencedor": "BOLSONARO", "votos": 896140}, "Roraima": {"uf": "RR", "lula": 23.92, "bolso": 76.08, "margem": -52.16, "vencedor": "BOLSONARO", "votos": 280646}, "Rio Grande do Sul": {"uf": "RS", "lula": 43.65, "bolso": 56.35, "margem": -12.7, "vencedor": "BOLSONARO", "votos": 6625036}, "Santa Catarina": {"uf": "SC", "lula": 30.73, "bolso": 69.27, "margem": -38.54, "vencedor": "BOLSONARO", "votos": 4399548}, "Sergipe": {"uf": "SE", "lula": 67.21, "bolso": 32.79, "margem": 34.42, "vencedor": "LULA", "votos": 1284037}, "São Paulo": {"uf": "SP", "lula": 44.76, "bolso": 55.24, "margem": -10.48, "vencedor": "BOLSONARO", "votos": 25736469}, "Tocantins": {"uf": "TO", "lula": 51.36, "bolso": 48.64, "margem": 2.72, "vencedor": "LULA", "votos": 846247}}, "cong": {"Câmara": {"blocos": {"governo": 133, "centrao": 259, "oposicao": 121}, "partidos": [{"partido": "PL (ex PR)", "cadeiras": 97, "bloco": "oposicao"}, {"partido": "PT", "cadeiras": 66, "bloco": "governo"}, {"partido": "PP", "cadeiras": 54, "bloco": "centrao"}, {"partido": "UNIÃO", "cadeiras": 51, "bloco": "centrao"}, {"partido": "PSD", "cadeiras": 46, "bloco": "centrao"}, {"partido": "Republicanos (ex-PRB)", "cadeiras": 41, "bloco": "centrao"}, {"partido": "MDB", "cadeiras": 36, "bloco": "centrao"}, {"partido": "PODE", "cadeiras": 27, "bloco": "centrao"}, {"partido": "PSB", "cadeiras": 20, "bloco": "governo"}, {"partido": "PSDB", "cadeiras": 19, "bloco": "oposicao"}, {"partido": "PSOL", "cadeiras": 12, "bloco": "governo"}, {"partido": "PCdoB", "cadeiras": 10, "bloco": "governo"}, {"partido": "PDT", "cadeiras": 6, "bloco": "governo"}, {"partido": "Solidariedade", "cadeiras": 5, "bloco": "governo"}, {"partido": "REDE", "cadeiras": 5, "bloco": "governo"}, {"partido": "NOVO", "cadeiras": 5, "bloco": "oposicao"}, {"partido": "PV", "cadeiras": 4, "bloco": "governo"}, {"partido": "Avante (ex-PT do B)", "cadeiras": 3, "bloco": "governo"}, {"partido": "Cidadania (ex-PPS)", "cadeiras": 2, "bloco": "governo"}, {"partido": "PRD", "cadeiras": 2, "bloco": "centrao"}, {"partido": "Sem Partido", "cadeiras": 1, "bloco": "centrao"}, {"partido": "MISSÃO", "cadeiras": 1, "bloco": "centrao"}], "total": 513}, "Senado": {"blocos": {"governo": 16, "centrao": 45, "oposicao": 20}, "partidos": [{"partido": "PL (ex-PR)", "cadeiras": 16, "bloco": "oposicao"}, {"partido": "PSD", "cadeiras": 13, "bloco": "centrao"}, {"partido": "MDB", "cadeiras": 10, "bloco": "centrao"}, {"partido": "PT", "cadeiras": 9, "bloco": "governo"}, {"partido": "PP (ex-PPB)", "cadeiras": 7, "bloco": "centrao"}, {"partido": "Republicanos (ex-PRB)", "cadeiras": 6, "bloco": "centrao"}, {"partido": "PSB", "cadeiras": 5, "bloco": "governo"}, {"partido": "PODE", "cadeiras": 5, "bloco": "centrao"}, {"partido": "UNIÃO", "cadeiras": 4, "bloco": "centrao"}, {"partido": "PSDB", "cadeiras": 3, "bloco": "oposicao"}, {"partido": "PDT", "cadeiras": 2, "bloco": "governo"}, {"partido": "NOVO", "cadeiras": 1, "bloco": "oposicao"}], "total": 81}}, "fora": ["Tarcísio de Freitas", "Eduardo Bolsonaro", "Eduardo Leite"], "cfp": {"instituto": "Nexus-BTG", "rodada": "R7, campo 24-26/07/2026, TSE BR-01489/2026", "fonte": "PDF oficial, pag. 57 (Lula vs Flavio Bolsonaro, por idade)", "adversario": "Flávio Bolsonaro", "faixas": {"16-24": {"lula": 42, "adv": 46, "aptos_mm": 21.1, "taxa_pct": 78.0}, "25-40": {"lula": 42, "adv": 48, "aptos_mm": 49.8, "taxa_pct": 80.4}, "41-59": {"lula": 46, "adv": 42, "aptos_mm": 50.2, "taxa_pct": 87.0}, "60+": {"lula": 59, "adv": 36, "aptos_mm": 32.4, "taxa_pct": 67.7}}, "publicado": {"lula": 47.0, "adv": 43.0, "saldo": 4.0}, "reponderado": {"lula": 46.5, "adv": 43.4, "saldo": 3.1}, "contrafactual": {"lula": 46.9, "adv": 43.2, "saldo": 3.7}, "efeito_composicao_pp": -0.61}};
+const INC="#63b3ed", OPO="#fc8181", CEN="#4a5568";
+const GRID="#2d3748", TICK="#718096";
+const fmt1 = v => v.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmtProb = p => p>99 ? ">99%" : p<1 ? "<1%" : Math.round(p)+"%";
+const CORES_INST = ["#63b3ed","#68d391","#fbd38d","#f687b3","#b794f4",
+  "#4fd1c5","#fc8181","#a0aec0","#f6ad55","#9ae6b4","#90cdf4","#feb2b2",
+  "#d6bcfa"];
+
+document.getElementById("meta").textContent =
+  "Gerado em " + D.gerado_em + " · Eleição: " + D.eleicao +
+  " · Fontes: TSE (resultados/Congresso) + pesquisas compiladas (13 institutos)";
+
+const advs = Object.keys(D.s2t).sort((a,b)=>{
+  const la=D.s2t[a].filter(Boolean).pop(), lb=D.s2t[b].filter(Boolean).pop();
+  return la.saldo - lb.saldo;
+});
+const sel = document.getElementById("seladv");
+advs.forEach(a=>{
+  const o=document.createElement("option"); o.value=a; o.textContent=a;
+  if(a===D.default_adv) o.selected=true;
+  sel.appendChild(o);
+});
+const instCor = {};
+{ let k=0;
+  const todos=[...new Set(Object.values(D.brutos).flat().map(p=>p.i))].sort();
+  todos.forEach(i=>{ instCor[i]=CORES_INST[k++ % CORES_INST.length]; }); }
+
+function ult(adv){ return D.s2t[adv].filter(Boolean).pop(); }
+
+function kpis(){
+  const adv=sel.value, u=ult(adv);
+  const ap=D.aprova[D.aprova.length-1], dp=D.desaprova[D.desaprova.length-1];
+  const liq=ap-dp;
+  const hoje=new Date(D.gerado_em);
+  const b10=(D.brutos[adv]||[]).filter(p=>{
+    const dd=(hoje-new Date(p.d))/86400000; return dd>=0&&dd<=10;});
+  const mb10=b10.length?b10.reduce((a,p)=>a+p.s,0)/b10.length:null;
+  document.getElementById("kpis").innerHTML = `
+    <div class="kpi"><div class="kpi-label">P(incumbente) vs ${adv}</div>
+      <div class="kpi-value" style="color:${INC}">${fmtProb(u.prob)}</div>
+      <div class="kpi-sub">modelo Φ(saldo/σ), σ=${fmt1(u.sigma)} pp</div></div>
+    <div class="kpi"><div class="kpi-label">Saldo poll-of-polls</div>
+      <div class="kpi-value ${u.saldo>=0?"pos":"neg"}">${u.saldo>0?"+":""}${fmt1(u.saldo)} pp</div>
+      <div class="kpi-sub">${u.n} pesquisas na janela de ${D.janela} dias</div></div>
+    <div class="kpi"><div class="kpi-label">Média BRUTA 10 dias vs ${adv}</div>
+      <div class="kpi-value ${mb10===null?"neu":(mb10>=1?"pos":(mb10<=-1?"neg":"warn"))}">${mb10===null?"—":(mb10>0?"+":"")+fmt1(mb10)+" pp"}</div>
+      <div class="kpi-sub">${b10.length} pesquisas, sem ajuste de viés — se divergir do modelo, o modelo está apostando nos house effects</div></div>
+    <div class="kpi"><div class="kpi-label">Aprovação líquida (Lula 3)</div>
+      <div class="kpi-value ${liq>=0?"pos":"neg"}">${liq>0?"+":""}${fmt1(liq)} pp</div>
+      <div class="kpi-sub">${fmt1(ap)}% aprova × ${fmt1(dp)}% desaprova</div></div>`;
+  document.getElementById("badgeadv").textContent = adv;
+  const z=u.saldo/u.sigma;
+  document.getElementById("comoprob").innerHTML =
+    "<strong>Como a probabilidade é calculada:</strong> " +
+    "1) média das pesquisas de 2º turno vs " + adv + ", ponderada por " +
+    "recência (pesos de precisão: a opinião acumula " + D.tau2_camp + " pp²/dia de variância em campanha vs " + D.tau2_pre + " no pré) e corrigida pelo viés " +
+    "histórico de cada instituto → saldo de <strong>" +
+    (u.saldo>0?"+":"") + fmt1(u.saldo) + " pp</strong> (" + u.n +
+    " pesquisas); 2) incerteza σ = √(" + D.sigma_pesq + "² + (" + D.drift +
+    "·√meses até a eleição)²) = <strong>" + fmt1(u.sigma) + " pp</strong> " +
+    "(erro das pesquisas finais de 2014/18/22 + deriva da opinião até " +
+    D.eleicao + "); 3) P(incumbente) = Φ(saldo/σ) = Φ(" + fmt1(z) +
+    ") = <strong>" + fmtProb(u.prob) + "</strong> — a chance de o saldo " +
+    "verdadeiro ser positivo se o erro segue uma Normal. " +
+    "<a href='metodologia.html' style='color:#C9A84C;font-weight:700'>" +
+    "Ver explicação passo a passo do modelo →</a>";
+}
+
+let chProb, chSaldo;
+function probCharts(){
+  const adv=sel.value, pts=D.s2t[adv], labels=D.meses2t;
+  const pInc=pts.map(p=>p?p.prob:null);
+  const pOpo=pts.map(p=>p?Math.round((100-p.prob)*10)/10:null);
+  const saldo=pts.map(p=>p?p.saldo:null);
+  const hi=pts.map(p=>p?p.saldo+p.sigma:null);
+  const lo=pts.map(p=>p?p.saldo-p.sigma:null);
+  if(chProb) chProb.destroy();
+  chProb=new Chart(document.getElementById("chprob"),{type:"line",
+    data:{labels,datasets:[
+      {data:pInc,borderColor:INC,backgroundColor:INC,borderWidth:2.5,
+       pointRadius:2.5,tension:.3,spanGaps:true},
+      {data:pOpo,borderColor:OPO,backgroundColor:OPO,borderWidth:2.5,
+       borderDash:[7,4],pointRadius:2.5,pointStyle:"rect",tension:.3,
+       spanGaps:true}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>
+        (c.datasetIndex===0?"Incumbente ":"Oposição ")+fmt1(c.parsed.y)+"%"}}},
+      scales:{x:{grid:{display:false},ticks:{color:TICK,maxRotation:45}},
+        y:{min:0,max:100,grid:{color:GRID},
+           ticks:{color:TICK,callback:v=>v+"%"}}}}});
+
+  const pontos={};
+  (D.brutos[adv]||[]).forEach(p=>{
+    const xi=labels.indexOf(p.m); if(xi<0) return;
+    (pontos[p.i]=pontos[p.i]||[]).push({x:p.m,y:p.s,d:p.d,l:p.l,a:p.a});});
+  const dsPontos=Object.entries(pontos).map(([i,v])=>({type:"scatter",
+    label:i,data:v,backgroundColor:instCor[i],pointRadius:3.5,
+    pointHoverRadius:5}));
+  document.getElementById("leginst").innerHTML =
+    Object.keys(pontos).sort().map(i=>'<span><span class="sw" '+
+      'style="background:'+instCor[i]+'"></span>'+i+"</span>").join("");
+  if(chSaldo) chSaldo.destroy();
+  chSaldo=new Chart(document.getElementById("chsaldo"),{
+    data:{labels,datasets:[
+      {type:"line",data:hi,borderWidth:0,pointRadius:0,fill:"+2",
+       backgroundColor:"rgba(99,179,237,.10)",spanGaps:true},
+      {type:"line",data:saldo,borderColor:INC,backgroundColor:INC,
+       borderWidth:2,pointRadius:0,tension:.3,spanGaps:true},
+      {type:"line",data:lo,borderWidth:0,pointRadius:0,spanGaps:true},
+      ...dsPontos]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{filter:c=>c.datasetIndex!==0&&
+        c.datasetIndex!==2,callbacks:{label:c=>{
+          if(c.dataset.type==="scatter"){const r=c.raw;
+            return c.dataset.label+" ("+r.d+"): Lula "+fmt1(r.l)+" × "+
+              fmt1(r.a)+" (saldo "+(r.y>0?"+":"")+fmt1(r.y)+")";}
+          return "poll-of-polls "+(c.parsed.y>0?"+":"")+fmt1(c.parsed.y)+" pp";}}}},
+      scales:{x:{grid:{display:false},ticks:{color:TICK,maxRotation:45}},
+        y:{grid:{color:GRID},ticks:{color:TICK,
+           callback:v=>(v>0?"+":"")+v+" pp"}}}}});
+}
+
+let smCharts=[];
+function smallMultiples(){
+  const adv=sel.value, polls=(D.brutos[adv]||[]);
+  document.getElementById("badgeadv2").textContent=adv;
+  smCharts.forEach(c=>c.destroy()); smCharts=[];
+  const porInst={};
+  polls.forEach(p=>{(porInst[p.i]=porInst[p.i]||[]).push(p);});
+  const box=document.getElementById("smallmult");
+  box.innerHTML="";
+  const nomes=Object.keys(porInst).sort((a,b)=>
+    porInst[b].length-porInst[a].length);
+  nomes.forEach((inst,ix)=>{
+    const v=porInst[inst];
+    const div=document.createElement("div");
+    div.style.cssText="background:#161b27;border:1px solid #2d3748;"+
+      "border-radius:6px;padding:10px";
+    div.innerHTML="<div style='font-size:10.5px;font-weight:700;"+
+      "color:#a0aec0;text-transform:uppercase;letter-spacing:.05em;"+
+      "text-align:center;margin-bottom:6px'>"+inst+
+      " <span style='color:#718096;font-weight:400'>("+v.length+
+      (v.length>1?" pesquisas":" pesquisa")+")</span></div>"+
+      "<div style='position:relative;height:170px'>"+
+      "<canvas id='sm"+ix+"'></canvas></div>";
+    box.appendChild(div);
+    const labels=v.map(p=>{const[y,m]=p.d.split("-");
+      return m+"/"+y.slice(2);});
+    const lbl={anchor:"end",align:"top",offset:2,borderRadius:3,
+      color:"#fff",font:{size:9,weight:"700"},padding:{top:2,bottom:1,
+      left:4,right:4},formatter:x=>x==null?"":fmt1(x)};
+    smCharts.push(new Chart(document.getElementById("sm"+ix),{
+      type:"line",
+      data:{labels,datasets:[
+        {data:v.map(p=>p.l),borderColor:INC,backgroundColor:INC,
+         borderWidth:2,pointRadius:2.5,tension:.2,
+         datalabels:{...lbl,backgroundColor:"rgba(42,67,101,.95)"}},
+        {data:v.map(p=>p.a),borderColor:OPO,backgroundColor:OPO,
+         borderWidth:2,pointRadius:2.5,tension:.2,pointStyle:"rect",
+         datalabels:{...lbl,align:"bottom",
+           backgroundColor:"rgba(116,42,42,.95)"}},
+        {data:v.map(p=>p.b),borderColor:"#fbd38d",
+         backgroundColor:"#fbd38d",borderWidth:1.5,pointRadius:2,
+         tension:.2,pointStyle:"triangle",spanGaps:true,
+         datalabels:{...lbl,align:"bottom",color:"#0f1117",
+           backgroundColor:"rgba(251,211,141,.95)"}}]},
+      plugins:[ChartDataLabels],
+      options:{responsive:true,maintainAspectRatio:false,
+        layout:{padding:{top:14,bottom:4}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>
+          ["Lula ","Adv. ","B/N/NS "][c.datasetIndex]+
+          fmt1(c.parsed.y)+"% ("+v[c.dataIndex].d+")"}}},
+        scales:{x:{grid:{display:false},
+          ticks:{color:TICK,font:{size:9},maxRotation:45}},
+          y:{display:false,suggestedMin:0,suggestedMax:60}}}}));
+  });
+}
+
+function tabInst2t(){
+  const adv=sel.value, polls=(D.brutos[adv]||[]);
+  const porInst={};
+  polls.forEach(p=>{(porInst[p.i]=porInst[p.i]||[]).push(p);});
+  const linhas=Object.entries(porInst).map(([i,v])=>{
+    const u=v[v.length-1];
+    return {i, n:v.length, d:u.d, l:u.l, a:u.a, s:u.s,
+            he:D.house[i]||0};})
+    .sort((x,y)=>y.d.localeCompare(x.d));
+  document.getElementById("tabinst2t").innerHTML =
+    "<tr><th>Instituto</th><th>Última</th><th>Lula</th><th>Adv.</th>"+
+    "<th>Saldo</th><th>House eff.</th><th>Nº</th></tr>"+
+    linhas.map(r=>"<tr><td><span class='sw' style='background:"+
+      (instCor[r.i]||"#888")+";margin-right:6px'></span>"+r.i+"</td><td>"+
+      r.d+"</td><td>"+fmt1(r.l)+"</td><td>"+fmt1(r.a)+"</td><td class='"+
+      (r.s>=0?"pos":"neg")+"'>"+(r.s>0?"+":"")+fmt1(r.s)+"</td><td class='neu'>"+
+      (r.he?(r.he>0?"+":"")+fmt1(r.he):"—")+"</td><td>"+r.n+"</td></tr>")
+    .join("");
+}
+
+document.getElementById("tabinst1t").innerHTML =
+  "<tr><th>Instituto</th><th>Última</th><th>Lula</th><th>Flávio</th>"+
+  "<th>Saldo</th></tr>"+
+  D.inst1t.map(r=>{const s=r.lula-r.flavio;
+    return "<tr><td><span class='sw' style='background:"+
+    (instCor[r.i]||"#888")+";margin-right:6px'></span>"+r.i+"</td><td>"+r.d+
+    "</td><td>"+fmt1(r.lula)+"</td><td>"+fmt1(r.flavio)+"</td><td class='"+
+    (s>=0?"pos":"neg")+"'>"+(s>0?"+":"")+fmt1(s)+"</td></tr>";}).join("");
+
+sel.addEventListener("change",()=>{kpis();probCharts();tabInst2t();
+  smallMultiples();});
+
+const cores1t={"Lula":INC,"Flávio Bolsonaro":OPO,
+  "Michele Bolsonaro":"#f687b3","Ratinho Jr":"#4fd1c5",
+  "Romeu Zema":"#b794f4","Ronaldo Caiado":"#a0aec0"};
+new Chart(document.getElementById("ch1t"),{type:"line",
+  data:{labels:D.meses1t,datasets:Object.entries(D.s1t).map(([c,v])=>({
+    label:c,data:v,borderColor:cores1t[c]||"#888",
+    backgroundColor:cores1t[c]||"#888",
+    borderWidth:c==="Lula"||c==="Flávio Bolsonaro"?2.5:1.5,
+    pointRadius:2,tension:.3,spanGaps:true}))},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:"bottom",labels:{boxWidth:10,
+      font:{size:10},color:"#a0aec0"}}},
+    scales:{x:{grid:{display:false},ticks:{color:TICK,maxRotation:45}},
+      y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v+"%"}}}}});
+
+const barsAdv=advs.map(a=>({a,u:ult(a)}));
+new Chart(document.getElementById("ch2t"),{type:"bar",
+  data:{labels:barsAdv.map(x=>x.a),
+    datasets:[{data:barsAdv.map(x=>x.u.saldo),
+      backgroundColor:barsAdv.map(x=>x.u.saldo>=0?INC:OPO),
+      borderRadius:4,maxBarThickness:18,
+      datalabels:{anchor:"end",align:"end",offset:4,color:"#e2e8f0",
+        font:{size:10,weight:"700"},
+        formatter:(v,c)=>(v>0?"+":"")+fmt1(v)+" pp · P(inc) "+
+          fmtProb(barsAdv[c.dataIndex].u.prob)}}]},
+  plugins:[ChartDataLabels],
+  options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,
+    layout:{padding:{right:110}},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{
+      const u=barsAdv[c.dataIndex].u;
+      return ["Lula "+fmt1(u.lula)+"% × "+barsAdv[c.dataIndex].a+" "+
+        fmt1(u.adv)+"%","saldo "+(u.saldo>0?"+":"")+fmt1(u.saldo)+
+        " pp · P(incumbente) "+fmtProb(u.prob),
+        u.n+" pesquisas na janela"];}}}},
+    scales:{x:{grid:{color:GRID},title:{display:true,color:TICK,
+      font:{size:10},text:"saldo Lula − adversário (pontos percentuais)"},
+      ticks:{color:TICK,callback:v=>(v>0?"+":"")+v}},
+      y:{grid:{display:false},ticks:{color:"#a0aec0",font:{size:10}}}}}});
+
+const corFonte=f=>instCor[f]||CORES_INST[
+  Object.keys(D.apr_inst).indexOf(f)%CORES_INST.length];
+function chartAprDes(canvas, legId, serieMedia, rotMedia, corMedia, porInst){
+  const dsInst=Object.entries(porInst).map(([f,v])=>({
+    label:f,data:v,borderColor:corFonte(f),borderWidth:1,pointRadius:0,
+    tension:.3,spanGaps:true}));
+  new Chart(document.getElementById(canvas),{type:"line",
+    data:{labels:D.trims,datasets:[
+      {label:rotMedia,data:serieMedia,borderColor:corMedia,
+       backgroundColor:corMedia,borderWidth:2.5,pointRadius:2,tension:.3},
+      ...dsInst]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>
+        c.dataset.label+" "+fmt1(c.parsed.y)+"%"}}},
+      scales:{x:{grid:{display:false},ticks:{color:TICK,maxRotation:45}},
+        y:{min:25,max:65,grid:{color:GRID},
+           ticks:{color:TICK,callback:v=>v+"%"}}}}});
+  document.getElementById(legId).innerHTML =
+    '<span><span class="sw" style="background:'+corMedia+'"></span><b>'+
+    rotMedia+'</b></span>'+
+    Object.keys(porInst).map(f=>'<span><span class="sw" style="background:'+
+      corFonte(f)+'"></span>'+f+'</span>').join("");
+}
+chartAprDes("chapr","legapr",D.aprova,"Média aprova","#68d391",D.apr_inst);
+chartAprDes("chdes","legdes",D.desaprova,"Média desaprova",OPO,D.des_inst);
+
+document.getElementById("tabinc").innerHTML =
+  "<tr><th>Incumbente</th><th>Positiva</th><th>Negativa</th>"+
+  "<th>Resultado</th></tr>"+
+  D.incumbentes.map(i=>"<tr"+(i.res==="?"?" style='font-weight:700'":"")+
+    "><td>"+i.rot+"</td><td>"+fmt1(i.pos)+"%</td><td>"+fmt1(i.neg)+
+    "%</td><td>"+(i.res==="derrotado"?"<span class='badge badge-red'>"+
+    i.res+"</span>":i.res==="?"?"<span class='badge badge-blue'>em curso"+
+    "</span>":i.res)+"</td></tr>").join("");
+
+if(D.cfp){
+  const c=D.cfp;
+  document.getElementById("cardcfp").style.display="";
+  document.getElementById("cfpbadge").textContent=c.instituto+" · "+c.adversario;
+  const li=(r,l,a,s,b)=>"<tr"+(b?" style='font-weight:700'":"")+"><td>"+r+
+    "</td><td>"+fmt1(l)+"%</td><td>"+fmt1(a)+"%</td><td class='"+
+    (s>=0?"pos":"neg")+"'>"+(s>0?"+":"")+fmt1(s)+" pp</td></tr>";
+  document.getElementById("tabcfp").innerHTML=
+    "<tr><th>Cenário</th><th>Lula</th><th>Adv.</th><th>Saldo</th></tr>"+
+    li("Publicado (pesquisa)",c.publicado.lula,c.publicado.adv,
+       c.publicado.saldo,false)+
+    li("Reponderado — comparecimento TSE 2022",c.reponderado.lula,
+       c.reponderado.adv,c.reponderado.saldo,false)+
+    li("Participação igual em todas as faixas",c.contrafactual.lula,
+       c.contrafactual.adv,c.contrafactual.saldo,true)+
+    "<tr><td>Efeito-composição do comparecimento</td><td></td><td></td>"+
+    "<td class='"+(c.efeito_composicao_pp>=0?"pos":"neg")+"'>"+
+    (c.efeito_composicao_pp>0?"+":"")+fmt1(c.efeito_composicao_pp)+
+    " pp</td></tr>";
+  document.getElementById("cfpnota").textContent=
+    "Intenção por idade: "+c.fonte+". Comparecimento: TSE 2022 (2º turno). "+
+    "O grupo 60+, o mais pró-Lula, é o de menor comparecimento (voto "+
+    "facultativo no 70+) — o padrão real de participação custa saldo ao "+
+    "incumbente. Inferência ecológica: o número robusto é o delta, não os "+
+    "níveis.";
+}
+
+const tip=document.getElementById("tip");
+d3.json("https://cdn.jsdelivr.net/npm/datamaps@0.5.10/src/js/data/bra.topo.json")
+ .then(topo=>{
+  const feats=topojson.feature(topo,topo.objects.bra).features;
+  const W=520,H=470;
+  const svg=d3.select("#mapa").append("svg")
+    .attr("viewBox","0 0 "+W+" "+H).attr("width","100%");
+  const proj=d3.geoMercator().fitSize([W,H],
+    {type:"FeatureCollection",features:feats});
+  const path=d3.geoPath(proj);
+  const cor=m=> m>=0 ? d3.interpolateBlues(.25+.7*Math.min(1,m/55))
+                     : d3.interpolateReds(.25+.7*Math.min(1,-m/55));
+  svg.selectAll("path").data(feats).join("path")
+    .attr("d",path).attr("stroke","#0f1117").attr("stroke-width",.8)
+    .attr("fill",f=>{
+      const m=D.mapa[f.properties.name];
+      return m?cor(m.margem):"#2d3748";})
+    .on("mousemove",(e,f)=>{
+      const m=D.mapa[f.properties.name]; if(!m) return;
+      tip.style.opacity=1;
+      tip.style.left=(e.pageX+14)+"px"; tip.style.top=(e.pageY-10)+"px";
+      tip.innerHTML="<b>"+m.uf+" — "+f.properties.name+"</b><br>"+
+        "Lula "+fmt1(m.lula)+"% × Bolsonaro "+fmt1(m.bolso)+"%<br>"+
+        "margem "+(m.margem>0?"+":"")+fmt1(m.margem)+" pp · "+
+        m.votos.toLocaleString("pt-BR")+" votos";})
+    .on("mouseleave",()=>{tip.style.opacity=0;});
+  svg.selectAll("g.lbl").data(feats).join("g").attr("class","lbl")
+    .each(function(f){
+      const m=D.mapa[f.properties.name]; if(!m) return;
+      const [x,y]=path.centroid(f);
+      const pct=m.vencedor==="LULA"?m.lula:m.bolso;
+      const g=d3.select(this);
+      g.append("text").attr("x",x).attr("y",y-1)
+        .attr("text-anchor","middle").attr("font-size","9px")
+        .attr("font-weight","700").attr("fill","#fff")
+        .attr("pointer-events","none").text(m.uf);
+      g.append("text").attr("x",x).attr("y",y+9)
+        .attr("text-anchor","middle").attr("font-size","8.5px")
+        .attr("fill","rgba(255,255,255,.85)")
+        .attr("pointer-events","none").text(Math.round(pct)+"%");
+    });
+  const T=D.tot2022;
+  document.getElementById("tot2022").innerHTML =
+    "<strong>Total nacional (inclui exterior):</strong> Lula "+
+    T.lula.toLocaleString("pt-BR")+" ("+fmt1(T.pct_lula)+
+    "%) × Bolsonaro "+T.bolso.toLocaleString("pt-BR")+" ("+
+    fmt1(T.pct_bolso)+"%) — margem "+
+    fmt1(T.pct_lula-T.pct_bolso)+" pp";
+  document.getElementById("avisomapa").textContent =
+    "rótulo = % do vencedor na UF · azul = Lula, vermelho = Bolsonaro · "+
+    "exterior (ZZ) no total, fora do mapa · hover para detalhes";
+ })
+ .catch(()=>{document.getElementById("avisomapa").textContent =
+   "mapa indisponível (sem internet para carregar a topologia das UFs)";});
+
+function hemiciclo(nome,info){
+  const W=250,H=150,cx=W/2,cy=H-10,R=105,r=60;
+  const tot=info.total;
+  const segs=[["governo",INC],["centrao",CEN],["oposicao",OPO]];
+  let a0=-Math.PI/2;
+  let svg='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'">';
+  segs.forEach(([b,c])=>{
+    const frac=info.blocos[b]/tot, a1=a0+frac*Math.PI;
+    const p0=[cx+R*Math.sin(a0),cy-R*Math.cos(a0)];
+    const p1=[cx+R*Math.sin(a1),cy-R*Math.cos(a1)];
+    const q1=[cx+r*Math.sin(a1),cy-r*Math.cos(a1)];
+    const q0=[cx+r*Math.sin(a0),cy-r*Math.cos(a0)];
+    const big=frac>.5?1:0;
+    svg+='<path d="M'+p0+' A'+R+','+R+' 0 '+big+' 1 '+p1+
+      ' L'+q1+' A'+r+','+r+' 0 '+big+' 0 '+q0+' Z" fill="'+c+'"/>';
+    a0=a1;});
+  svg+='<text x="'+cx+'" y="'+(cy-18)+'" text-anchor="middle" '+
+    'font-size="17" font-weight="700" fill="#e2e8f0">'+tot+'</text>'+
+    '<text x="'+cx+'" y="'+cy+'" text-anchor="middle" font-size="12" '+
+    'fill="#718096">'+nome+'</text></svg>';
+  const g=info.blocos;
+  return '<div style="text-align:center">'+svg+
+    '<div style="font-size:11px;color:#a0aec0">gov '+g.governo+
+    ' · centrão '+g.centrao+' · opos '+g.oposicao+'</div></div>';
+}
+document.getElementById("hemis").innerHTML =
+  Object.entries(D.cong).map(([n,i])=>hemiciclo(n,i)).join("");
+
+const BLOCO_BADGE={governo:"<span class='badge badge-blue'>base governo</span>",
+  centrao:"<span class='badge' style='background:#4a5568;color:#cbd5e0'>centrão</span>",
+  oposicao:"<span class='badge badge-red'>oposição</span>"};
+document.getElementById("tabtop10").innerHTML =
+  "<tr><th>#</th><th style='text-align:left'>Partido</th><th>Câmara</th>"+
+  "<th>Senado</th><th>Total</th><th style='text-align:right'>Posição</th></tr>"+
+  D.top10.map((p,i)=>"<tr><td>"+(i+1)+"</td><td style='text-align:left'>"+
+    p.partido+"</td><td>"+p.camara+"</td><td>"+p.senado+"</td><td><b>"+
+    (p.camara+p.senado)+"</b></td><td>"+BLOCO_BADGE[p.bloco]+"</td></tr>")
+  .join("");
+
+document.getElementById("rodape").innerHTML =
+  "<b>Metodologia.</b> Poll-of-polls: média do saldo (Lula − adversário) das " +
+  "pesquisas de 2º turno com pesos de precisão — w = 1/(" + D.sig2_now + " + variância acumulada desde a coleta), com a opinião acumulando " + D.tau2_pre + " pp²/dia fora de campanha e " + D.tau2_camp + " pp²/dia desde 28/08 (janela " + D.janela + " dias; " + D.versao_modelo + ") — e ajuste de house " +
+  "effect por instituto (resíduo médio vs média mensal do confronto; " +
+  "efeitos aplicados: " + (Object.entries(D.house).map(([k,v]) =>
+  k + " " + (v>0?"+":"") + v).join(", ") || "nenhum") + " pp). " +
+  "P(vitória) = Φ(saldo/σ), σ = √(" + D.sigma_pesq + "² + (" + D.drift +
+  "·√meses)²) pp — base calibrada no erro das pesquisas finais de 2º turno " +
+  "de 2014, 2018 e 2022; o termo de drift reflete a incerteza até " +
+  D.eleicao + ". <b>Ressalvas.</b> Pesquisa mede intenção de voto hoje, " +
+  "não resultado; a probabilidade é do modelo, condicionada ao confronto " +
+  "selecionado. Blocos do Congresso são classificação editorial (editável " +
+  "no gerar_painel.py). Mapa 2022: TSE, votos nominais válidos do 2º " +
+  "turno. Perfil/aprovação: institutos diversos, médias não ponderadas " +
+  "por amostra." +
+  (D.fora && D.fora.length ? " <b>Fora da disputa</b> (excluídos do painel, " +
+   "mantidos nos dados históricos): " + D.fora.join(", ") + "." : "") +
+  " <a href='metodologia.html' style='color:#C9A84C'>Explicação " +
+  "detalhada do modelo de probabilidade</a>. " +
+  "<b>ASIF — Family Office Research.</b> Material meramente ilustrativo " +
+  "e informativo, elaborado a partir de fontes públicas. Não constitui " +
+  "recomendação, aconselhamento ou previsão eleitoral, e não nos " +
+  "responsabilizamos por qualquer uso ou decisão tomada com base neste " +
+  "conteúdo.";
+
+kpis(); probCharts(); tabInst2t(); smallMultiples();
+</script>
+</body>
+</html>

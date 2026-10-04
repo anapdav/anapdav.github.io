@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASIF — Eleições BR 2026 — Dashboards Outubro 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; font-size: 14px; min-height: 100vh; }
+  .header { background: linear-gradient(135deg,#1a1f2e,#0f1117); border-bottom: 1px solid #2d3748; padding: 28px 32px 22px; display:flex;align-items:center;gap:16px; }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .header p { font-size: 12px; color: #718096; margin-top: 6px; }
+  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; padding: 20px 32px 6px; max-width: 1100px; }
+  .kpi { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 14px; }
+  .kpi-label { font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+  .kpi-value { font-size: 22px; font-weight: 700; }
+  .kpi-sub { font-size: 10.5px; color: #718096; margin-top: 3px; }
+  .pos { color: #68d391; } .neg { color: #fc8181; } .neu { color: #e2e8f0; } .warn { color: #fbd38d; } .blue { color: #63b3ed; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; padding: 20px 32px 32px; max-width: 1100px; }
+  a.card { display: block; background: #1a1f2e; border: 1px solid #2d3748; border-radius: 10px; padding: 20px; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+  a.card:hover { border-color: #63b3ed; transform: translateY(-2px); }
+  .card h2 { font-size: 14px; font-weight: 700; color: #63b3ed; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 8px; }
+  .card p { font-size: 12px; color: #a0aec0; line-height: 1.6; }
+  .card .tag { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: .05em; text-transform: uppercase; background: #2a4365; color: #90cdf4; margin-top: 12px; margin-right: 4px; }
+  .footer { padding: 0 32px 28px; font-size: 10.5px; color: #4a5568; max-width: 1100px; line-height: 1.6; }
+.asif-badge { background:#C9A84C; color:#002147; font-size:17px; font-weight:900; padding:8px 16px; border-radius:6px; letter-spacing:.14em; text-transform:uppercase; flex-shrink:0; box-shadow:0 2px 8px rgba(201,168,76,.25); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="asif-badge">ASIF</div>
+  <div class="header-text">
+    <h1>Eleições BR 2026 — Dashboards</h1>
+    <p>Monitor incumbente × oposição — Outubro 2026 &nbsp;|&nbsp; Eleição: 04/10/2026 (1º turno) &nbsp;|&nbsp; Fontes: TSE (Portal de Dados Abertos) + pesquisas compiladas de 13 institutos</p>
+  </div>
+</div>
+
+<div class="kpi-strip">
+  <div class="kpi"><div class="kpi-label">P(incumbente) vs Flávio Bolsonaro</div><div class="kpi-value blue">67%</div><div class="kpi-sub">modelo Φ(saldo/σ) · confronto default</div></div>
+  <div class="kpi"><div class="kpi-label">Saldo poll-of-polls</div><div class="kpi-value pos">+1,4 pp</div><div class="kpi-sub">vs Flávio Bolsonaro · ajustado por recência e house effect</div></div>
+  <div class="kpi"><div class="kpi-label">Confronto mais apertado</div><div class="kpi-value warn">+1,4 pp</div><div class="kpi-sub">vs Flávio Bolsonaro · P(inc) 67%</div></div>
+  <div class="kpi"><div class="kpi-label">Aprovação líquida Lula 3</div><div class="kpi-value neg">−4,3 pp</div><div class="kpi-sub">45,9% aprova × 50,2% desaprova (2026 T3)</div></div>
+  <div class="kpi"><div class="kpi-label">Congresso (abr/26)</div><div class="kpi-value neu">PL 113</div><div class="kpi-sub">maior partido (Câm+Sen) · PT 75 · centrão decide</div></div>
+</div>
+
+<div class="cards">
+  <a class="card" href="painel.html">
+    <h2>1 · Painel BR26 — Monitor</h2>
+    <p>Evolução da probabilidade incumbente × oposição com seletor de adversário, poll-of-polls de 2º turno com banda de incerteza, intenção de voto do 1º turno, pesquisas por instituto (small multiples com brancos/nulos/indecisos), aprovação do governo com 7 institutos, mapa da eleição de 2022 por UF, hemiciclos do Congresso e ranking dos 10 maiores partidos.</p>
+    <span class="tag">Poll-of-polls</span><span class="tag">P(vitória)</span><span class="tag">Por instituto</span><span class="tag">Mapa 2022</span><span class="tag">Congresso</span>
+  </a>
+  <a class="card" href="metodologia.html">
+    <h2>2 · Metodologia — o modelo de probabilidade</h2>
+    <p>Explicação passo a passo de como o painel transforma pesquisas de intenção de voto em probabilidade de vitória: o saldo ponderado por recência com correção de house effect, a incerteza σ calibrada nos erros de 2014/18/22 mais a deriva até a eleição, e a transformação Φ(saldo/σ) — com exemplo numérico e limitações declaradas.</p>
+    <span class="tag">Φ(saldo/σ)</span><span class="tag">House effects</span><span class="tag">Didático</span>
+  </a>
+</div>
+
+<div class="footer">
+  <strong>ASIF — Family Office Research</strong> &nbsp;|&nbsp; Snapshot de 03/10/2026. Resultados eleitorais e composição do Congresso: TSE (Portal de Dados Abertos, cdn.tse.jus.br). Pesquisas: compilação de 13 institutos (Datafolha, Quaest, Atlas, Ipsos-IPEC, MDA-CNT, Paraná, Ideia, Gerp, Realtime Bigdata, Futura/Apex, Nexus-BTG e outros). A probabilidade é saída de modelo condicionada ao confronto selecionado — não é previsão eleitoral. Excluídos por estarem fora da disputa: Tarcísio de Freitas, Eduardo Bolsonaro, Eduardo Leite. Material meramente ilustrativo e informativo, elaborado a partir de fontes públicas. Não constitui recomendação, aconselhamento ou previsão eleitoral, e não nos responsabilizamos por qualquer uso ou decisão tomada com base neste conteúdo.
+</div>
+
+</body>
+</html>
