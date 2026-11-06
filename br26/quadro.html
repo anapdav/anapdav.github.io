@@ -33,11 +33,12 @@ td.b{font-weight:700}
 .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}
 .ufrow{display:flex;align-items:center;gap:8px;padding:2.5px 0;font-size:11.5px}
 .uf{width:26px;color:var(--ink2);font-weight:700}
-.barwrap{flex:1;display:flex;height:11px}
-.barL,.barR{width:50%;position:relative}
-.barL{border-right:1px solid var(--axis,#c3c2b7)}
-.bar{height:100%;border-radius:2px;opacity:.9}
-.mg{width:46px;text-align:right;font-weight:700}
+.split{flex:1;display:flex;height:13px;position:relative;border-radius:3px;overflow:hidden;background:var(--grid)}
+.segL{background:#d53f3f;height:100%}
+.segR{background:#2e4a7d;height:100%}
+.mk50{position:absolute;left:50%;top:-2px;bottom:-2px;width:0;border-left:2px dashed #ffffff;opacity:.9}
+.pctL{width:38px;text-align:right;font-weight:700;color:#d53f3f;font-size:11px}
+.pctR{width:38px;font-weight:700;color:#2e4a7d;font-size:11px}
 .ab{width:44px;text-align:right;color:var(--muted);font-size:10.5px}
 .leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:10.5px;color:var(--ink2)}
 footer{font-size:10.5px;color:var(--muted);padding:16px 0;line-height:1.6;max-width:1120px;margin:0 auto;padding-left:16px}
@@ -88,91 +89,92 @@ do pós-88: a direita tem maioria absoluta própria no Senado (41 de 81 — exat
 (STF, BC, agências) — e, com metade do centro, passa de 308 (PEC) na Câmara. Primeira vez desde Collor que um
 presidente toma posse com maioria opositora estrutural nas duas casas.</p></div>
 
-<div class="card"><h2>Presidente — resultado por estado (2º turno · margem Lula−Flávio, pp · abstenção)</h2>
+<div class="card"><h2>Presidente — resultado por estado (2º turno · % dos válidos · linha tracejada = 50%)</h2>
 <div class="ufrow"><span class="uf">PI</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:56.936%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+51.8</span><span class="ab">17.2%</span></div><div class="ufrow"><span class="uf">BA</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:46.882%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+42.6</span><span class="ab">16.7%</span></div><div class="ufrow"><span class="uf">MA</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:42.988%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+39.1</span><span class="ab">20.4%</span></div><div class="ufrow"><span class="uf">SE</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:42.96600000000001%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+39.1</span><span class="ab">15.7%</span></div><div class="ufrow"><span class="uf">PE</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:42.24%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+38.4</span><span class="ab">15.2%</span></div><div class="ufrow"><span class="uf">CE</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:41.646%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+37.9</span><span class="ab">13.9%</span></div><div class="ufrow"><span class="uf">PB</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:38.412000000000006%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+34.9</span><span class="ab">15.5%</span></div><div class="ufrow"><span class="uf">RN</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:34.584%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+31.4</span><span class="ab">16.1%</span></div><div class="ufrow"><span class="uf">AL</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:23.694000000000003%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+21.5</span><span class="ab">20.1%</span></div><div class="ufrow"><span class="uf">PA</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:11.044%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+10.0</span><span class="ab">20.3%</span></div><div class="ufrow"><span class="uf">AM</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:8.844%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+8.0</span><span class="ab">21.7%</span></div><div class="ufrow"><span class="uf">AP</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:6.336%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+5.8</span><span class="ab">25.5%</span></div><div class="ufrow"><span class="uf">MG</span>
-<div class="barwrap"><div class="barL"><div class="bar" style="width:0.9460000000000001%;background:#d53f3f;float:right"></div></div>
-<div class="barR"></div></div>
-<span class="mg pos">+0.9</span><span class="ab">20.3%</span></div><div class="ufrow"><span class="uf">TO</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:3.0140000000000007%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-2.7</span><span class="ab">19.2%</span></div><div class="ufrow"><span class="uf">RJ</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:6.820000000000001%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-6.2</span><span class="ab">21.6%</span></div><div class="ufrow"><span class="uf">SP</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:8.47%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-7.7</span><span class="ab">19.8%</span></div><div class="ufrow"><span class="uf">DF</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:9.416000000000002%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-8.6</span><span class="ab">17.3%</span></div><div class="ufrow"><span class="uf">ES</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:14.014000000000001%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-12.7</span><span class="ab">19.5%</span></div><div class="ufrow"><span class="uf">RS</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:17.248%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-15.7</span><span class="ab">19.2%</span></div><div class="ufrow"><span class="uf">MS</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:21.12%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-19.2</span><span class="ab">21.2%</span></div><div class="ufrow"><span class="uf">GO</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:21.252000000000002%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-19.3</span><span class="ab">20.3%</span></div><div class="ufrow"><span class="uf">PR</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:27.676000000000002%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-25.2</span><span class="ab">18.0%</span></div><div class="ufrow"><span class="uf">MT</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:35.332%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-32.1</span><span class="ab">20.9%</span></div><div class="ufrow"><span class="uf">AC</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:36.454%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-33.1</span><span class="ab">26.1%</span></div><div class="ufrow"><span class="uf">SC</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:42.724000000000004%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-38.8</span><span class="ab">17.0%</span></div><div class="ufrow"><span class="uf">RO</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:43.142%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-39.2</span><span class="ab">21.9%</span></div><div class="ufrow"><span class="uf">RR</span>
-<div class="barwrap"><div class="barL"></div>
-<div class="barR"><div class="bar" style="width:49.412000000000006%;background:#2e4a7d"></div></div></div>
-<span class="mg neg2">-44.9</span><span class="ab">23.1%</span></div>
-<div class="leg"><span><span class="sw" style="background:#d53f3f"></span>vantagem Lula</span>
-<span><span class="sw" style="background:#2e4a7d"></span>vantagem Flávio</span>
+<span class="pctL">75.9</span>
+<div class="split"><div class="segL" style="width:75.88%"></div><div class="segR" style="width:24.12%"></div><div class="mk50"></div></div>
+<span class="pctR">24.1</span><span class="ab">17.2%</span></div><div class="ufrow"><span class="uf">BA</span>
+<span class="pctL">71.3</span>
+<div class="split"><div class="segL" style="width:71.31%"></div><div class="segR" style="width:28.69%"></div><div class="mk50"></div></div>
+<span class="pctR">28.7</span><span class="ab">16.7%</span></div><div class="ufrow"><span class="uf">MA</span>
+<span class="pctL">69.5</span>
+<div class="split"><div class="segL" style="width:69.54%"></div><div class="segR" style="width:30.46%"></div><div class="mk50"></div></div>
+<span class="pctR">30.5</span><span class="ab">20.4%</span></div><div class="ufrow"><span class="uf">SE</span>
+<span class="pctL">69.5</span>
+<div class="split"><div class="segL" style="width:69.53%"></div><div class="segR" style="width:30.47%"></div><div class="mk50"></div></div>
+<span class="pctR">30.5</span><span class="ab">15.7%</span></div><div class="ufrow"><span class="uf">PE</span>
+<span class="pctL">69.2</span>
+<div class="split"><div class="segL" style="width:69.2%"></div><div class="segR" style="width:30.8%"></div><div class="mk50"></div></div>
+<span class="pctR">30.8</span><span class="ab">15.2%</span></div><div class="ufrow"><span class="uf">CE</span>
+<span class="pctL">68.9</span>
+<div class="split"><div class="segL" style="width:68.93%"></div><div class="segR" style="width:31.07%"></div><div class="mk50"></div></div>
+<span class="pctR">31.1</span><span class="ab">13.9%</span></div><div class="ufrow"><span class="uf">PB</span>
+<span class="pctL">67.5</span>
+<div class="split"><div class="segL" style="width:67.46%"></div><div class="segR" style="width:32.54%"></div><div class="mk50"></div></div>
+<span class="pctR">32.5</span><span class="ab">15.5%</span></div><div class="ufrow"><span class="uf">RN</span>
+<span class="pctL">65.7</span>
+<div class="split"><div class="segL" style="width:65.72%"></div><div class="segR" style="width:34.28%"></div><div class="mk50"></div></div>
+<span class="pctR">34.3</span><span class="ab">16.1%</span></div><div class="ufrow"><span class="uf">AL</span>
+<span class="pctL">60.8</span>
+<div class="split"><div class="segL" style="width:60.77%"></div><div class="segR" style="width:39.23%"></div><div class="mk50"></div></div>
+<span class="pctR">39.2</span><span class="ab">20.1%</span></div><div class="ufrow"><span class="uf">PA</span>
+<span class="pctL">55.0</span>
+<div class="split"><div class="segL" style="width:55.02%"></div><div class="segR" style="width:44.98%"></div><div class="mk50"></div></div>
+<span class="pctR">45.0</span><span class="ab">20.3%</span></div><div class="ufrow"><span class="uf">AM</span>
+<span class="pctL">54.0</span>
+<div class="split"><div class="segL" style="width:54.02%"></div><div class="segR" style="width:45.98%"></div><div class="mk50"></div></div>
+<span class="pctR">46.0</span><span class="ab">21.7%</span></div><div class="ufrow"><span class="uf">AP</span>
+<span class="pctL">52.9</span>
+<div class="split"><div class="segL" style="width:52.88%"></div><div class="segR" style="width:47.12%"></div><div class="mk50"></div></div>
+<span class="pctR">47.1</span><span class="ab">25.5%</span></div><div class="ufrow"><span class="uf">MG</span>
+<span class="pctL">50.4</span>
+<div class="split"><div class="segL" style="width:50.43%"></div><div class="segR" style="width:49.57%"></div><div class="mk50"></div></div>
+<span class="pctR">49.6</span><span class="ab">20.3%</span></div><div class="ufrow"><span class="uf">TO</span>
+<span class="pctL">48.6</span>
+<div class="split"><div class="segL" style="width:48.63%"></div><div class="segR" style="width:51.37%"></div><div class="mk50"></div></div>
+<span class="pctR">51.4</span><span class="ab">19.2%</span></div><div class="ufrow"><span class="uf">RJ</span>
+<span class="pctL">46.9</span>
+<div class="split"><div class="segL" style="width:46.9%"></div><div class="segR" style="width:53.1%"></div><div class="mk50"></div></div>
+<span class="pctR">53.1</span><span class="ab">21.6%</span></div><div class="ufrow"><span class="uf">SP</span>
+<span class="pctL">46.1</span>
+<div class="split"><div class="segL" style="width:46.15%"></div><div class="segR" style="width:53.85%"></div><div class="mk50"></div></div>
+<span class="pctR">53.9</span><span class="ab">19.8%</span></div><div class="ufrow"><span class="uf">DF</span>
+<span class="pctL">45.7</span>
+<div class="split"><div class="segL" style="width:45.72%"></div><div class="segR" style="width:54.28%"></div><div class="mk50"></div></div>
+<span class="pctR">54.3</span><span class="ab">17.3%</span></div><div class="ufrow"><span class="uf">ES</span>
+<span class="pctL">43.6</span>
+<div class="split"><div class="segL" style="width:43.63%"></div><div class="segR" style="width:56.37%"></div><div class="mk50"></div></div>
+<span class="pctR">56.4</span><span class="ab">19.5%</span></div><div class="ufrow"><span class="uf">RS</span>
+<span class="pctL">42.2</span>
+<div class="split"><div class="segL" style="width:42.16%"></div><div class="segR" style="width:57.84%"></div><div class="mk50"></div></div>
+<span class="pctR">57.8</span><span class="ab">19.2%</span></div><div class="ufrow"><span class="uf">MS</span>
+<span class="pctL">40.4</span>
+<div class="split"><div class="segL" style="width:40.4%"></div><div class="segR" style="width:59.6%"></div><div class="mk50"></div></div>
+<span class="pctR">59.6</span><span class="ab">21.2%</span></div><div class="ufrow"><span class="uf">GO</span>
+<span class="pctL">40.3</span>
+<div class="split"><div class="segL" style="width:40.34%"></div><div class="segR" style="width:59.66%"></div><div class="mk50"></div></div>
+<span class="pctR">59.7</span><span class="ab">20.3%</span></div><div class="ufrow"><span class="uf">PR</span>
+<span class="pctL">37.4</span>
+<div class="split"><div class="segL" style="width:37.42%"></div><div class="segR" style="width:62.58%"></div><div class="mk50"></div></div>
+<span class="pctR">62.6</span><span class="ab">18.0%</span></div><div class="ufrow"><span class="uf">MT</span>
+<span class="pctL">33.9</span>
+<div class="split"><div class="segL" style="width:33.94%"></div><div class="segR" style="width:66.06%"></div><div class="mk50"></div></div>
+<span class="pctR">66.1</span><span class="ab">20.9%</span></div><div class="ufrow"><span class="uf">AC</span>
+<span class="pctL">33.4</span>
+<div class="split"><div class="segL" style="width:33.43%"></div><div class="segR" style="width:66.57%"></div><div class="mk50"></div></div>
+<span class="pctR">66.6</span><span class="ab">26.1%</span></div><div class="ufrow"><span class="uf">SC</span>
+<span class="pctL">30.6</span>
+<div class="split"><div class="segL" style="width:30.58%"></div><div class="segR" style="width:69.42%"></div><div class="mk50"></div></div>
+<span class="pctR">69.4</span><span class="ab">17.0%</span></div><div class="ufrow"><span class="uf">RO</span>
+<span class="pctL">30.4</span>
+<div class="split"><div class="segL" style="width:30.39%"></div><div class="segR" style="width:69.61%"></div><div class="mk50"></div></div>
+<span class="pctR">69.6</span><span class="ab">21.9%</span></div><div class="ufrow"><span class="uf">RR</span>
+<span class="pctL">27.5</span>
+<div class="split"><div class="segL" style="width:27.54%"></div><div class="segR" style="width:72.46%"></div><div class="mk50"></div></div>
+<span class="pctR">72.5</span><span class="ab">23.1%</span></div>
+<div class="leg"><span><span class="sw" style="background:#d53f3f"></span>Lula (% à esquerda)</span>
+<span><span class="sw" style="background:#2e4a7d"></span>Flávio Bolsonaro (% à direita)</span>
+<span>coluna cinza = abstenção na UF</span>
 <span style="margin-left:auto">1º turno (04/10): Flávio 47,03 × Lula 45,16 × outros 7,81 (válidos)</span></div></div>
 
 <footer><strong>ASIF — Family Office Research.</strong> Dados: TSE oficial (resultados.tse.jus.br e Portal de
