@@ -4,41 +4,44 @@
 <title>ASIF — Quadro Eleitoral 2027</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;font-size:13px}
-.header{background:linear-gradient(135deg,#1a1f2e,#0f1117);border-bottom:1px solid #2d3748;
+:root{--page:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;
+ --grid:#e1e0d9;--border:rgba(11,11,11,.10);--ouro:#C9A84C;--navy:#002147}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--page);color:var(--ink);font-size:13px}
+.header{background:var(--surface);border-bottom:2px solid var(--ouro);
  padding:16px 24px;display:flex;align-items:center;gap:16px}
-.asif-badge{background:#C9A84C;color:#002147;font-size:17px;font-weight:900;padding:8px 16px;
+.asif-badge{background:var(--ouro);color:var(--navy);font-size:17px;font-weight:900;padding:8px 16px;
  border-radius:6px;letter-spacing:.14em}
-.header h1{font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.header p{font-size:11px;color:#718096;margin-top:3px}
+.header h1{font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--navy)}
+.header p{font-size:11px;color:var(--muted);margin-top:3px}
 .wrap{max-width:1120px;margin:0 auto;padding:18px 16px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
-.kpi{background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:12px 14px}
-.kpi-label{font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:.05em}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .kpi-value{font-size:22px;font-weight:700;margin-top:4px}
-.kpi-sub{font-size:10px;color:#718096;margin-top:3px}
-.card{background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;padding:18px;margin-top:14px}
-.card h2{font-size:12px;color:#C9A84C;text-transform:uppercase;letter-spacing:.06em;
- margin-bottom:12px;border-bottom:1px solid #2d3748;padding-bottom:7px}
+.kpi-sub{font-size:10px;color:var(--ink2);margin-top:3px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-top:14px}
+.card h2{font-size:12px;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;
+ margin-bottom:12px;border-bottom:2px solid var(--ouro);padding-bottom:7px}
 .duo{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{font-size:9.5px;color:#718096;text-transform:uppercase;padding:4px 8px;text-align:right;
- border-bottom:1px solid #2d3748}
+th{font-size:9.5px;color:var(--muted);text-transform:uppercase;padding:4px 8px;text-align:right;
+ border-bottom:1px solid var(--grid)}
 th:first-child,td:first-child{text-align:left}
-td{padding:3.5px 8px;border-bottom:1px solid #1e2536;text-align:right}
+td{padding:3.5px 8px;border-bottom:1px solid var(--grid);text-align:right;color:var(--ink)}
 td.b{font-weight:700}
-.pos{color:#68d391}.neg{color:#fc8181}.neu{color:#718096}.neg2{color:#8fb0e0}
+.pos{color:#1f7a43}.neg{color:#c6373c}.neu{color:var(--muted)}.neg2{color:#2a5d9e}
 .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}
 .ufrow{display:flex;align-items:center;gap:8px;padding:2.5px 0;font-size:11.5px}
-.uf{width:26px;color:#a0aec0;font-weight:700}
+.uf{width:26px;color:var(--ink2);font-weight:700}
 .barwrap{flex:1;display:flex;height:11px}
 .barL,.barR{width:50%;position:relative}
-.barL{border-right:1px solid #4a5568}
-.bar{height:100%;border-radius:2px;opacity:.85}
+.barL{border-right:1px solid var(--axis,#c3c2b7)}
+.bar{height:100%;border-radius:2px;opacity:.9}
 .mg{width:46px;text-align:right;font-weight:700}
-.ab{width:44px;text-align:right;color:#718096;font-size:10.5px}
-.leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:10.5px;color:#a0aec0}
-footer{font-size:10.5px;color:#4a5568;padding:16px 0;line-height:1.6;max-width:1120px;margin:0 auto;padding-left:16px}
+.ab{width:44px;text-align:right;color:var(--muted);font-size:10.5px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:10.5px;color:var(--ink2)}
+footer{font-size:10.5px;color:var(--muted);padding:16px 0;line-height:1.6;max-width:1120px;margin:0 auto;padding-left:16px}
+footer a{color:#2a78d6}
 @media(max-width:860px){.duo{grid-template-columns:1fr}}
 </style></head><body>
 <div class="header"><div class="asif-badge">ASIF</div>
@@ -56,7 +59,7 @@ footer{font-size:10.5px;color:#4a5568;padding:16px 0;line-height:1.6;max-width:1
   <div class="kpi-value" style="color:#2e4a7d">PL 28</div>
   <div class="kpi-sub">direita 41 de 81 (51%) — maioria absoluta própria</div></div>
  <div class="kpi"><div class="kpi-label">Equação de governo</div>
-  <div class="kpi-value" style="color:#fbd38d">122 / 513</div>
+  <div class="kpi-value" style="color:#9a7b1e">122 / 513</div>
   <div class="kpi-sub">base de esquerda do presidente reeleito na Câmara · maioria 257 · PEC 308 · veto cai com 257+41</div></div>
 </div>
 
@@ -177,6 +180,6 @@ Dados Abertos), 100% totalizado. Cadeiras da Câmara por quociente eleitoral/UF 
 eleito do painel TSE (margem de ±1-2 cadeiras em sobras sob recurso judicial). Senado 2027 = 54 eleitos em 2026 +
 classe de 2022 (filiações da data da eleição; janelas partidárias podem alterar). Material meramente ilustrativo
 e informativo, elaborado a partir de fontes públicas; não constitui recomendação e não nos responsabilizamos por
-qualquer uso. Arquivo do ciclo de pesquisas: <a href="arquivo/painel_pesquisas_final.html" style="color:#63b3ed">
-monitor de pesquisas (jun–out/2026)</a> · <a href="arquivo/metodologia.html" style="color:#63b3ed">metodologia</a>.</footer>
+qualquer uso. Arquivo do ciclo de pesquisas: <a href="arquivo/painel_pesquisas_final.html" style="color:#2a78d6">
+monitor de pesquisas (jun–out/2026)</a> · <a href="arquivo/metodologia.html" style="color:#2a78d6">metodologia</a>.</footer>
 </body></html>
